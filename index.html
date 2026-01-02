@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ski-Simulation V4</title>
+    <style>
+        /* Grundlegendes Styling */
+        body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        canvas { display: block; background: #ffffff; cursor: none; }
+        
+        /* UI-Fenster oben links */
+        .ui { position: absolute; top: 20px; left: 20px; pointer-events: none; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .key-badge { background: #eee; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<div class="ui">
+    <h2 style="margin:0 0 10px 0; color: #333;">Ski-Simulation</h2>
+    <ul style="margin:0; padding-left: 20px; color: #555; font-size: 14px; line-height: 1.6;">
+        <li>Bewegen: <span class="key-badge">Pfeiltasten</span></li>
+        <li>Größer: <span class="key-badge">ö</span> oder <span class="key-badge">+</span></li>
+        <li>Kleiner: <span class="key-badge">ä</span> oder <span class="key-badge">-</span></li>
+    </ul>
+</div>
+<canvas id="skiCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('skiCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Canvas Größe anpassen
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        checkBounds(); // Sicherstellen, dass Spieler im Bild bleibt beim Resize
+    }
+    window.addEventListener('resize', resize);
+
+    // --- BILD LADEN ---
+    const skiSprite = new Image();
+    // Dein Bild muss "image_2.png" heißen
+    skiSprite.src = 'image_2.png'; 
+
+    // Spieler-Objekt
+    let player = {
+        x: 0, 
+        y: 0,
+        width: 100,  
+        height: 100, 
+        speed: 7,    
+        dx: 0,       
+        dy: 0        
+    };
+
+    function init() {
+        resize();
+        // Start in der Mitte
+        player.x = (canvas.width / 2) - (player.width / 2);
+        player.y = (canvas.height / 2) - (player.height / 2);
+    }
+    init();
+
+    // Tasten-Status für Bewegung (Pfeiltasten)
+    const movementKeys = {};
+    
+    window.addEventListener('keydown', (e) => {
+        movementKeys[e.code] = true;
+
+        // --- ZUSATZFUNKTIONEN: Skalieren ---
+        // Wir nutzen e.key, um das Zeichen zu erkennen ('ö', '+', etc.)
+        const step = 10; // Pixel Veränderung pro Tastendruck
+
+        // Vergrößern (ö oder +)
+        if (e.key === 'ö' || e.key === 'Ö' || e.key === '+') {
+            player.width += step;
+            player.height += step;
+        }
+
+        // Verkleinern (ä oder -) - Mindestgröße 20px
+        if (e.key === 'ä' || e.key === 'Ä' || e.key === '-') {
+            if (player.width > 20) {
+                player.width -= step;
+                player.height -= step;
+            }
+        }
+    });
+
+    window.addEventListener('keyup', e => movementKeys[e.code] = false);
+
+    // Hilfsfunktion: Spieler im Bildschirm halten
+    function checkBounds() {
+        if (player.x < 0) player.x = 0;
+        if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
+        if (player.y < 0) player.y = 0;
+        if (player.y > canvas.height - player.height) player.y = canvas.height - player.height;
+    }
+
+    function update() {
+        // Bewegung berechnen
+        if (movementKeys['ArrowLeft']) player.dx = -player.speed;
+        else if (movementKeys['ArrowRight']) player.dx = player.speed;
+        else player.dx *= 0.85; 
+
+        if (movementKeys['ArrowUp']) player.dy = -player.speed;
+        else if (movementKeys['ArrowDown']) player.dy = player.speed;
+        else player.dy *= 0.85; 
+
+        player.x += player.dx;
+        player.y += player.dy;
+
+        checkBounds();
+    }
+
+    function draw() {
+        // 1. Hintergrund (Radialer Verlauf für Schatten-Effekt)
+        let gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 100, canvas.width/2, canvas.height/2, canvas.width);
+        gradient.addColorStop(0, '#ffffff'); 
+        gradient.addColorStop(1, '#ebeff5'); // Sanftes Grau am Rand
+
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. Skifahrer zeichnen
+        if (skiSprite.complete && skiSprite.naturalWidth !== 0) {
+            ctx.save();
+            // Schatten unter dem Skifahrer
+            ctx.shadowColor = 'rgba(0,0,0,0.15)';
+            ctx.shadowBlur = 20;
+            ctx.shadowOffsetY = 15;
+            
+            ctx.drawImage(skiSprite, player.x, player.y, player.width, player.height);
+            ctx.restore();
+        } else {
+            // Fallback (rotes Rechteck), falls Bild fehlt
+            ctx.fillStyle = '#ff4444';
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            ctx.fillStyle = 'white';
+            ctx.font = "12px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText('Bild fehlt', player.x + player.width/2, player.y + player.height/2);
+        }
+
+        requestAnimationFrame(() => {
+            update();
+            draw();
+        });
+    }
+
+    draw();
+</script>
+</body>
+</html>
