@@ -1,20 +1,17 @@
-<!-- Skisim V19 -->
-<!-- Tablet & Touch-Optimierung
+<!-- Skisim V35 -->
+<!-- Fixing Release. 
 
-Das ist eine sehr wichtige Frage! Die bisherige Version funktioniert auf iPads oder Tablets nur eingeschränkt, da diese Geräte keine Tastatur (für die Pfeiltasten) und keine rechte Maustaste haben. Außerdem funktionieren Maus-Events (mousedown) auf Touchscreens oft nicht flüssig oder gar nicht so, wie man es erwartet.
+Das klingt danach, als hätte sich ein Syntax-Fehler in die SVG-Definitionen eingeschlichen oder der Lade-Vorgang (Preloader) ist hängen geblieben. Wenn eines der Bilder nicht sauber geladen wird, wartet das Spiel unendlich lange und startet nicht – deshalb bleibt der Canvas grau (die Hintergrundfarbe der Webseite) und leer.
 
-Damit die App auf dem iPad/Tablet richtig Spaß macht, müssen wir zwei Dinge tun:
+Hier ist Version 35 (Emergency Fix).
 
-Touch-Events für Drag & Drop: Damit man die Skifahrer mit dem Finger verschieben kann.
+Die Reparaturen:
+Robuster Preloader: Ich habe eine Sicherung eingebaut (onerror). Wenn ein Bild aus irgendeinem Grund nicht lädt, ignoriert das Spiel den Fehler und startet trotzdem (notfalls mit Platzhaltern), anstatt hängen zu bleiben.
 
-On-Screen-Steuerung (Gamepad): Da wir keine Tastatur haben, brauchen wir Buttons auf dem Bildschirm zum Fahren, Drehen und Zoomen.
+Code-Bereinigung: Die SVG-Strings wurden bereinigt, um sicherzustellen, dass keine unsichtbaren Zeilenumbrüche den Code kaputt machen.
 
-Hier ist die Version 19, die vollständig Touch-optimiert ist (aber weiterhin am PC funktioniert).
+Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Rechteck) ist jetzt korrekt und syntax-sicher enthalten.
 
-Das ist neu:
-Touch-Drag: Du kannst die Skifahrer mit dem Finger antippen und verschieben.
-
-Bildschirm-Steuerung: Unten gibt es jetzt Buttons für Links/Rechts/Oben/Unten, Drehen und Zoom.
 -->
 
 
@@ -23,178 +20,312 @@ Bildschirm-Steuerung: Unten gibt es jetzt Buttons für Links/Rechts/Oben/Unten, 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V19 (Touch & Tablet)</title>
+    <title>Ski-Simulation V35 (Fix & Shape)</title>
     <style>
-        /* Wichtig: user-scalable=no im meta tag und touch-action: none verhindern Scrollen/Zoomen durch den Browser */
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+        
+        /* Canvas explizit weiß setzen, falls JS abstürzt */
         canvas { display: block; background: #ffffff; touch-action: none; }
         
-        .ui { position: absolute; top: 20px; left: 20px; pointer-events: none; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 250px; }
+        .ui { 
+            position: absolute; top: 20px; left: 20px; pointer-events: none; 
+            background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 280px; z-index: 20; 
+        }
         .key-badge { background: #eee; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-family: monospace; }
-        li { margin-bottom: 5px; font-size: 13px; color: #555; }
-        h2 { margin: 0 0 10px 0; color: #333; font-size: 18px; }
+        li { margin-bottom: 8px; font-size: 14px; color: #555; line-height: 1.4; }
+        h2 { margin: 0 0 15px 0; color: #333; font-size: 20px; }
+        #saveBtn { 
+            margin-top: 15px; padding: 12px; cursor: pointer; background: #f8f9fa; 
+            border: 1px solid #dee2e6; border-radius: 6px; width: 100%; pointer-events: auto; 
+            font-size: 14px; font-weight: bold; color: #333;
+        }
+        #saveBtn:active { background: #e2e6ea; }
 
-        #saveBtn {
-            margin-top: 10px; padding: 8px; cursor: pointer; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; width: 100%; pointer-events: auto;
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; z-index: 9999; display: flex; justify-content: center; align-items: center;
+            font-size: 24px; color: #333;
         }
 
-        /* --- TOUCH CONTROLS (Gamepad) --- */
-        #gamepad {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-            pointer-events: none; /* Damit man durch die Lücken klicken kann */
-            align-items: flex-end;
+        #dock {
+            position: absolute; top: 20px; right: 20px; width: 90px;
+            background: rgba(255,255,255,0.9); border-radius: 12px; padding: 15px 10px;
+            display: flex; flex-direction: column; gap: 20px; align-items: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 20;
+            transition: background 0.2s, transform 0.2s;
+        }
+        #dock:hover { background: rgba(255,255,255,1); transform: scale(1.02); }
+
+        .dock-title { font-size: 13px; font-weight: bold; color: #555; text-align: center; margin-bottom: 5px; }
+        .dock-item {
+            width: 70px; height: 70px;
+            border: 2px dashed #ccc; border-radius: 10px;
+            cursor: grab; display: flex; justify-content: center; align-items: center;
+            background: #f9f9f9; touch-action: none; position: relative;
+        }
+        .dock-item:active { cursor: grabbing; border-color: #00bfff; background: #eef; }
+        .dock-item img { pointer-events: none; width: 100%; height: 100%; object-fit: contain; }
+        .color-box { width: 40px !important; height: 50px !important; display: block; margin: auto; border: 1px solid #999; }
+
+        #ghost-drag {
+            position: absolute; pointer-events: none; opacity: 0.8; z-index: 100;
+            display: none; width: 80px; height: 80px; object-fit: contain;
         }
 
-        .control-group {
-            background: rgba(255,255,255,0.8);
-            padding: 10px;
-            border-radius: 15px;
-            pointer-events: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
+        #gamepad { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: none; align-items: flex-end; z-index: 20; }
+        .control-group { background: rgba(255,255,255,0.8); padding: 10px; border-radius: 15px; pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .btn-row { display: flex; gap: 5px; }
-
-        button.touch-btn {
-            width: 45px;
-            height: 45px;
-            border: 1px solid #ccc;
-            background: white;
-            border-radius: 8px;
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            cursor: pointer;
-            touch-action: manipulation;
-            user-select: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        button.touch-btn { width: 45px; height: 45px; border: 1px solid #ccc; background: white; border-radius: 8px; font-size: 20px; font-weight: bold; color: #333; cursor: pointer; touch-action: manipulation; user-select: none; display: flex; justify-content: center; align-items: center; }
         button.touch-btn:active { background: #00bfff; color: white; border-color: #0099cc; }
         
-        /* Verstecke Text auf kleinen Handys, falls nötig */
         @media (max-height: 500px) { .ui { display: none; } }
     </style>
 </head>
 <body>
 
 <div class="ui">
-    <h2>Ski-Simulation 2026</h2>
+    <h2>Ski-Simulation</h2>
     <ul style="margin:0; padding-left: 20px;">
-        <li><strong>Tippen:</strong> Skifahrer wählen</li>
-        <li><strong>Ziehen:</strong> Verschieben</li>
-        <li><strong>Tasten/Touch:</strong> Steuern</li>
+        <li><strong>Garage (rechts):</strong> Ziehe weitere Objekte von hier auf die Piste (und zurück).</li>
+        <li><strong>Aktivieren:</strong> Klicke ein Objekt an, um es zu steuern (blauer Ring).</li>
+        <li><strong>Verschieben:</strong> Halte die linke Maustaste gedrückt (oder Touch).</li>
+        <li><strong>Drehen:</strong> Rechte Maustaste halten oder Tasten <span class="key-badge">ö</span> / <span class="key-badge">ä</span>.</li>
+        <li><strong>Zoomen:</strong> Mausrad oder Tasten <span class="key-badge">+</span> / <span class="key-badge">-</span>.</li>
+        <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span> (bei mehreren Objekten).</li>
     </ul>
-    <button id="saveBtn">📸 Speichern</button>
+    <button id="saveBtn">📸 Bild speichern</button>
 </div>
+
+<div id="dock">
+    <div class="dock-title">Garage</div>
+</div>
+
+<img id="ghost-drag" src="" alt="box">
 
 <div id="gamepad">
     <div class="control-group">
         <span style="font-size:10px; color:#777">Zoom</span>
-        <div class="btn-row">
-            <button class="touch-btn" id="btnZoomIn">+</button>
-            <button class="touch-btn" id="btnZoomOut">-</button>
-        </div>
+        <div class="btn-row"><button class="touch-btn" id="btnZoomIn">+</button><button class="touch-btn" id="btnZoomOut">-</button></div>
         <span style="font-size:10px; color:#777; margin-top:5px">Drehen</span>
-        <div class="btn-row">
-            <button class="touch-btn" id="btnRotLeft">↺</button>
-            <button class="touch-btn" id="btnRotRight">↻</button>
-        </div>
+        <div class="btn-row"><button class="touch-btn" id="btnRotLeft">↺</button><button class="touch-btn" id="btnRotRight">↻</button></div>
     </div>
-
     <div class="control-group">
         <button class="touch-btn" id="btnUp">▲</button>
-        <div class="btn-row">
-            <button class="touch-btn" id="btnLeft">◀</button>
-            <button class="touch-btn" id="btnDown">▼</button>
-            <button class="touch-btn" id="btnRight">▶</button>
-        </div>
+        <div class="btn-row"><button class="touch-btn" id="btnLeft">◀</button><button class="touch-btn" id="btnDown">▼</button><button class="touch-btn" id="btnRight">▶</button></div>
     </div>
 </div>
 
 <canvas id="skiCanvas"></canvas>
 
 <script>
-    const canvas = document.getElementById('skiCanvas');
-    const ctx = canvas.getContext('2d');
-    const saveBtn = document.getElementById('saveBtn');
+    // --- 0. ASSET DEFINITION ---
+    // Bereinigte SVG Strings (keine Umbrüche, um Fehler zu vermeiden)
+    
+    // Skifahrer Blau: Körper 40x34, abgerundet
+    const STR_SKI_BLUE = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)"/><rect x="25" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="63" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="18" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#3399ff"/><circle cx="78" cy="50" r="5" fill="#3399ff"/></svg>`;
 
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        if(typeof players !== 'undefined') players.forEach(p => checkBounds(p));
-    }
-    window.addEventListener('resize', resize);
+    // Skifahrer Grün: Körper 40x34, abgerundet
+    const STR_SKI_GREEN = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)"/><rect x="25" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="63" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#32CD32" stroke="#228B22" stroke-width="2"/><circle cx="50" cy="50" r="18" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#32CD32"/><circle cx="78" cy="50" r="5" fill="#32CD32"/></svg>`;
 
-    // --- SVG ---
-    function getSvgString(bodyColor) {
-        return `
-        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
-            <ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)" />
-            <rect x="25" y="5" width="12" height="90" rx="5" fill="#333" />
-            <rect x="63" y="5" width="12" height="90" rx="5" fill="#333" />
-            <circle cx="50" cy="50" r="28" fill="${bodyColor}" stroke="rgba(0,0,0,0.2)" stroke-width="2"/>
-            <circle cx="50" cy="50" r="18" fill="#808080" />
-            <rect x="38" y="42" width="24" height="10" rx="3" fill="#333" />
-            <rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb" />
-            <line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/>
-            <line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/>
-            <circle cx="22" cy="50" r="5" fill="${bodyColor}" />
-            <circle cx="78" cy="50" r="5" fill="${bodyColor}" />
-        </svg>`;
-    }
+    // Snowboarder
+    const STR_BOARDER = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="35" ry="12" fill="rgba(0,0,0,0.2)"/><path d="M 5 38 Q 50 34 95 38 L 98 40 Q 102 50 98 60 L 95 62 Q 50 66 5 62 L 2 60 Q -2 50 2 40 Z" fill="#81ae98" stroke="#5a7a6a" stroke-width="1"/><rect x="15" y="40" width="12" height="20" rx="4" fill="#222"/><rect x="73" y="40" width="12" height="20" rx="4" fill="#222"/><ellipse cx="50" cy="50" rx="22" ry="14" fill="#b83dba" stroke="#8a2e8c" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="38" width="24" height="8" rx="3" fill="#333"/><rect x="40" y="39" width="20" height="6" rx="2" fill="#87ceeb"/><path d="M 28 50 L 15 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M 72 50 L 85 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><circle cx="15" cy="48" r="6" fill="#111"/><circle cx="85" cy="48" r="6" fill="#111"/></svg>`;
+    
+    // Nadelbaum
+    const STR_TREE = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 5 L65 20 L95 15 L80 50 L90 85 L65 80 L50 95 L35 80 L10 85 L20 50 L5 15 L35 20 Z" fill="#0a2915" stroke="#051f0e" stroke-width="1" stroke-linejoin="round"/><path d="M50 12 L58 35 L85 28 L70 48 L92 68 L65 65 L50 92 L35 65 L8 68 L30 48 L15 28 L42 35 Z" fill="#1a472a" stroke="#0e2b18" stroke-width="1" stroke-linejoin="round" transform="rotate(5 50 50)"/><path d="M50 22 L60 40 L82 38 L68 52 L80 72 L50 68 L20 72 L32 52 L18 38 L40 40 Z" fill="#2e7d32" stroke="#1b5e20" stroke-width="1" stroke-linejoin="round" transform="rotate(20 50 50)"/><path d="M50 32 L58 45 L75 42 L62 55 L70 72 L50 65 L30 72 L38 55 L25 42 L42 45 Z" fill="#4caf50" stroke="#388e3c" stroke-width="1" stroke-linejoin="round" transform="rotate(-10 50 50)"/><circle cx="50" cy="50" r="5" fill="#81c784"/></svg>`;
 
-    const spriteBlue = new Image(); spriteBlue.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(getSvgString('#3399ff'));
-    const spriteGreen = new Image(); spriteGreen.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(getSvgString('#32CD32')); 
+    // Helper für Encoding
+    function svgToData(str) { return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(str); }
 
-    let players = [
-        { x: 0, y: 0, width: 100, height: 100, speed: 7, dx: 0, dy: 0, rotation: 0, sprite: spriteBlue, id: 1 },
-        { x: 0, y: 0, width: 100, height: 100, speed: 7, dx: 0, dy: 0, rotation: 0, sprite: spriteGreen, id: 2 }
+    const ASSETS = {
+        skiBlue: new Image(),
+        skiGreen: new Image(),
+        boarder: new Image(),
+        tree: new Image()
+    };
+
+    const TEMPLATES = [
+        { type: 'sprite', assetKey: 'skiBlue', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiGreen', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'boarder', width: 100, height: 100, rotation: 90 },
+        { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
+        { type: 'rect', color: '#808080', width: 80, height: 120, rotation: 0 }
     ];
 
+    // --- 1. SYSTEM INIT ---
+    const canvas = document.getElementById('skiCanvas');
+    const ctx = canvas.getContext('2d');
+    const dockContainer = document.getElementById('dock');
+    const ghostDrag = document.getElementById('ghost-drag');
+    const loader = document.getElementById('loader');
+
+    let activeObjects = []; 
+    let dockedObjects = []; 
     let activePlayerIndex = 0; 
+
+    // Status
     let draggingPlayerIndex = -1; 
     let rotatingPlayerIndex = -1;
     let dragOffset = { x: 0, y: 0 };
+    
+    // Snap
     let isSnapping = false;
     let snappingPlayerIndex = -1;
     let targetRotation = 0;
 
-    // Virtuelle Tasten-Status
-    const movementKeys = {
-        ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false,
-        RotateLeft: false, RotateRight: false, ZoomIn: false, ZoomOut: false
-    };
+    // Drag from Dock
+    let dragFromDockItem = null; 
 
-    function init() {
-        resize();
-        const startY = (canvas.height / 2) - 50;
-        players[0].x = (canvas.width / 2) - 150;
-        players[0].y = startY;
-        players[1].x = (canvas.width / 2) + 50;
-        players[1].y = startY;
-    }
-    init();
-
-    // --- HELPER ---
-    function getPlayerUnderMouse(mx, my) {
-        for (let i = players.length - 1; i >= 0; i--) {
-            const p = players[i];
-            if (mx > p.x && mx < p.x + p.width && my > p.y && my < p.y + p.height) return i;
+    // Preloader (Robuster Fix)
+    function preloadAssets(callback) {
+        let count = 0;
+        const total = 4;
+        
+        function onAssetReady() {
+            count++;
+            if (count === total) callback();
         }
-        return -1;
+
+        // Handler definieren
+        ASSETS.skiBlue.onload = onAssetReady;
+        ASSETS.skiBlue.onerror = onAssetReady; // Weiter, auch bei Fehler!
+        
+        ASSETS.skiGreen.onload = onAssetReady;
+        ASSETS.skiGreen.onerror = onAssetReady;
+
+        ASSETS.boarder.onload = onAssetReady;
+        ASSETS.boarder.onerror = onAssetReady;
+
+        ASSETS.tree.onload = onAssetReady;
+        ASSETS.tree.onerror = onAssetReady;
+
+        // Quellen zuweisen (startet Laden)
+        ASSETS.skiBlue.src = svgToData(STR_SKI_BLUE);
+        ASSETS.skiGreen.src = svgToData(STR_SKI_GREEN);
+        ASSETS.boarder.src = svgToData(STR_BOARDER);
+        ASSETS.tree.src = svgToData(STR_TREE);
     }
-    
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        activeObjects.forEach(p => checkBounds(p));
+    }
+    window.addEventListener('resize', resize);
+
+    function startGame() {
+        loader.style.display = 'none';
+        resize();
+        
+        // Initial-Objekte
+        activeObjects.push(createObject(TEMPLATES[0], canvas.width/2 - 50, canvas.height/2 - 50));
+        dockedObjects = [ TEMPLATES[1], TEMPLATES[2], TEMPLATES[3], TEMPLATES[4] ];
+        
+        renderDock();
+        requestAnimationFrame(drawLoop);
+    }
+
+    function createObject(tpl, x, y) {
+        let obj = {
+            type: tpl.type,
+            x: x, y: y,
+            width: tpl.width, height: tpl.height,
+            rotation: tpl.rotation,
+            speed: 7, dx: 0, dy: 0
+        };
+        if(tpl.type === 'sprite') obj.assetKey = tpl.assetKey; 
+        else obj.color = tpl.color;
+        return obj;
+    }
+
+    // --- 2. DOCK UI ---
+    function renderDock() {
+        dockContainer.innerHTML = '<div class="dock-title">Garage</div>';
+        dockedObjects.forEach((tpl, index) => {
+            const el = document.createElement('div');
+            el.className = 'dock-item';
+            
+            if (tpl.type === 'sprite') {
+                const img = document.createElement('img');
+                img.src = ASSETS[tpl.assetKey].src;
+                el.appendChild(img);
+            } else {
+                const box = document.createElement('div');
+                box.className = 'color-box';
+                box.style.background = tpl.color;
+                el.appendChild(box);
+            }
+
+            const startHandler = (e) => handleDockDragStart(e, tpl, index);
+            el.addEventListener('mousedown', startHandler);
+            el.addEventListener('touchstart', startHandler, {passive: false});
+            dockContainer.appendChild(el);
+        });
+    }
+
+    // --- 3. DOCK DRAG ---
+    function handleDockDragStart(e, tpl, index) {
+        e.preventDefault();
+        dragFromDockItem = { tpl: tpl, index: index };
+        
+        if (tpl.type === 'sprite') {
+            ghostDrag.src = ASSETS[tpl.assetKey].src;
+            ghostDrag.style.background = 'transparent';
+        } else {
+            ghostDrag.src = '';
+            ghostDrag.style.backgroundColor = tpl.color;
+        }
+        
+        ghostDrag.style.display = 'block';
+        moveGhost(getClientPos(e));
+        
+        document.addEventListener('mousemove', handleDockDragMove);
+        document.addEventListener('touchmove', handleDockDragMove, {passive: false});
+        document.addEventListener('mouseup', handleDockDragEnd);
+        document.addEventListener('touchend', handleDockDragEnd);
+    }
+
+    function getClientPos(e) {
+        if(e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        return { x: e.clientX, y: e.clientY };
+    }
+
+    function moveGhost(pos) {
+        ghostDrag.style.left = (pos.x - 40) + 'px';
+        ghostDrag.style.top = (pos.y - 40) + 'px';
+    }
+
+    function handleDockDragMove(e) {
+        if (!dragFromDockItem) return;
+        e.preventDefault();
+        moveGhost(getClientPos(e));
+    }
+
+    function handleDockDragEnd(e) {
+        document.removeEventListener('mousemove', handleDockDragMove);
+        document.removeEventListener('touchmove', handleDockDragMove);
+        document.removeEventListener('mouseup', handleDockDragEnd);
+        document.removeEventListener('touchend', handleDockDragEnd);
+        
+        ghostDrag.style.display = 'none';
+
+        if (!dragFromDockItem) return;
+
+        let pos = getClientPos(e);
+        if (e.changedTouches && e.changedTouches.length > 0) pos = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+
+        if (pos.x < window.innerWidth - 120) {
+            const newObj = createObject(dragFromDockItem.tpl, pos.x - 50, pos.y - 50);
+            activeObjects.push(newObj);
+            dockedObjects.splice(dragFromDockItem.index, 1);
+            renderDock();
+            activePlayerIndex = activeObjects.length - 1;
+        }
+        dragFromDockItem = null;
+    }
+
+
+    // --- 4. GAME LOGIC ---
     function checkBounds(p) {
         if (p.x < 0) p.x = 0;
         if (p.x > canvas.width - p.width) p.x = canvas.width - p.width;
@@ -214,22 +345,23 @@ Bildschirm-Steuerung: Unten gibt es jetzt Buttons für Links/Rechts/Oben/Unten, 
         }
     }
 
-    // --- UNIFIED INPUT HANDLING (Mouse & Touch) ---
-    
+    function getPlayerUnderMouse(mx, my) {
+        for (let i = activeObjects.length - 1; i >= 0; i--) {
+            const p = activeObjects[i];
+            if (mx > p.x && mx < p.x + p.width && my > p.y && my < p.y + p.height) return i;
+        }
+        return -1;
+    }
+
     function handleStart(x, y, isRightClick) {
         const idx = getPlayerUnderMouse(x, y);
         if (idx !== -1) {
-            const p = players[idx];
-            activePlayerIndex = idx; // Fokus setzen
-            
+            const p = activeObjects[idx];
+            activePlayerIndex = idx; 
             if (isRightClick) {
-                rotatingPlayerIndex = idx;
-                isSnapping = false;
+                rotatingPlayerIndex = idx; isSnapping = false;
             } else {
-                draggingPlayerIndex = idx;
-                dragOffset.x = x - p.x;
-                dragOffset.y = y - p.y;
-                p.dx = 0; p.dy = 0;
+                draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0;
             }
             return true;
         }
@@ -237,24 +369,55 @@ Bildschirm-Steuerung: Unten gibt es jetzt Buttons für Links/Rechts/Oben/Unten, 
     }
 
     function handleMove(x, y) {
-        // Cursor
         const idx = getPlayerUnderMouse(x, y);
         if (draggingPlayerIndex !== -1) canvas.style.cursor = 'grabbing';
         else if (idx !== -1) canvas.style.cursor = 'grab';
         else canvas.style.cursor = 'default';
 
         if (draggingPlayerIndex !== -1) {
-            const p = players[draggingPlayerIndex];
+            const p = activeObjects[draggingPlayerIndex];
             p.x = x - dragOffset.x;
             p.y = y - dragOffset.y;
             checkBounds(p);
         }
     }
 
-    function handleEnd(isRightClick) {
+    function handleEnd(e) {
+        let mx = e.clientX;
+        let my = e.clientY;
+        if (e.changedTouches && e.changedTouches.length > 0) {
+            mx = e.changedTouches[0].clientX;
+            my = e.changedTouches[0].clientY;
+        }
+        const isRightClick = (e.button === 2);
+
+        // 1. DOCK DROP
+        if (draggingPlayerIndex !== -1) {
+            const dockRect = dockContainer.getBoundingClientRect();
+            if (mx >= dockRect.left - 20 && mx <= dockRect.right + 20 &&
+                my >= dockRect.top - 20 && my <= dockRect.bottom + 20) {
+                
+                const p = activeObjects[draggingPlayerIndex];
+                let newDockItem = {
+                    type: p.type, width: p.width, height: p.height,
+                    rotation: (p.type==='sprite' && p.assetKey==='boarder') ? 90 : 0 
+                };
+                if(p.type === 'sprite') newDockItem.assetKey = p.assetKey;
+                else newDockItem.color = p.color;
+
+                dockedObjects.push(newDockItem);
+                activeObjects.splice(draggingPlayerIndex, 1);
+                renderDock();
+                draggingPlayerIndex = -1;
+                activePlayerIndex = 0; 
+                return; 
+            }
+        }
+
+        // 2. REGULAR DROP
         draggingPlayerIndex = -1;
         if (isRightClick && rotatingPlayerIndex !== -1) {
-            const p = players[rotatingPlayerIndex];
+            const p = activeObjects[rotatingPlayerIndex];
             const gridSize = 15;
             let nextSnap = Math.ceil(p.rotation / gridSize) * gridSize;
             targetRotation = nextSnap;
@@ -264,82 +427,41 @@ Bildschirm-Steuerung: Unten gibt es jetzt Buttons für Links/Rechts/Oben/Unten, 
         }
     }
 
-    // MOUSE EVENTS
+    // Listeners
     canvas.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY, e.button === 2));
     canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
-    window.addEventListener('mouseup', e => handleEnd(e.button === 2));
+    window.addEventListener('mouseup', e => handleEnd(e));
     canvas.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
-    canvas.addEventListener('wheel', e => {
-        e.preventDefault();
-        performZoom(players[activePlayerIndex], e.deltaY < 0 ? 1 : -1, 5);
-    }, { passive: false });
+    canvas.addEventListener('wheel', e => { e.preventDefault(); if(activeObjects.length) performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1 : -1, 5); }, { passive: false });
+    canvas.addEventListener('touchstart', e => { if(e.target === canvas) e.preventDefault(); handleStart(e.touches[0].clientX, e.touches[0].clientY, false); }, { passive: false });
+    canvas.addEventListener('touchmove', e => { if(e.target === canvas) e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+    canvas.addEventListener('touchend', e => { handleEnd(e); });
 
-    // TOUCH EVENTS (für Drag & Drop auf Canvas)
-    canvas.addEventListener('touchstart', e => {
-        // Verhindert Scrollen
-        if(e.target === canvas) e.preventDefault();
-        const touch = e.touches[0];
-        handleStart(touch.clientX, touch.clientY, false);
-    }, { passive: false });
-
-    canvas.addEventListener('touchmove', e => {
-        if(e.target === canvas) e.preventDefault();
-        const touch = e.touches[0];
-        handleMove(touch.clientX, touch.clientY);
-    }, { passive: false });
-
-    canvas.addEventListener('touchend', e => {
-        handleEnd(false);
-    });
-
-    // --- SCREENSHOT ---
-    saveBtn.addEventListener('click', () => {
-        const link = document.createElement('a');
-        link.download = `ski-sim-${Date.now()}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-    });
-
-    // --- TOUCH CONTROLS (BUTTONS) LOGIK ---
-    // Funktion um Buttons mit MovementKeys zu verknüpfen
+    // Keys & Buttons
+    const movementKeys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, RotateLeft: false, RotateRight: false, ZoomIn: false, ZoomOut: false };
     function bindTouchBtn(id, keyName) {
         const btn = document.getElementById(id);
         const startAction = (e) => { e.preventDefault(); movementKeys[keyName] = true; };
         const endAction = (e) => { e.preventDefault(); movementKeys[keyName] = false; };
-        
-        btn.addEventListener('mousedown', startAction);
-        btn.addEventListener('mouseup', endAction);
-        btn.addEventListener('mouseleave', endAction);
-        btn.addEventListener('touchstart', startAction, {passive:false});
-        btn.addEventListener('touchend', endAction, {passive:false});
+        btn.addEventListener('mousedown', startAction); btn.addEventListener('mouseup', endAction); btn.addEventListener('mouseleave', endAction);
+        btn.addEventListener('touchstart', startAction, {passive:false}); btn.addEventListener('touchend', endAction, {passive:false});
     }
+    bindTouchBtn('btnUp', 'ArrowUp'); bindTouchBtn('btnDown', 'ArrowDown'); bindTouchBtn('btnLeft', 'ArrowLeft'); bindTouchBtn('btnRight', 'ArrowRight');
+    bindTouchBtn('btnRotLeft', 'RotateLeft'); bindTouchBtn('btnRotRight', 'RotateRight'); bindTouchBtn('btnZoomIn', 'ZoomIn'); bindTouchBtn('btnZoomOut', 'ZoomOut');
 
-    bindTouchBtn('btnUp', 'ArrowUp');
-    bindTouchBtn('btnDown', 'ArrowDown');
-    bindTouchBtn('btnLeft', 'ArrowLeft');
-    bindTouchBtn('btnRight', 'ArrowRight');
-    bindTouchBtn('btnRotLeft', 'RotateLeft');
-    bindTouchBtn('btnRotRight', 'RotateRight');
-    bindTouchBtn('btnZoomIn', 'ZoomIn');
-    bindTouchBtn('btnZoomOut', 'ZoomOut');
-
-
-    // --- KEYBOARD ---
     window.addEventListener('keydown', (e) => {
-        if (e.key === 's' || e.key === 'S') { saveBtn.click(); return; }
-        if (e.code === 'Tab') {
-            e.preventDefault();
-            activePlayerIndex = (activePlayerIndex + 1) % players.length;
-            return;
+        if (e.key === 's' || e.key === 'S') { document.getElementById('saveBtn').click(); return; }
+        if (e.code === 'Tab') { 
+            e.preventDefault(); 
+            if(activeObjects.length > 1) activePlayerIndex = (activePlayerIndex + 1) % activeObjects.length; 
+            return; 
         }
         if(movementKeys.hasOwnProperty(e.code)) movementKeys[e.code] = true;
-        // Map old keys
         if (e.key === 'ö' || e.key === 'Ö') movementKeys['RotateLeft'] = true;
         if (e.key === 'ä' || e.key === 'Ä') movementKeys['RotateRight'] = true;
         if (e.key === '+') movementKeys['ZoomIn'] = true;
         if (e.key === '-') movementKeys['ZoomOut'] = true;
     });
-
     window.addEventListener('keyup', (e) => {
         if(movementKeys.hasOwnProperty(e.code)) movementKeys[e.code] = false;
         if (e.key === 'ö' || e.key === 'Ö') movementKeys['RotateLeft'] = false;
@@ -348,69 +470,68 @@ Bildschirm-Steuerung: Unten gibt es jetzt Buttons für Links/Rechts/Oben/Unten, 
         if (e.key === '-') movementKeys['ZoomOut'] = false;
     });
 
+    document.getElementById('saveBtn').addEventListener('click', () => {
+        const link = document.createElement('a'); 
+        link.download = `ski-sim-${Date.now()}.png`; 
+        link.href = canvas.toDataURL("image/png"); 
+        link.click();
+    });
 
-    // --- GAME LOOP ---
+    // --- LOOP ---
     function update() {
-        // Manuelle Rotation (Rechtsklick Maus)
-        if (rotatingPlayerIndex !== -1) players[rotatingPlayerIndex].rotation += 3;
-        
-        // Snap
+        if(activeObjects.length === 0) return;
+        if (activePlayerIndex >= activeObjects.length) activePlayerIndex = 0;
+
+        if (rotatingPlayerIndex !== -1) activeObjects[rotatingPlayerIndex].rotation += 3;
         if (isSnapping && snappingPlayerIndex !== -1) {
-            const p = players[snappingPlayerIndex];
-            let diff = targetRotation - p.rotation;
-            if (diff <= 0) { p.rotation = targetRotation; isSnapping = false; snappingPlayerIndex = -1; }
-            else { p.rotation += (diff < 3 ? diff : 3); }
+            const p = activeObjects[snappingPlayerIndex]; let diff = targetRotation - p.rotation;
+            if (diff <= 0) { p.rotation = targetRotation; isSnapping = false; snappingPlayerIndex = -1; } else { p.rotation += (diff < 3 ? diff : 3); }
         }
 
-        // Steuerung aktiver Spieler (Tastatur ODER Touch-Buttons)
-        const activeP = players[activePlayerIndex];
-        // Nur bewegen, wenn nicht gedraggt wird
+        const activeP = activeObjects[activePlayerIndex];
         if (draggingPlayerIndex !== activePlayerIndex) {
-            // Fahren
-            if (movementKeys['ArrowLeft']) activeP.dx = -activeP.speed;
-            else if (movementKeys['ArrowRight']) activeP.dx = activeP.speed;
-            else activeP.dx *= 0.85; 
-
-            if (movementKeys['ArrowUp']) activeP.dy = -activeP.speed;
-            else if (movementKeys['ArrowDown']) activeP.dy = activeP.speed;
-            else activeP.dy *= 0.85; 
-
-            activeP.x += activeP.dx;
-            activeP.y += activeP.dy;
-
-            // Drehen (Keys/Buttons)
-            if (movementKeys['RotateLeft']) activeP.rotation -= 3;
-            if (movementKeys['RotateRight']) activeP.rotation += 3;
-
-            // Zoom (Keys/Buttons)
-            if (movementKeys['ZoomIn']) performZoom(activeP, 1, 3);
-            if (movementKeys['ZoomOut']) performZoom(activeP, -1, 3);
-
+            if (movementKeys['ArrowLeft']) activeP.dx = -activeP.speed; else if (movementKeys['ArrowRight']) activeP.dx = activeP.speed; else activeP.dx *= 0.85; 
+            if (movementKeys['ArrowUp']) activeP.dy = -activeP.speed; else if (movementKeys['ArrowDown']) activeP.dy = activeP.speed; else activeP.dy *= 0.85; 
+            activeP.x += activeP.dx; activeP.y += activeP.dy;
+            if (movementKeys['RotateLeft']) activeP.rotation -= 3; if (movementKeys['RotateRight']) activeP.rotation += 3;
+            if (movementKeys['ZoomIn']) performZoom(activeP, 1, 3); if (movementKeys['ZoomOut']) performZoom(activeP, -1, 3);
             checkBounds(activeP);
         }
     }
 
-    function draw() {
+    function drawLoop() {
+        update();
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         let gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 100, canvas.width/2, canvas.height/2, canvas.width);
-        gradient.addColorStop(0, '#ffffff'); gradient.addColorStop(1, '#ebeff5'); 
+        gradient.addColorStop(0, 'rgba(255,255,255,0.2)'); gradient.addColorStop(1, '#ebeff5'); 
         ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        players.forEach((p, index) => {
-            if (p.sprite.complete) {
-                ctx.save(); 
-                ctx.translate(p.x + p.width/2, p.y + p.height/2);
-                if (index === activePlayerIndex) {
-                    ctx.beginPath(); ctx.arc(0, 0, Math.max(p.width, p.height)/1.5, 0, Math.PI*2);
-                    ctx.strokeStyle = '#00bfff'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke();
-                }
-                ctx.rotate(p.rotation * Math.PI / 180);
-                ctx.drawImage(p.sprite, -p.width/2, -p.height/2, p.width, p.height);
-                ctx.restore(); 
+        activeObjects.forEach((p, index) => {
+            ctx.save(); 
+            ctx.translate(p.x + p.width/2, p.y + p.height/2);
+            if (activeObjects.length > 1 && index === activePlayerIndex) {
+                ctx.beginPath(); 
+                const radius = Math.max(p.width, p.height) / 1.4;
+                ctx.arc(0, 0, radius, 0, Math.PI*2);
+                ctx.strokeStyle = '#00bfff'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke();
             }
+            ctx.rotate(p.rotation * Math.PI / 180);
+            if (p.type === 'sprite') {
+                const img = ASSETS[p.assetKey];
+                if (img && img.complete && img.naturalHeight !== 0) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height);
+                else { ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
+            } else if (p.type === 'rect') {
+                ctx.fillStyle = p.color;
+                ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5;
+                ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height);
+            }
+            ctx.restore(); 
         });
-        requestAnimationFrame(() => { update(); draw(); });
+        requestAnimationFrame(drawLoop);
     }
-    draw();
+
+    preloadAssets(startGame);
+
 </script>
 </body>
 </html>
