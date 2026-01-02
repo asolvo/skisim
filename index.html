@@ -1,17 +1,20 @@
-<!-- Skisim V35 -->
-<!-- Fixing Release. 
+<!-- Skisim V36 -->
+<!-- Stable V33 Base + Skifahrer Body Fix 
 
-Das klingt danach, als hätte sich ein Syntax-Fehler in die SVG-Definitionen eingeschlichen oder der Lade-Vorgang (Preloader) ist hängen geblieben. Wenn eines der Bilder nicht sauber geladen wird, wartet das Spiel unendlich lange und startet nicht – deshalb bleibt der Canvas grau (die Hintergrundfarbe der Webseite) und leer.
+Offenbar haben die Versuche, den SVG-Code in den letzten Versionen zu "bereinigen", dazu geführt, dass die Daten vom Browser nicht mehr korrekt interpretiert werden konnten, was zum Lade-Stopp führte.
 
-Hier ist Version 35 (Emergency Fix).
+Ich kehre, wie gewünscht, exakt zur Code-Basis von Version 33 zurück, die stabil funktionierte.
 
-Die Reparaturen:
-Robuster Preloader: Ich habe eine Sicherung eingebaut (onerror). Wenn ein Bild aus irgendeinem Grund nicht lädt, ignoriert das Spiel den Fehler und startet trotzdem (notfalls mit Platzhaltern), anstatt hängen zu bleiben.
+In dieser stabilen Basis nehme ich nun nur die gewünschte Änderung an den Skifahrer-Körpern vor (Höhe von 60 auf 34 reduzieren und vertikal zentrieren), wobei ich das bewährte URL-Encoding beibehalte.
 
-Code-Bereinigung: Die SVG-Strings wurden bereinigt, um sicherzustellen, dass keine unsichtbaren Zeilenumbrüche den Code kaputt machen.
+Hier ist Version 36 (Stable V33 Base + Body Fix).
 
-Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Rechteck) ist jetzt korrekt und syntax-sicher enthalten.
+Die Änderungen gegenüber V33:
+Skifahrer-Körper (Blau & Grün): Das abgerundete Rechteck für den Körper wurde angepasst.
 
+Alt (V33): <rect x="30" y="20" width="40" height="60" ...>
+
+Neu (V36): <rect x="30" y="33" width="40" height="34" ...> (Die Y-Position wurde auf 33 gesetzt, damit der kürzere Körper weiterhin mittig unter dem Kopf sitzt).
 -->
 
 
@@ -20,13 +23,14 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V35 (Fix & Shape)</title>
+    <title>Ski-Simulation V36 (Back to V33 + Fix)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         
-        /* Canvas explizit weiß setzen, falls JS abstürzt */
+        /* Canvas Hintergrund weiß als Fallback */
         canvas { display: block; background: #ffffff; touch-action: none; }
         
+        /* UI LINKS (Ausführlich) */
         .ui { 
             position: absolute; top: 20px; left: 20px; pointer-events: none; 
             background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; 
@@ -42,12 +46,14 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
         }
         #saveBtn:active { background: #e2e6ea; }
 
+        /* LADEBILDSCHIRM */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; z-index: 9999; display: flex; justify-content: center; align-items: center;
             font-size: 24px; color: #333;
         }
 
+        /* GARAGE / DOCK RECHTS */
         #dock {
             position: absolute; top: 20px; right: 20px; width: 90px;
             background: rgba(255,255,255,0.9); border-radius: 12px; padding: 15px 10px;
@@ -68,11 +74,13 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
         .dock-item img { pointer-events: none; width: 100%; height: 100%; object-fit: contain; }
         .color-box { width: 40px !important; height: 50px !important; display: block; margin: auto; border: 1px solid #999; }
 
+        /* GHOST DRAG ELEMENT */
         #ghost-drag {
             position: absolute; pointer-events: none; opacity: 0.8; z-index: 100;
             display: none; width: 80px; height: 80px; object-fit: contain;
         }
 
+        /* GAMEPAD UNTEN */
         #gamepad { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: none; align-items: flex-end; z-index: 20; }
         .control-group { background: rgba(255,255,255,0.8); padding: 10px; border-radius: 15px; pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .btn-row { display: flex; gap: 5px; }
@@ -83,6 +91,8 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
     </style>
 </head>
 <body>
+
+<div id="loader">Lade Simulation...</div>
 
 <div class="ui">
     <h2>Ski-Simulation</h2>
@@ -99,7 +109,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
 
 <div id="dock">
     <div class="dock-title">Garage</div>
-</div>
+    </div>
 
 <img id="ghost-drag" src="" alt="box">
 
@@ -119,23 +129,19 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
 <canvas id="skiCanvas"></canvas>
 
 <script>
-    // --- 0. ASSET DEFINITION ---
-    // Bereinigte SVG Strings (keine Umbrüche, um Fehler zu vermeiden)
+    // --- 0. ASSET DEFINITION (BASE64 - V33 Style) ---
     
-    // Skifahrer Blau: Körper 40x34, abgerundet
-    const STR_SKI_BLUE = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)"/><rect x="25" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="63" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="18" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#3399ff"/><circle cx="78" cy="50" r="5" fill="#3399ff"/></svg>`;
+    // Skifahrer Blau (V33 Basis, Körper auf 40x34 geändert und zentriert)
+    const SVG_SKI_BLUE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)"/><rect x="25" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="63" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="18" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#3399ff"/><circle cx="78" cy="50" r="5" fill="#3399ff"/></svg>`);
 
-    // Skifahrer Grün: Körper 40x34, abgerundet
-    const STR_SKI_GREEN = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)"/><rect x="25" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="63" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#32CD32" stroke="#228B22" stroke-width="2"/><circle cx="50" cy="50" r="18" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#32CD32"/><circle cx="78" cy="50" r="5" fill="#32CD32"/></svg>`;
+    // Skifahrer Grün (V33 Basis, Körper auf 40x34 geändert und zentriert)
+    const SVG_SKI_GREEN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)"/><rect x="25" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="63" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#32CD32" stroke="#228B22" stroke-width="2"/><circle cx="50" cy="50" r="18" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#32CD32"/><circle cx="78" cy="50" r="5" fill="#32CD32"/></svg>`);
 
-    // Snowboarder
-    const STR_BOARDER = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="35" ry="12" fill="rgba(0,0,0,0.2)"/><path d="M 5 38 Q 50 34 95 38 L 98 40 Q 102 50 98 60 L 95 62 Q 50 66 5 62 L 2 60 Q -2 50 2 40 Z" fill="#81ae98" stroke="#5a7a6a" stroke-width="1"/><rect x="15" y="40" width="12" height="20" rx="4" fill="#222"/><rect x="73" y="40" width="12" height="20" rx="4" fill="#222"/><ellipse cx="50" cy="50" rx="22" ry="14" fill="#b83dba" stroke="#8a2e8c" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="38" width="24" height="8" rx="3" fill="#333"/><rect x="40" y="39" width="20" height="6" rx="2" fill="#87ceeb"/><path d="M 28 50 L 15 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M 72 50 L 85 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><circle cx="15" cy="48" r="6" fill="#111"/><circle cx="85" cy="48" r="6" fill="#111"/></svg>`;
+    // Snowboarder (Original V33)
+    const SVG_BOARDER = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="35" ry="12" fill="rgba(0,0,0,0.2)"/><path d="M 5 38 Q 50 34 95 38 L 98 40 Q 102 50 98 60 L 95 62 Q 50 66 5 62 L 2 60 Q -2 50 2 40 Z" fill="#81ae98" stroke="#5a7a6a" stroke-width="1"/><rect x="15" y="40" width="12" height="20" rx="4" fill="#222"/><rect x="73" y="40" width="12" height="20" rx="4" fill="#222"/><ellipse cx="50" cy="50" rx="22" ry="14" fill="#b83dba" stroke="#8a2e8c" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="38" width="24" height="8" rx="3" fill="#333"/><rect x="40" y="39" width="20" height="6" rx="2" fill="#87ceeb"/><path d="M 28 50 L 15 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M 72 50 L 85 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><circle cx="15" cy="48" r="6" fill="#111"/><circle cx="85" cy="48" r="6" fill="#111"/></svg>`);
     
-    // Nadelbaum
-    const STR_TREE = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 5 L65 20 L95 15 L80 50 L90 85 L65 80 L50 95 L35 80 L10 85 L20 50 L5 15 L35 20 Z" fill="#0a2915" stroke="#051f0e" stroke-width="1" stroke-linejoin="round"/><path d="M50 12 L58 35 L85 28 L70 48 L92 68 L65 65 L50 92 L35 65 L8 68 L30 48 L15 28 L42 35 Z" fill="#1a472a" stroke="#0e2b18" stroke-width="1" stroke-linejoin="round" transform="rotate(5 50 50)"/><path d="M50 22 L60 40 L82 38 L68 52 L80 72 L50 68 L20 72 L32 52 L18 38 L40 40 Z" fill="#2e7d32" stroke="#1b5e20" stroke-width="1" stroke-linejoin="round" transform="rotate(20 50 50)"/><path d="M50 32 L58 45 L75 42 L62 55 L70 72 L50 65 L30 72 L38 55 L25 42 L42 45 Z" fill="#4caf50" stroke="#388e3c" stroke-width="1" stroke-linejoin="round" transform="rotate(-10 50 50)"/><circle cx="50" cy="50" r="5" fill="#81c784"/></svg>`;
-
-    // Helper für Encoding
-    function svgToData(str) { return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(str); }
+    // Nadelbaum (Original V33)
+    const SVG_TREE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 5 L65 20 L95 15 L80 50 L90 85 L65 80 L50 95 L35 80 L10 85 L20 50 L5 15 L35 20 Z" fill="#0a2915" stroke="#051f0e" stroke-width="1" stroke-linejoin="round"/><path d="M50 12 L58 35 L85 28 L70 48 L92 68 L65 65 L50 92 L35 65 L8 68 L30 48 L15 28 L42 35 Z" fill="#1a472a" stroke="#0e2b18" stroke-width="1" stroke-linejoin="round" transform="rotate(5 50 50)"/><path d="M50 22 L60 40 L82 38 L68 52 L80 72 L50 68 L20 72 L32 52 L18 38 L40 40 Z" fill="#2e7d32" stroke="#1b5e20" stroke-width="1" stroke-linejoin="round" transform="rotate(20 50 50)"/><path d="M50 32 L58 45 L75 42 L62 55 L70 72 L50 65 L30 72 L38 55 L25 42 L42 45 Z" fill="#4caf50" stroke="#388e3c" stroke-width="1" stroke-linejoin="round" transform="rotate(-10 50 50)"/><circle cx="50" cy="50" r="5" fill="#81c784"/></svg>`);
 
     const ASSETS = {
         skiBlue: new Image(),
@@ -152,7 +158,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
         { type: 'rect', color: '#808080', width: 80, height: 120, rotation: 0 }
     ];
 
-    // --- 1. SYSTEM INIT ---
+    // --- 1. SYSTEM INIT (V33 Base) ---
     const canvas = document.getElementById('skiCanvas');
     const ctx = canvas.getContext('2d');
     const dockContainer = document.getElementById('dock');
@@ -176,34 +182,15 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
     // Drag from Dock
     let dragFromDockItem = null; 
 
-    // Preloader (Robuster Fix)
+    // Preloader (4 Assets - V33 Base)
     function preloadAssets(callback) {
-        let count = 0;
-        const total = 4;
-        
-        function onAssetReady() {
-            count++;
-            if (count === total) callback();
-        }
-
-        // Handler definieren
-        ASSETS.skiBlue.onload = onAssetReady;
-        ASSETS.skiBlue.onerror = onAssetReady; // Weiter, auch bei Fehler!
-        
-        ASSETS.skiGreen.onload = onAssetReady;
-        ASSETS.skiGreen.onerror = onAssetReady;
-
-        ASSETS.boarder.onload = onAssetReady;
-        ASSETS.boarder.onerror = onAssetReady;
-
-        ASSETS.tree.onload = onAssetReady;
-        ASSETS.tree.onerror = onAssetReady;
-
-        // Quellen zuweisen (startet Laden)
-        ASSETS.skiBlue.src = svgToData(STR_SKI_BLUE);
-        ASSETS.skiGreen.src = svgToData(STR_SKI_GREEN);
-        ASSETS.boarder.src = svgToData(STR_BOARDER);
-        ASSETS.tree.src = svgToData(STR_TREE);
+        let loaded = 0;
+        const total = 4; 
+        function checkDone() { loaded++; if (loaded === total) callback(); }
+        ASSETS.skiBlue.onload = checkDone; ASSETS.skiBlue.src = SVG_SKI_BLUE;
+        ASSETS.skiGreen.onload = checkDone; ASSETS.skiGreen.src = SVG_SKI_GREEN;
+        ASSETS.boarder.onload = checkDone; ASSETS.boarder.src = SVG_BOARDER;
+        ASSETS.tree.onload = checkDone; ASSETS.tree.src = SVG_TREE;
     }
 
     function resize() {
@@ -216,11 +203,9 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
     function startGame() {
         loader.style.display = 'none';
         resize();
-        
-        // Initial-Objekte
         activeObjects.push(createObject(TEMPLATES[0], canvas.width/2 - 50, canvas.height/2 - 50));
+        // Alle anderen (inkl. Baum) in die Garage
         dockedObjects = [ TEMPLATES[1], TEMPLATES[2], TEMPLATES[3], TEMPLATES[4] ];
-        
         renderDock();
         requestAnimationFrame(drawLoop);
     }
@@ -238,7 +223,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
         return obj;
     }
 
-    // --- 2. DOCK UI ---
+    // --- 2. DOCK UI & LOGIC (V33 Base) ---
     function renderDock() {
         dockContainer.innerHTML = '<div class="dock-title">Garage</div>';
         dockedObjects.forEach((tpl, index) => {
@@ -263,7 +248,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
         });
     }
 
-    // --- 3. DOCK DRAG ---
+    // --- 3. DOCK DRAG (OUT) ---
     function handleDockDragStart(e, tpl, index) {
         e.preventDefault();
         dragFromDockItem = { tpl: tpl, index: index };
@@ -325,7 +310,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
     }
 
 
-    // --- 4. GAME LOGIC ---
+    // --- 4. CANVAS LOGIC (V33 Base) ---
     function checkBounds(p) {
         if (p.x < 0) p.x = 0;
         if (p.x > canvas.width - p.width) p.x = canvas.width - p.width;
@@ -382,6 +367,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
         }
     }
 
+    // --- HANDLE END MIT "BACK TO GARAGE" LOGIC (V33 Base) ---
     function handleEnd(e) {
         let mx = e.clientX;
         let my = e.clientY;
@@ -391,7 +377,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
         }
         const isRightClick = (e.button === 2);
 
-        // 1. DOCK DROP
+        // 1. DOCK DROP CHECK
         if (draggingPlayerIndex !== -1) {
             const dockRect = dockContainer.getBoundingClientRect();
             if (mx >= dockRect.left - 20 && mx <= dockRect.right + 20 &&
@@ -400,6 +386,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
                 const p = activeObjects[draggingPlayerIndex];
                 let newDockItem = {
                     type: p.type, width: p.width, height: p.height,
+                    // Rotation resetten (Snowboarder 90, Rest 0)
                     rotation: (p.type==='sprite' && p.assetKey==='boarder') ? 90 : 0 
                 };
                 if(p.type === 'sprite') newDockItem.assetKey = p.assetKey;
@@ -407,6 +394,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
 
                 dockedObjects.push(newDockItem);
                 activeObjects.splice(draggingPlayerIndex, 1);
+                
                 renderDock();
                 draggingPlayerIndex = -1;
                 activePlayerIndex = 0; 
@@ -414,7 +402,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
             }
         }
 
-        // 2. REGULAR DROP
+        // 2. REGULAR DROP END
         draggingPlayerIndex = -1;
         if (isRightClick && rotatingPlayerIndex !== -1) {
             const p = activeObjects[rotatingPlayerIndex];
@@ -437,7 +425,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
     canvas.addEventListener('touchmove', e => { if(e.target === canvas) e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
     canvas.addEventListener('touchend', e => { handleEnd(e); });
 
-    // Keys & Buttons
+    // Buttons / Keys
     const movementKeys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, RotateLeft: false, RotateRight: false, ZoomIn: false, ZoomOut: false };
     function bindTouchBtn(id, keyName) {
         const btn = document.getElementById(id);
@@ -477,7 +465,7 @@ Körper-Form: Die gewünschte Änderung (Breite 40, Höhe 34, abgerundetes Recht
         link.click();
     });
 
-    // --- LOOP ---
+    // --- GAME LOOP (V33 Base) ---
     function update() {
         if(activeObjects.length === 0) return;
         if (activePlayerIndex >= activeObjects.length) activePlayerIndex = 0;
