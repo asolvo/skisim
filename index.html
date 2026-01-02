@@ -1,27 +1,43 @@
+<!-- Skisim V10 -->
+<!-- Version 10 mit Rechtsklick = drehen:
+
+Damit das funktioniert, müssen wir zwei Dinge tun:
+
+1 - Das Kontextmenü des Browsers blockieren (das normalerweise bei Rechtsklick erscheint), aber nur innerhalb des Canvas.
+
+2 - Den Rechtsklick abfangen und die Rotation auslösen.
+
+Zusätzlich habe ich den Code so angepasst, dass das Drag & Drop nur noch mit der linken Maustaste funktioniert, damit man beim Rechtsklick nicht versehentlich den Skifahrer verschiebt.
+-->
+
+
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V4</title>
+    <title>Ski-Simulation V10 (Rechtsklick)</title>
     <style>
-        /* Grundlegendes Styling */
-        body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        canvas { display: block; background: #ffffff; cursor: none; }
+        body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; }
+        /* Cursor ist standardmäßig 'default' */
+        canvas { display: block; background: #ffffff; }
         
-        /* UI-Fenster oben links */
         .ui { position: absolute; top: 20px; left: 20px; pointer-events: none; background: rgba(255,255,255,0.9); padding: 15px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .key-badge { background: #eee; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-family: monospace; }
+        li { margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
 <div class="ui">
     <h2 style="margin:0 0 10px 0; color: #333;">Ski-Simulation</h2>
-    <ul style="margin:0; padding-left: 20px; color: #555; font-size: 14px; line-height: 1.6;">
+    <ul style="margin:0; padding-left: 20px; color: #555; font-size: 14px; line-height: 1.4;">
+        <li><strong>Neu:</strong> Rechtsklick auf Skifahrer dreht ihn</li>
+        <li>Linksklick + Ziehen: Verschieben</li>
         <li>Bewegen: <span class="key-badge">Pfeiltasten</span></li>
-        <li>Größer: <span class="key-badge">ö</span> oder <span class="key-badge">+</span></li>
-        <li>Kleiner: <span class="key-badge">ä</span> oder <span class="key-badge">-</span></li>
+        <li>Drehen: <span class="key-badge">ö</span> / <span class="key-badge">ä</span></li>
+        <li>Zoom: <span class="key-badge">+</span> / <span class="key-badge">-</span></li>
     </ul>
 </div>
 <canvas id="skiCanvas"></canvas>
@@ -30,20 +46,33 @@
     const canvas = document.getElementById('skiCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Canvas Größe anpassen
     function resize() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        checkBounds(); // Sicherstellen, dass Spieler im Bild bleibt beim Resize
+        if(typeof player !== 'undefined') checkBounds();
     }
     window.addEventListener('resize', resize);
 
-    // --- BILD LADEN ---
-    const skiSprite = new Image();
-    // Dein Bild muss "image_2.png" heißen
-    skiSprite.src = 'image_2.png'; 
+    // --- SVG DEFINITION ---
+    const svgString = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100">
+        <ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)" />
+        <rect x="25" y="5" width="12" height="90" rx="5" fill="#333" />
+        <rect x="63" y="5" width="12" height="90" rx="5" fill="#333" />
+        <circle cx="50" cy="50" r="28" fill="#3399ff" stroke="#0077cc" stroke-width="2"/>
+        <circle cx="50" cy="50" r="18" fill="#808080" />
+        <rect x="38" y="42" width="24" height="10" rx="3" fill="#333" />
+        <rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb" />
+        <line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/>
+        <line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="22" cy="50" r="5" fill="#3399ff" />
+        <circle cx="78" cy="50" r="5" fill="#3399ff" />
+    </svg>
+    `;
 
-    // Spieler-Objekt
+    const skiSprite = new Image();
+    skiSprite.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgString);
+
     let player = {
         x: 0, 
         y: 0,
@@ -51,45 +80,104 @@
         height: 100, 
         speed: 7,    
         dx: 0,       
-        dy: 0        
+        dy: 0,
+        rotation: 0 
     };
+
+    let isDragging = false;
+    let dragOffset = { x: 0, y: 0 };
 
     function init() {
         resize();
-        // Start in der Mitte
         player.x = (canvas.width / 2) - (player.width / 2);
         player.y = (canvas.height / 2) - (player.height / 2);
     }
     init();
 
-    // Tasten-Status für Bewegung (Pfeiltasten)
-    const movementKeys = {};
-    
-    window.addEventListener('keydown', (e) => {
-        movementKeys[e.code] = true;
+    // --- MAUS EVENTS ---
 
-        // --- ZUSATZFUNKTIONEN: Skalieren ---
-        // Wir nutzen e.key, um das Zeichen zu erkennen ('ö', '+', etc.)
-        const step = 10; // Pixel Veränderung pro Tastendruck
+    // 1. Linksklick (Drag Start)
+    canvas.addEventListener('mousedown', (e) => {
+        // Nur Linksklick (Button 0) für Drag & Drop erlauben
+        if (e.button !== 0) return;
 
-        // Vergrößern (ö oder +)
-        if (e.key === 'ö' || e.key === 'Ö' || e.key === '+') {
-            player.width += step;
-            player.height += step;
-        }
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
 
-        // Verkleinern (ä oder -) - Mindestgröße 20px
-        if (e.key === 'ä' || e.key === 'Ä' || e.key === '-') {
-            if (player.width > 20) {
-                player.width -= step;
-                player.height -= step;
-            }
+        if (mouseX > player.x && mouseX < player.x + player.width &&
+            mouseY > player.y && mouseY < player.y + player.height) {
+            
+            isDragging = true;
+            dragOffset.x = mouseX - player.x;
+            dragOffset.y = mouseY - player.y;
+            player.dx = 0;
+            player.dy = 0;
         }
     });
 
+    // 2. Rechtsklick (Rotation)
+    canvas.addEventListener('contextmenu', (e) => {
+        // Standard-Menü verhindern
+        e.preventDefault(); 
+
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        // Prüfen, ob der Klick auf dem Skifahrer war
+        if (mouseX > player.x && mouseX < player.x + player.width &&
+            mouseY > player.y && mouseY < player.y + player.height) {
+            
+            // Rotation um 15 Grad im Uhrzeigersinn
+            player.rotation += 15;
+        }
+    });
+
+    // 3. Maus bewegen
+    canvas.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        // Hover-Effekt
+        const isOverPlayer = mouseX > player.x && mouseX < player.x + player.width &&
+                             mouseY > player.y && mouseY < player.y + player.height;
+
+        if (isOverPlayer) {
+            canvas.style.cursor = isDragging ? 'grabbing' : 'grab';
+        } else {
+            canvas.style.cursor = isDragging ? 'grabbing' : 'default';
+        }
+
+        if (isDragging) {
+            player.x = mouseX - dragOffset.x;
+            player.y = mouseY - dragOffset.y;
+            checkBounds();
+        }
+    });
+
+    // 4. Loslassen
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+
+    // --- TASTATUR ---
+    const movementKeys = {};
+    window.addEventListener('keydown', (e) => {
+        movementKeys[e.code] = true;
+        const scaleStep = 10;
+        const rotateStep = 15;
+
+        if (e.key === 'ö' || e.key === 'Ö') player.rotation -= rotateStep;
+        if (e.key === 'ä' || e.key === 'Ä') player.rotation += rotateStep;
+        if (e.key === '+' || e.code === 'NumpadAdd') {
+            player.width += scaleStep; player.height += scaleStep;
+        }
+        if (e.key === '-' || e.code === 'NumpadSubtract') {
+            if (player.width > 20) { player.width -= scaleStep; player.height -= scaleStep; }
+        }
+    });
     window.addEventListener('keyup', e => movementKeys[e.code] = false);
 
-    // Hilfsfunktion: Spieler im Bildschirm halten
     function checkBounds() {
         if (player.x < 0) player.x = 0;
         if (player.x > canvas.width - player.width) player.x = canvas.width - player.width;
@@ -98,48 +186,37 @@
     }
 
     function update() {
-        // Bewegung berechnen
-        if (movementKeys['ArrowLeft']) player.dx = -player.speed;
-        else if (movementKeys['ArrowRight']) player.dx = player.speed;
-        else player.dx *= 0.85; 
+        if (!isDragging) {
+            if (movementKeys['ArrowLeft']) player.dx = -player.speed;
+            else if (movementKeys['ArrowRight']) player.dx = player.speed;
+            else player.dx *= 0.85; 
 
-        if (movementKeys['ArrowUp']) player.dy = -player.speed;
-        else if (movementKeys['ArrowDown']) player.dy = player.speed;
-        else player.dy *= 0.85; 
+            if (movementKeys['ArrowUp']) player.dy = -player.speed;
+            else if (movementKeys['ArrowDown']) player.dy = player.speed;
+            else player.dy *= 0.85; 
 
-        player.x += player.dx;
-        player.y += player.dy;
-
-        checkBounds();
+            player.x += player.dx;
+            player.y += player.dy;
+            
+            checkBounds();
+        }
     }
 
     function draw() {
-        // 1. Hintergrund (Radialer Verlauf für Schatten-Effekt)
         let gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 100, canvas.width/2, canvas.height/2, canvas.width);
         gradient.addColorStop(0, '#ffffff'); 
-        gradient.addColorStop(1, '#ebeff5'); // Sanftes Grau am Rand
-
+        gradient.addColorStop(1, '#ebeff5'); 
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 2. Skifahrer zeichnen
-        if (skiSprite.complete && skiSprite.naturalWidth !== 0) {
-            ctx.save();
-            // Schatten unter dem Skifahrer
-            ctx.shadowColor = 'rgba(0,0,0,0.15)';
-            ctx.shadowBlur = 20;
-            ctx.shadowOffsetY = 15;
-            
-            ctx.drawImage(skiSprite, player.x, player.y, player.width, player.height);
-            ctx.restore();
-        } else {
-            // Fallback (rotes Rechteck), falls Bild fehlt
-            ctx.fillStyle = '#ff4444';
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            ctx.fillStyle = 'white';
-            ctx.font = "12px sans-serif";
-            ctx.textAlign = "center";
-            ctx.fillText('Bild fehlt', player.x + player.width/2, player.y + player.height/2);
+        if (skiSprite.complete) {
+            ctx.save(); 
+            const centerX = player.x + player.width / 2;
+            const centerY = player.y + player.height / 2;
+            ctx.translate(centerX, centerY);
+            ctx.rotate(player.rotation * Math.PI / 180);
+            ctx.drawImage(skiSprite, -player.width / 2, -player.height / 2, player.width, player.height);
+            ctx.restore(); 
         }
 
         requestAnimationFrame(() => {
