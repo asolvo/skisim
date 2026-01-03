@@ -1,20 +1,31 @@
-<!-- Skisim V36 -->
-<!-- Stable V33 Base + Skifahrer Body Fix 
+<!-- Skisim V43 -->
+<!-- Fix: Drehung in 15°-Schritten. Stable.
 
-Offenbar haben die Versuche, den SVG-Code in den letzten Versionen zu "bereinigen", dazu geführt, dass die Daten vom Browser nicht mehr korrekt interpretiert werden konnten, was zum Lade-Stopp führte.
+Apache V2 License
+2026-01-02 
+Christian Klingler, asolvo 
+erstellt mit Google Gemini 3 Pro 
 
-Ich kehre, wie gewünscht, exakt zur Code-Basis von Version 33 zurück, die stabil funktionierte.
+Ich habe den Code überprüft: Die Logik, dass beim Loslassen der rechten Maustaste die Rotation auf den nächsten 15°-Schritt (z. B. 0°, 15°, 30°, 45°...) animiert wird, ist fest integriert (Math.ceil(rotation / 15) * 15).
+In der bisherigen Version gilt das Einrasten nur für die Maus. Wenn du die Tasten oder die Buttons loslässt, stoppt die Drehung sofort, auch bei "krummen" Werten (z.B. 34°).
 
-In dieser stabilen Basis nehme ich nun nur die gewünschte Änderung an den Skifahrer-Körpern vor (Höhe von 60 auf 34 reduzieren und vertikal zentrieren), wobei ich das bewährte URL-Encoding beibehalte.
+Ich habe eine neue Funktion triggerSnap() eingebaut und sie mit allen Eingabemethoden verknüpft.
 
-Hier ist Version 36 (Stable V33 Base + Body Fix).
+Maus: Rastet beim Loslassen der rechten Taste ein.
 
-Die Änderungen gegenüber V33:
-Skifahrer-Körper (Blau & Grün): Das abgerundete Rechteck für den Körper wurde angepasst.
+Tastatur (ö/ä): Rastet beim Loslassen der Taste auf das nächste 15°-Vielfache ein.
 
-Alt (V33): <rect x="30" y="20" width="40" height="60" ...>
+Bildschirm-Buttons: Rastet beim Loslassen des Touch-Buttons ein.
 
-Neu (V36): <rect x="30" y="33" width="40" height="34" ...> (Die Y-Position wurde auf 33 gesetzt, damit der kürzere Körper weiterhin mittig unter dem Kopf sitzt).
+Damit verhalten sich alle Steuerungen jetzt konsistent.
+
+
+Zusammenfassung des Status:
+Rotation: Rastet beim Loslassen der rechten Maustaste sanft auf 15°-Schritte ein.
+
+Grafik: Skifahrer sind schlank (V40-Style), Linien sind dünn (V41-Style).
+
+Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
 -->
 
 
@@ -23,64 +34,68 @@ Neu (V36): <rect x="30" y="33" width="40" height="34" ...> (Die Y-Position wurde
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V36 (Back to V33 + Fix)</title>
+    <title>Ski-Simulation V43 (Full Snapping)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
-        
-        /* Canvas Hintergrund weiß als Fallback */
         canvas { display: block; background: #ffffff; touch-action: none; }
         
-        /* UI LINKS (Ausführlich) */
+        /* UI */
         .ui { 
-            position: absolute; top: 20px; left: 20px; pointer-events: none; 
-            background: rgba(255,255,255,0.95); padding: 20px; border-radius: 12px; 
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15); max-width: 280px; z-index: 20; 
+            position: absolute; top: 20px; left: 20px; pointer-events: auto; 
+            background: rgba(255,255,255,0.95); border-radius: 12px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); width: 280px; z-index: 20; 
+            overflow: hidden; transition: height 0.3s ease;
         }
+        .ui-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-bottom: 1px solid #eee; user-select: none; }
+        .ui-header:hover { background: #f1f3f5; }
+        .ui-header h2 { margin: 0; font-size: 18px; color: #333; }
+        .toggle-icon { font-size: 14px; color: #666; transition: transform 0.3s; }
+        .ui.collapsed .toggle-icon { transform: rotate(-90deg); }
+        .ui.collapsed .ui-content { display: none; }
+        .ui-content { padding: 15px; }
         .key-badge { background: #eee; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-family: monospace; }
         li { margin-bottom: 8px; font-size: 14px; color: #555; line-height: 1.4; }
-        h2 { margin: 0 0 15px 0; color: #333; font-size: 20px; }
-        #saveBtn { 
-            margin-top: 15px; padding: 12px; cursor: pointer; background: #f8f9fa; 
-            border: 1px solid #dee2e6; border-radius: 6px; width: 100%; pointer-events: auto; 
-            font-size: 14px; font-weight: bold; color: #333;
-        }
-        #saveBtn:active { background: #e2e6ea; }
 
-        /* LADEBILDSCHIRM */
+        /* Save Button */
+        #saveBtn { 
+            position: absolute; top: 20px; right: 125px; 
+            width: 50px; height: 50px; cursor: pointer; background: white; 
+            border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 20;
+            font-size: 24px; display: flex; justify-content: center; align-items: center;
+            transition: transform 0.1s, background 0.2s;
+        }
+        #saveBtn:hover { background: #f8f9fa; transform: scale(1.05); }
+        #saveBtn:active { transform: scale(0.95); background: #e9ecef; }
+
+        /* Loader */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; z-index: 9999; display: flex; justify-content: center; align-items: center;
-            font-size: 24px; color: #333;
+            font-size: 24px; color: #333; font-weight: bold;
         }
 
-        /* GARAGE / DOCK RECHTS */
+        /* Dock */
         #dock {
             position: absolute; top: 20px; right: 20px; width: 90px;
             background: rgba(255,255,255,0.9); border-radius: 12px; padding: 15px 10px;
             display: flex; flex-direction: column; gap: 20px; align-items: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 20;
             transition: background 0.2s, transform 0.2s;
+            max-height: 80vh; overflow-y: auto;
         }
         #dock:hover { background: rgba(255,255,255,1); transform: scale(1.02); }
-
         .dock-title { font-size: 13px; font-weight: bold; color: #555; text-align: center; margin-bottom: 5px; }
         .dock-item {
-            width: 70px; height: 70px;
-            border: 2px dashed #ccc; border-radius: 10px;
+            width: 70px; height: 70px; border: 2px dashed #ccc; border-radius: 10px;
             cursor: grab; display: flex; justify-content: center; align-items: center;
-            background: #f9f9f9; touch-action: none; position: relative;
+            background: #f9f9f9; touch-action: none; position: relative; flex-shrink: 0;
         }
         .dock-item:active { cursor: grabbing; border-color: #00bfff; background: #eef; }
         .dock-item img { pointer-events: none; width: 100%; height: 100%; object-fit: contain; }
         .color-box { width: 40px !important; height: 50px !important; display: block; margin: auto; border: 1px solid #999; }
 
-        /* GHOST DRAG ELEMENT */
-        #ghost-drag {
-            position: absolute; pointer-events: none; opacity: 0.8; z-index: 100;
-            display: none; width: 80px; height: 80px; object-fit: contain;
-        }
-
-        /* GAMEPAD UNTEN */
+        #ghost-drag { position: absolute; pointer-events: none; opacity: 0.8; z-index: 100; display: none; width: 80px; height: 80px; object-fit: contain; }
+        
         #gamepad { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: none; align-items: flex-end; z-index: 20; }
         .control-group { background: rgba(255,255,255,0.8); padding: 10px; border-radius: 15px; pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .btn-row { display: flex; gap: 5px; }
@@ -94,22 +109,28 @@ Neu (V36): <rect x="30" y="33" width="40" height="34" ...> (Die Y-Position wurde
 
 <div id="loader">Lade Simulation...</div>
 
-<div class="ui">
-    <h2>Ski-Simulation</h2>
-    <ul style="margin:0; padding-left: 20px;">
-        <li><strong>Garage (rechts):</strong> Ziehe weitere Objekte von hier auf die Piste (und zurück).</li>
-        <li><strong>Aktivieren:</strong> Klicke ein Objekt an, um es zu steuern (blauer Ring).</li>
-        <li><strong>Verschieben:</strong> Halte die linke Maustaste gedrückt (oder Touch).</li>
-        <li><strong>Drehen:</strong> Rechte Maustaste halten oder Tasten <span class="key-badge">ö</span> / <span class="key-badge">ä</span>.</li>
-        <li><strong>Zoomen:</strong> Mausrad oder Tasten <span class="key-badge">+</span> / <span class="key-badge">-</span>.</li>
-        <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span> (bei mehreren Objekten).</li>
-    </ul>
-    <button id="saveBtn">📸 Bild speichern</button>
+<div class="ui" id="instructionBox">
+    <div class="ui-header" onclick="toggleUI()">
+        <h2>Ski-Simulation</h2>
+        <span class="toggle-icon">▼</span>
+    </div>
+    <div class="ui-content">
+        <ul style="margin:0; padding-left: 20px;">
+            <li><strong>Objekte (rechts):</strong> Ziehe Figuren auf die Piste/zurück.</li>
+            <li><strong>Aktivieren:</strong> Klicke ein Objekt an.</li>
+            <li><strong>Verschieben:</strong> Linke Maustaste/Touch.</li>
+            <li><strong>Drehen:</strong> Rechte Maustaste / <span class="key-badge">ö</span> <span class="key-badge">ä</span>.</li>
+            <li><strong>Zoomen:</strong> Mausrad / <span class="key-badge">+</span> <span class="key-badge">-</span>.</li>
+            <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span>.</li>
+        </ul>
+    </div>
 </div>
 
+<button id="saveBtn" title="Bild speichern">📥</button>
+
 <div id="dock">
-    <div class="dock-title">Garage</div>
-    </div>
+    <div class="dock-title">Objekte</div>
+</div>
 
 <img id="ghost-drag" src="" alt="box">
 
@@ -129,388 +150,263 @@ Neu (V36): <rect x="30" y="33" width="40" height="34" ...> (Die Y-Position wurde
 <canvas id="skiCanvas"></canvas>
 
 <script>
-    // --- 0. ASSET DEFINITION (BASE64 - V33 Style) ---
-    
-    // Skifahrer Blau (V33 Basis, Körper auf 40x34 geändert und zentriert)
-    const SVG_SKI_BLUE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)"/><rect x="25" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="63" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="18" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#3399ff"/><circle cx="78" cy="50" r="5" fill="#3399ff"/></svg>`);
+    function toggleUI() { document.getElementById('instructionBox').classList.toggle('collapsed'); }
 
-    // Skifahrer Grün (V33 Basis, Körper auf 40x34 geändert und zentriert)
-    const SVG_SKI_GREEN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="30" ry="10" fill="rgba(0,0,0,0.2)"/><rect x="25" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="63" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#32CD32" stroke="#228B22" stroke-width="2"/><circle cx="50" cy="50" r="18" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="22" y1="50" x2="10" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="78" y1="50" x2="90" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="50" r="5" fill="#32CD32"/><circle cx="78" cy="50" r="5" fill="#32CD32"/></svg>`);
-
-    // Snowboarder (Original V33)
+    // --- ASSETS ---
+    const SVG_SKI_BLUE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="35" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72" cy="50" r="7" fill="#3399ff"/></svg>`);
+    const SVG_SKI_GREEN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="35" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#32CD32" stroke="#228B22" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="50" r="7" fill="#32CD32"/><circle cx="72" cy="50" r="7" fill="#32CD32"/></svg>`);
     const SVG_BOARDER = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="35" ry="12" fill="rgba(0,0,0,0.2)"/><path d="M 5 38 Q 50 34 95 38 L 98 40 Q 102 50 98 60 L 95 62 Q 50 66 5 62 L 2 60 Q -2 50 2 40 Z" fill="#81ae98" stroke="#5a7a6a" stroke-width="1"/><rect x="15" y="40" width="12" height="20" rx="4" fill="#222"/><rect x="73" y="40" width="12" height="20" rx="4" fill="#222"/><ellipse cx="50" cy="50" rx="22" ry="14" fill="#b83dba" stroke="#8a2e8c" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="38" width="24" height="8" rx="3" fill="#333"/><rect x="40" y="39" width="20" height="6" rx="2" fill="#87ceeb"/><path d="M 28 50 L 15 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M 72 50 L 85 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><circle cx="15" cy="48" r="6" fill="#111"/><circle cx="85" cy="48" r="6" fill="#111"/></svg>`);
-    
-    // Nadelbaum (Original V33)
     const SVG_TREE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 5 L65 20 L95 15 L80 50 L90 85 L65 80 L50 95 L35 80 L10 85 L20 50 L5 15 L35 20 Z" fill="#0a2915" stroke="#051f0e" stroke-width="1" stroke-linejoin="round"/><path d="M50 12 L58 35 L85 28 L70 48 L92 68 L65 65 L50 92 L35 65 L8 68 L30 48 L15 28 L42 35 Z" fill="#1a472a" stroke="#0e2b18" stroke-width="1" stroke-linejoin="round" transform="rotate(5 50 50)"/><path d="M50 22 L60 40 L82 38 L68 52 L80 72 L50 68 L20 72 L32 52 L18 38 L40 40 Z" fill="#2e7d32" stroke="#1b5e20" stroke-width="1" stroke-linejoin="round" transform="rotate(20 50 50)"/><path d="M50 32 L58 45 L75 42 L62 55 L70 72 L50 65 L30 72 L38 55 L25 42 L42 45 Z" fill="#4caf50" stroke="#388e3c" stroke-width="1" stroke-linejoin="round" transform="rotate(-10 50 50)"/><circle cx="50" cy="50" r="5" fill="#81c784"/></svg>`);
+    const SVG_LINE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" viewBox="0 0 200 20"><line x1="5" y1="10" x2="195" y2="10" stroke="#808080" stroke-width="3" stroke-linecap="round" /></svg>`);
+    const SVG_ARROW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><line x1="5" y1="20" x2="85" y2="20" stroke="#3399ff" stroke-width="6" stroke-linecap="round"/><path d="M 95 20 L 75 10 L 75 30 Z" fill="#3399ff" /></svg>`);
+    const SVG_V = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#808080" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`);
 
-    const ASSETS = {
-        skiBlue: new Image(),
-        skiGreen: new Image(),
-        boarder: new Image(),
-        tree: new Image()
+    const ASSETS = { 
+        skiBlue: new Image(), skiGreen: new Image(), boarder: new Image(), tree: new Image(),
+        lineGray: new Image(), arrowBlue: new Image(), vShape: new Image()
     };
-
+    
     const TEMPLATES = [
         { type: 'sprite', assetKey: 'skiBlue', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiGreen', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'boarder', width: 100, height: 100, rotation: 90 },
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
+        { type: 'sprite', assetKey: 'lineGray', width: 200, height: 20, rotation: 0 },
+        { type: 'sprite', assetKey: 'arrowBlue', width: 100, height: 40, rotation: 0 },
+        { type: 'sprite', assetKey: 'vShape', width: 100, height: 60, rotation: 0 },
         { type: 'rect', color: '#808080', width: 80, height: 120, rotation: 0 }
     ];
 
-    // --- 1. SYSTEM INIT (V33 Base) ---
     const canvas = document.getElementById('skiCanvas');
     const ctx = canvas.getContext('2d');
     const dockContainer = document.getElementById('dock');
     const ghostDrag = document.getElementById('ghost-drag');
     const loader = document.getElementById('loader');
 
-    let activeObjects = []; 
-    let dockedObjects = []; 
-    let activePlayerIndex = 0; 
+    let activeObjects = [], dockedObjects = [], activePlayerIndex = 0; 
+    let draggingPlayerIndex = -1, rotatingPlayerIndex = -1, dragOffset = { x: 0, y: 0 };
+    let isSnapping = false, snappingPlayerIndex = -1, targetRotation = 0, dragFromDockItem = null; 
 
-    // Status
-    let draggingPlayerIndex = -1; 
-    let rotatingPlayerIndex = -1;
-    let dragOffset = { x: 0, y: 0 };
-    
-    // Snap
-    let isSnapping = false;
-    let snappingPlayerIndex = -1;
-    let targetRotation = 0;
-
-    // Drag from Dock
-    let dragFromDockItem = null; 
-
-    // Preloader (4 Assets - V33 Base)
     function preloadAssets(callback) {
-        let loaded = 0;
-        const total = 4; 
-        function checkDone() { loaded++; if (loaded === total) callback(); }
-        ASSETS.skiBlue.onload = checkDone; ASSETS.skiBlue.src = SVG_SKI_BLUE;
-        ASSETS.skiGreen.onload = checkDone; ASSETS.skiGreen.src = SVG_SKI_GREEN;
-        ASSETS.boarder.onload = checkDone; ASSETS.boarder.src = SVG_BOARDER;
-        ASSETS.tree.onload = checkDone; ASSETS.tree.src = SVG_TREE;
+        let loaded = 0; const total = 7; let started = false;
+        function checkDone() { loaded++; if (loaded === total && !started) { started = true; callback(); } }
+        const keys = Object.keys(ASSETS);
+        keys.forEach(k => { ASSETS[k].onload = checkDone; ASSETS[k].onerror = checkDone; });
+        ASSETS.skiBlue.src = SVG_SKI_BLUE; ASSETS.skiGreen.src = SVG_SKI_GREEN; ASSETS.boarder.src = SVG_BOARDER;
+        ASSETS.tree.src = SVG_TREE; ASSETS.lineGray.src = SVG_LINE; ASSETS.arrowBlue.src = SVG_ARROW; ASSETS.vShape.src = SVG_V;
+        setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
 
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        activeObjects.forEach(p => checkBounds(p));
-    }
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; activeObjects.forEach(p => checkBounds(p)); }
     window.addEventListener('resize', resize);
 
     function startGame() {
         loader.style.display = 'none';
         resize();
         activeObjects.push(createObject(TEMPLATES[0], canvas.width/2 - 50, canvas.height/2 - 50));
-        // Alle anderen (inkl. Baum) in die Garage
-        dockedObjects = [ TEMPLATES[1], TEMPLATES[2], TEMPLATES[3], TEMPLATES[4] ];
+        dockedObjects = TEMPLATES.slice(1);
         renderDock();
         requestAnimationFrame(drawLoop);
     }
 
     function createObject(tpl, x, y) {
-        let obj = {
-            type: tpl.type,
-            x: x, y: y,
-            width: tpl.width, height: tpl.height,
-            rotation: tpl.rotation,
-            speed: 7, dx: 0, dy: 0
-        };
-        if(tpl.type === 'sprite') obj.assetKey = tpl.assetKey; 
-        else obj.color = tpl.color;
+        let obj = { type: tpl.type, x: x, y: y, width: tpl.width, height: tpl.height, rotation: tpl.rotation, speed: 7, dx: 0, dy: 0 };
+        if(tpl.type === 'sprite') obj.assetKey = tpl.assetKey; else obj.color = tpl.color;
         return obj;
     }
 
-    // --- 2. DOCK UI & LOGIC (V33 Base) ---
     function renderDock() {
-        dockContainer.innerHTML = '<div class="dock-title">Garage</div>';
+        dockContainer.innerHTML = '<div class="dock-title">Objekte</div>';
         dockedObjects.forEach((tpl, index) => {
-            const el = document.createElement('div');
-            el.className = 'dock-item';
-            
-            if (tpl.type === 'sprite') {
-                const img = document.createElement('img');
-                img.src = ASSETS[tpl.assetKey].src;
-                el.appendChild(img);
-            } else {
-                const box = document.createElement('div');
-                box.className = 'color-box';
-                box.style.background = tpl.color;
-                el.appendChild(box);
-            }
-
+            const el = document.createElement('div'); el.className = 'dock-item';
+            if (tpl.type === 'sprite') { const img = document.createElement('img'); img.src = ASSETS[tpl.assetKey].src; el.appendChild(img); }
+            else { const box = document.createElement('div'); box.className = 'color-box'; box.style.background = tpl.color; el.appendChild(box); }
             const startHandler = (e) => handleDockDragStart(e, tpl, index);
-            el.addEventListener('mousedown', startHandler);
-            el.addEventListener('touchstart', startHandler, {passive: false});
+            el.addEventListener('mousedown', startHandler); el.addEventListener('touchstart', startHandler, {passive: false});
             dockContainer.appendChild(el);
         });
     }
 
-    // --- 3. DOCK DRAG (OUT) ---
     function handleDockDragStart(e, tpl, index) {
-        e.preventDefault();
-        dragFromDockItem = { tpl: tpl, index: index };
-        
-        if (tpl.type === 'sprite') {
-            ghostDrag.src = ASSETS[tpl.assetKey].src;
-            ghostDrag.style.background = 'transparent';
-        } else {
-            ghostDrag.src = '';
-            ghostDrag.style.backgroundColor = tpl.color;
-        }
-        
-        ghostDrag.style.display = 'block';
-        moveGhost(getClientPos(e));
-        
-        document.addEventListener('mousemove', handleDockDragMove);
-        document.addEventListener('touchmove', handleDockDragMove, {passive: false});
-        document.addEventListener('mouseup', handleDockDragEnd);
-        document.addEventListener('touchend', handleDockDragEnd);
+        e.preventDefault(); dragFromDockItem = { tpl: tpl, index: index };
+        if (tpl.type === 'sprite') { ghostDrag.src = ASSETS[tpl.assetKey].src; ghostDrag.style.background = 'transparent'; }
+        else { ghostDrag.src = ''; ghostDrag.style.backgroundColor = tpl.color; }
+        ghostDrag.style.display = 'block'; moveGhost(getClientPos(e));
+        document.addEventListener('mousemove', handleDockDragMove); document.addEventListener('touchmove', handleDockDragMove, {passive: false});
+        document.addEventListener('mouseup', handleDockDragEnd); document.addEventListener('touchend', handleDockDragEnd);
     }
-
-    function getClientPos(e) {
-        if(e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-        return { x: e.clientX, y: e.clientY };
-    }
-
-    function moveGhost(pos) {
-        ghostDrag.style.left = (pos.x - 40) + 'px';
-        ghostDrag.style.top = (pos.y - 40) + 'px';
-    }
-
-    function handleDockDragMove(e) {
-        if (!dragFromDockItem) return;
-        e.preventDefault();
-        moveGhost(getClientPos(e));
-    }
-
+    function getClientPos(e) { if(e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY }; return { x: e.clientX, y: e.clientY }; }
+    function moveGhost(pos) { ghostDrag.style.left = (pos.x - 40) + 'px'; ghostDrag.style.top = (pos.y - 40) + 'px'; }
+    function handleDockDragMove(e) { if (!dragFromDockItem) return; e.preventDefault(); moveGhost(getClientPos(e)); }
     function handleDockDragEnd(e) {
-        document.removeEventListener('mousemove', handleDockDragMove);
-        document.removeEventListener('touchmove', handleDockDragMove);
-        document.removeEventListener('mouseup', handleDockDragEnd);
-        document.removeEventListener('touchend', handleDockDragEnd);
-        
-        ghostDrag.style.display = 'none';
-
-        if (!dragFromDockItem) return;
-
-        let pos = getClientPos(e);
-        if (e.changedTouches && e.changedTouches.length > 0) pos = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
-
+        document.removeEventListener('mousemove', handleDockDragMove); document.removeEventListener('touchmove', handleDockDragMove);
+        document.removeEventListener('mouseup', handleDockDragEnd); document.removeEventListener('touchend', handleDockDragEnd);
+        ghostDrag.style.display = 'none'; if (!dragFromDockItem) return;
+        let pos = getClientPos(e); if (e.changedTouches && e.changedTouches.length > 0) pos = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
         if (pos.x < window.innerWidth - 120) {
-            const newObj = createObject(dragFromDockItem.tpl, pos.x - 50, pos.y - 50);
-            activeObjects.push(newObj);
-            dockedObjects.splice(dragFromDockItem.index, 1);
-            renderDock();
-            activePlayerIndex = activeObjects.length - 1;
+            activeObjects.push(createObject(dragFromDockItem.tpl, pos.x - 50, pos.y - 50));
+            dockedObjects.splice(dragFromDockItem.index, 1); renderDock(); activePlayerIndex = activeObjects.length - 1;
         }
         dragFromDockItem = null;
     }
 
-
-    // --- 4. CANVAS LOGIC (V33 Base) ---
-    function checkBounds(p) {
-        if (p.x < 0) p.x = 0;
-        if (p.x > canvas.width - p.width) p.x = canvas.width - p.width;
-        if (p.y < 0) p.y = 0;
-        if (p.y > canvas.height - p.height) p.y = canvas.height - p.height;
+    function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > canvas.width - p.width) p.x = canvas.width - p.width; if (p.y < 0) p.y = 0; if (p.y > canvas.height - p.height) p.y = canvas.height - p.height; }
+    function performZoom(p, dir, amt) {
+        const nw = p.width + (dir*amt), nh = p.height + (dir*amt);
+        if (nw > 20 && nh > 20) { p.x -= (dir*amt)/2; p.y -= (dir*amt)/2; p.width = nw; p.height = nh; checkBounds(p); }
     }
-
-    function performZoom(p, direction, amount) {
-        const newWidth = p.width + (direction * amount);
-        const newHeight = p.height + (direction * amount);
-        if (newWidth > 20 && newHeight > 20) {
-            p.x -= (direction * amount) / 2;
-            p.y -= (direction * amount) / 2;
-            p.width = newWidth;
-            p.height = newHeight;
-            checkBounds(p);
-        }
-    }
-
     function getPlayerUnderMouse(mx, my) {
-        for (let i = activeObjects.length - 1; i >= 0; i--) {
-            const p = activeObjects[i];
-            if (mx > p.x && mx < p.x + p.width && my > p.y && my < p.y + p.height) return i;
-        }
-        return -1;
+        for (let i = activeObjects.length - 1; i >= 0; i--) { const p = activeObjects[i]; if (mx > p.x && mx < p.x + p.width && my > p.y && my < p.y + p.height) return i; } return -1;
     }
 
-    function handleStart(x, y, isRightClick) {
+    function handleStart(x, y, isRight) {
         const idx = getPlayerUnderMouse(x, y);
         if (idx !== -1) {
-            const p = activeObjects[idx];
-            activePlayerIndex = idx; 
-            if (isRightClick) {
-                rotatingPlayerIndex = idx; isSnapping = false;
-            } else {
-                draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0;
-            }
+            const p = activeObjects[idx]; activePlayerIndex = idx;
+            if (isRight) { rotatingPlayerIndex = idx; isSnapping = false; }
+            else { draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0; }
             return true;
-        }
-        return false;
+        } return false;
     }
-
     function handleMove(x, y) {
         const idx = getPlayerUnderMouse(x, y);
-        if (draggingPlayerIndex !== -1) canvas.style.cursor = 'grabbing';
-        else if (idx !== -1) canvas.style.cursor = 'grab';
-        else canvas.style.cursor = 'default';
-
-        if (draggingPlayerIndex !== -1) {
-            const p = activeObjects[draggingPlayerIndex];
-            p.x = x - dragOffset.x;
-            p.y = y - dragOffset.y;
-            checkBounds(p);
-        }
+        if (draggingPlayerIndex !== -1) canvas.style.cursor = 'grabbing'; else if (idx !== -1) canvas.style.cursor = 'grab'; else canvas.style.cursor = 'default';
+        if (draggingPlayerIndex !== -1) { const p = activeObjects[draggingPlayerIndex]; p.x = x - dragOffset.x; p.y = y - dragOffset.y; checkBounds(p); }
+    }
+    
+    // ZENTRALE SNAP LOGIK (Für Maus, Tastatur & Buttons)
+    function triggerSnap(index) {
+        if (index === -1) return;
+        const p = activeObjects[index];
+        targetRotation = Math.round(p.rotation / 15) * 15;
+        isSnapping = true;
+        snappingPlayerIndex = index;
     }
 
-    // --- HANDLE END MIT "BACK TO GARAGE" LOGIC (V33 Base) ---
     function handleEnd(e) {
-        let mx = e.clientX;
-        let my = e.clientY;
-        if (e.changedTouches && e.changedTouches.length > 0) {
-            mx = e.changedTouches[0].clientX;
-            my = e.changedTouches[0].clientY;
-        }
-        const isRightClick = (e.button === 2);
-
-        // 1. DOCK DROP CHECK
+        let mx = e.clientX, my = e.clientY;
+        if (e.changedTouches && e.changedTouches.length > 0) { mx = e.changedTouches[0].clientX; my = e.changedTouches[0].clientY; }
+        const isRight = (e.button === 2);
+        
+        // Drag Drop Check
         if (draggingPlayerIndex !== -1) {
-            const dockRect = dockContainer.getBoundingClientRect();
-            if (mx >= dockRect.left - 20 && mx <= dockRect.right + 20 &&
-                my >= dockRect.top - 20 && my <= dockRect.bottom + 20) {
-                
+            const dr = dockContainer.getBoundingClientRect();
+            if (mx >= dr.left - 20 && mx <= dr.right + 20 && my >= dr.top - 20 && my <= dr.bottom + 20) {
                 const p = activeObjects[draggingPlayerIndex];
-                let newDockItem = {
-                    type: p.type, width: p.width, height: p.height,
-                    // Rotation resetten (Snowboarder 90, Rest 0)
-                    rotation: (p.type==='sprite' && p.assetKey==='boarder') ? 90 : 0 
-                };
-                if(p.type === 'sprite') newDockItem.assetKey = p.assetKey;
-                else newDockItem.color = p.color;
-
-                dockedObjects.push(newDockItem);
-                activeObjects.splice(draggingPlayerIndex, 1);
-                
-                renderDock();
-                draggingPlayerIndex = -1;
-                activePlayerIndex = 0; 
-                return; 
+                let ni = { type: p.type, width: p.width, height: p.height, rotation: (p.type==='sprite' && p.assetKey==='boarder') ? 90 : 0 };
+                if(p.type === 'sprite') ni.assetKey = p.assetKey; else ni.color = p.color;
+                dockedObjects.push(ni); activeObjects.splice(draggingPlayerIndex, 1); renderDock();
+                draggingPlayerIndex = -1; activePlayerIndex = 0; return;
             }
         }
-
-        // 2. REGULAR DROP END
+        
         draggingPlayerIndex = -1;
-        if (isRightClick && rotatingPlayerIndex !== -1) {
-            const p = activeObjects[rotatingPlayerIndex];
-            const gridSize = 15;
-            let nextSnap = Math.ceil(p.rotation / gridSize) * gridSize;
-            targetRotation = nextSnap;
-            isSnapping = true;
-            snappingPlayerIndex = rotatingPlayerIndex;
+        
+        // Mouse Rotation End -> Snap
+        if (isRight && rotatingPlayerIndex !== -1) {
+            triggerSnap(rotatingPlayerIndex);
             rotatingPlayerIndex = -1;
         }
     }
 
-    // Listeners
     canvas.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY, e.button === 2));
     canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
     window.addEventListener('mouseup', e => handleEnd(e));
     canvas.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
     canvas.addEventListener('wheel', e => { e.preventDefault(); if(activeObjects.length) performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1 : -1, 5); }, { passive: false });
-    canvas.addEventListener('touchstart', e => { if(e.target === canvas) e.preventDefault(); handleStart(e.touches[0].clientX, e.touches[0].clientY, false); }, { passive: false });
-    canvas.addEventListener('touchmove', e => { if(e.target === canvas) e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
-    canvas.addEventListener('touchend', e => { handleEnd(e); });
+    canvas.addEventListener('touchstart', e => { if(e.target===canvas)e.preventDefault(); handleStart(e.touches[0].clientX, e.touches[0].clientY, false); }, { passive: false });
+    canvas.addEventListener('touchmove', e => { if(e.target===canvas)e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+    canvas.addEventListener('touchend', e => handleEnd(e));
 
-    // Buttons / Keys
-    const movementKeys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, RotateLeft: false, RotateRight: false, ZoomIn: false, ZoomOut: false };
-    function bindTouchBtn(id, keyName) {
-        const btn = document.getElementById(id);
-        const startAction = (e) => { e.preventDefault(); movementKeys[keyName] = true; };
-        const endAction = (e) => { e.preventDefault(); movementKeys[keyName] = false; };
-        btn.addEventListener('mousedown', startAction); btn.addEventListener('mouseup', endAction); btn.addEventListener('mouseleave', endAction);
-        btn.addEventListener('touchstart', startAction, {passive:false}); btn.addEventListener('touchend', endAction, {passive:false});
-    }
-    bindTouchBtn('btnUp', 'ArrowUp'); bindTouchBtn('btnDown', 'ArrowDown'); bindTouchBtn('btnLeft', 'ArrowLeft'); bindTouchBtn('btnRight', 'ArrowRight');
-    bindTouchBtn('btnRotLeft', 'RotateLeft'); bindTouchBtn('btnRotRight', 'RotateRight'); bindTouchBtn('btnZoomIn', 'ZoomIn'); bindTouchBtn('btnZoomOut', 'ZoomOut');
-
-    window.addEventListener('keydown', (e) => {
-        if (e.key === 's' || e.key === 'S') { document.getElementById('saveBtn').click(); return; }
-        if (e.code === 'Tab') { 
+    const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, RotateLeft: false, RotateRight: false, ZoomIn: false, ZoomOut: false };
+    
+    // Button Logic
+    function bindBtn(id, k) {
+        const b = document.getElementById(id);
+        const s = (e) => { e.preventDefault(); keys[k] = true; };
+        const n = (e) => { 
             e.preventDefault(); 
-            if(activeObjects.length > 1) activePlayerIndex = (activePlayerIndex + 1) % activeObjects.length; 
-            return; 
-        }
-        if(movementKeys.hasOwnProperty(e.code)) movementKeys[e.code] = true;
-        if (e.key === 'ö' || e.key === 'Ö') movementKeys['RotateLeft'] = true;
-        if (e.key === 'ä' || e.key === 'Ä') movementKeys['RotateRight'] = true;
-        if (e.key === '+') movementKeys['ZoomIn'] = true;
-        if (e.key === '-') movementKeys['ZoomOut'] = true;
+            keys[k] = false; 
+            // SNAP ON BUTTON RELEASE
+            if (k === 'RotateLeft' || k === 'RotateRight') triggerSnap(activePlayerIndex);
+        };
+        b.addEventListener('mousedown', s); b.addEventListener('mouseup', n); b.addEventListener('mouseleave', n);
+        b.addEventListener('touchstart', s, {passive:false}); b.addEventListener('touchend', n, {passive:false});
+    }
+    bindBtn('btnUp', 'ArrowUp'); bindBtn('btnDown', 'ArrowDown'); bindBtn('btnLeft', 'ArrowLeft'); bindBtn('btnRight', 'ArrowRight');
+    bindBtn('btnRotLeft', 'RotateLeft'); bindBtn('btnRotRight', 'RotateRight'); bindBtn('btnZoomIn', 'ZoomIn'); bindBtn('btnZoomOut', 'ZoomOut');
+
+    window.addEventListener('keydown', e => {
+        if (e.key==='s'||e.key==='S') { document.getElementById('saveBtn').click(); return; }
+        if (e.code==='Tab') { e.preventDefault(); if(activeObjects.length>1) activePlayerIndex=(activePlayerIndex+1)%activeObjects.length; return; }
+        if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
+        if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=true;
+        if(e.key==='+') keys['ZoomIn']=true; if(e.key==='-') keys['ZoomOut']=true;
     });
-    window.addEventListener('keyup', (e) => {
-        if(movementKeys.hasOwnProperty(e.code)) movementKeys[e.code] = false;
-        if (e.key === 'ö' || e.key === 'Ö') movementKeys['RotateLeft'] = false;
-        if (e.key === 'ä' || e.key === 'Ä') movementKeys['RotateRight'] = false;
-        if (e.key === '+') movementKeys['ZoomIn'] = false;
-        if (e.key === '-') movementKeys['ZoomOut'] = false;
+    
+    window.addEventListener('keyup', e => {
+        // SNAP ON KEY RELEASE
+        if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä')) {
+            triggerSnap(activePlayerIndex);
+        }
+        if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
+        if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=false; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=false;
+        if(e.key==='+') keys['ZoomIn']=false; if(e.key==='-') keys['ZoomOut']=false;
     });
 
     document.getElementById('saveBtn').addEventListener('click', () => {
-        const link = document.createElement('a'); 
-        link.download = `ski-sim-${Date.now()}.png`; 
-        link.href = canvas.toDataURL("image/png"); 
-        link.click();
+        const link = document.createElement('a'); link.download = `ski-sim-${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click();
     });
 
-    // --- GAME LOOP (V33 Base) ---
     function update() {
         if(activeObjects.length === 0) return;
-        if (activePlayerIndex >= activeObjects.length) activePlayerIndex = 0;
-
-        if (rotatingPlayerIndex !== -1) activeObjects[rotatingPlayerIndex].rotation += 3;
-        if (isSnapping && snappingPlayerIndex !== -1) {
-            const p = activeObjects[snappingPlayerIndex]; let diff = targetRotation - p.rotation;
-            if (diff <= 0) { p.rotation = targetRotation; isSnapping = false; snappingPlayerIndex = -1; } else { p.rotation += (diff < 3 ? diff : 3); }
+        if(activePlayerIndex >= activeObjects.length) activePlayerIndex=0;
+        
+        // Mouse Rotation
+        if(rotatingPlayerIndex !== -1) activeObjects[rotatingPlayerIndex].rotation += 3;
+        
+        // Auto Snap Logic
+        if(isSnapping && snappingPlayerIndex !== -1) {
+            const p = activeObjects[snappingPlayerIndex];
+            const diff = targetRotation - p.rotation;
+            if (Math.abs(diff) < 3.1) { 
+                p.rotation = targetRotation; 
+                isSnapping = false; 
+                snappingPlayerIndex = -1; 
+            } else {
+                p.rotation += (diff > 0 ? 3 : -3);
+            }
         }
-
-        const activeP = activeObjects[activePlayerIndex];
-        if (draggingPlayerIndex !== activePlayerIndex) {
-            if (movementKeys['ArrowLeft']) activeP.dx = -activeP.speed; else if (movementKeys['ArrowRight']) activeP.dx = activeP.speed; else activeP.dx *= 0.85; 
-            if (movementKeys['ArrowUp']) activeP.dy = -activeP.speed; else if (movementKeys['ArrowDown']) activeP.dy = activeP.speed; else activeP.dy *= 0.85; 
-            activeP.x += activeP.dx; activeP.y += activeP.dy;
-            if (movementKeys['RotateLeft']) activeP.rotation -= 3; if (movementKeys['RotateRight']) activeP.rotation += 3;
-            if (movementKeys['ZoomIn']) performZoom(activeP, 1, 3); if (movementKeys['ZoomOut']) performZoom(activeP, -1, 3);
-            checkBounds(activeP);
+        
+        const ap = activeObjects[activePlayerIndex];
+        if(draggingPlayerIndex !== activePlayerIndex) {
+            if(keys['ArrowLeft']) ap.dx = -ap.speed; else if(keys['ArrowRight']) ap.dx = ap.speed; else ap.dx *= 0.85; 
+            if(keys['ArrowUp']) ap.dy = -ap.speed; else if(keys['ArrowDown']) ap.dy = ap.speed; else ap.dy *= 0.85; 
+            ap.x += ap.dx; ap.y += ap.dy;
+            if(keys['RotateLeft']) ap.rotation -= 3; if(keys['RotateRight']) ap.rotation += 3;
+            if(keys['ZoomIn']) performZoom(ap, 1, 3); if(keys['ZoomOut']) performZoom(ap, -1, 3);
+            checkBounds(ap);
         }
     }
 
     function drawLoop() {
         update();
         ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        let gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 100, canvas.width/2, canvas.height/2, canvas.width);
-        gradient.addColorStop(0, 'rgba(255,255,255,0.2)'); gradient.addColorStop(1, '#ebeff5'); 
-        ctx.fillStyle = gradient; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        let g = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 100, canvas.width/2, canvas.height/2, canvas.width);
+        g.addColorStop(0, 'rgba(255,255,255,0.2)'); g.addColorStop(1, '#ebeff5'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        activeObjects.forEach((p, index) => {
-            ctx.save(); 
-            ctx.translate(p.x + p.width/2, p.y + p.height/2);
-            if (activeObjects.length > 1 && index === activePlayerIndex) {
-                ctx.beginPath(); 
-                const radius = Math.max(p.width, p.height) / 1.4;
-                ctx.arc(0, 0, radius, 0, Math.PI*2);
+        activeObjects.forEach((p, i) => {
+            ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2);
+            if (activeObjects.length > 1 && i === activePlayerIndex) {
+                ctx.beginPath(); ctx.arc(0, 0, Math.max(p.width, p.height)/1.4, 0, Math.PI*2);
                 ctx.strokeStyle = '#00bfff'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke();
             }
             ctx.rotate(p.rotation * Math.PI / 180);
             if (p.type === 'sprite') {
                 const img = ASSETS[p.assetKey];
-                if (img && img.complete && img.naturalHeight !== 0) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height);
-                else { ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
-            } else if (p.type === 'rect') {
-                ctx.fillStyle = p.color;
-                ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5;
+                try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){ ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
+            } else {
+                ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5;
                 ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height);
             }
             ctx.restore(); 
@@ -519,7 +415,6 @@ Neu (V36): <rect x="30" y="33" width="40" height="34" ...> (Die Y-Position wurde
     }
 
     preloadAssets(startGame);
-
 </script>
 </body>
 </html>
