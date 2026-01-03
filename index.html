@@ -1,31 +1,25 @@
-<!-- Skisim V43 -->
-<!-- Fix: Drehung in 15°-Schritten. Stable.
+<!-- Skisim V45 -->
+<!-- Bugfix for Scaling of V, Line and Arrow - change to multiplicative scaling. 
 
 Apache V2 License
-2026-01-02 
+2026-01-03 
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
-Ich habe den Code überprüft: Die Logik, dass beim Loslassen der rechten Maustaste die Rotation auf den nächsten 15°-Schritt (z. B. 0°, 15°, 30°, 45°...) animiert wird, ist fest integriert (Math.ceil(rotation / 15) * 15).
-In der bisherigen Version gilt das Einrasten nur für die Maus. Wenn du die Tasten oder die Buttons loslässt, stoppt die Drehung sofort, auch bei "krummen" Werten (z.B. 34°).
 
-Ich habe eine neue Funktion triggerSnap() eingebaut und sie mit allen Eingabemethoden verknüpft.
+Das ist ein klassisches Problem bei der Skalierung.
 
-Maus: Rastet beim Loslassen der rechten Taste ein.
+Die Ursache: Bisher habe ich eine additive Skalierung verwendet (Breite + 5px, Höhe + 5px).
 
-Tastatur (ö/ä): Rastet beim Loslassen der Taste auf das nächste 15°-Vielfache ein.
+Das Winkel-Problem: Wenn man zu einem Rechteck von 100x60 jeweils 10 Pixel addiert (110x70), ändert sich das Seitenverhältnis. Dadurch wird das darin enthaltene SVG (das "V") verzerrt und der Winkel ändert sich.
 
-Bildschirm-Buttons: Rastet beim Loslassen des Touch-Buttons ein.
+Das Linien-Problem: Die Linie ist sehr flach (Höhe 20px). Meine bisherige Sperre verhinderte, dass ein Objekt unter 20px Höhe fällt. Da die Linie schon bei 20px startet, konnte sie nicht kleiner werden.
 
-Damit verhalten sich alle Steuerungen jetzt konsistent.
+Die Lösung in Version 45: Ich habe die Zoom-Funktion auf multiplikative Skalierung umgestellt (z.B. Breite * 1.05).
 
+Dadurch bleiben die Proportionen (Aspect Ratio) exakt erhalten, der V-Winkel bleibt konstant 120°.
 
-Zusammenfassung des Status:
-Rotation: Rastet beim Loslassen der rechten Maustaste sanft auf 15°-Schritte ein.
-
-Grafik: Skifahrer sind schlank (V40-Style), Linien sind dünn (V41-Style).
-
-Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
+Die Größenbeschränkung prüft nun nur noch die längste Seite des Objekts. So können dünne Linien beliebig dünn werden, solange sie lang genug bleiben.
 -->
 
 
@@ -34,7 +28,7 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V43 (Full Snapping)</title>
+    <title>Ski-Simulation V45 (Proportional Zoom)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -251,12 +245,34 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
     }
 
     function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > canvas.width - p.width) p.x = canvas.width - p.width; if (p.y < 0) p.y = 0; if (p.y > canvas.height - p.height) p.y = canvas.height - p.height; }
-    function performZoom(p, dir, amt) {
-        const nw = p.width + (dir*amt), nh = p.height + (dir*amt);
-        if (nw > 20 && nh > 20) { p.x -= (dir*amt)/2; p.y -= (dir*amt)/2; p.width = nw; p.height = nh; checkBounds(p); }
+    
+    // --- NEW: PROPORTIONAL ZOOM ---
+    function performZoom(p, factor) {
+        const minSize = 20; // Mindestgröße (für die größte Seite)
+        const nw = p.width * factor;
+        const nh = p.height * factor;
+        
+        // Prüfen ob das Objekt zu klein wird (basierend auf der größeren Seite, damit dünne Linien erlaubt sind)
+        if (Math.max(nw, nh) >= minSize) {
+            // Position anpassen, damit Zentrum gleich bleibt
+            p.x -= (nw - p.width) / 2;
+            p.y -= (nh - p.height) / 2;
+            p.width = nw;
+            p.height = nh;
+            checkBounds(p);
+        }
     }
+
     function getPlayerUnderMouse(mx, my) {
         for (let i = activeObjects.length - 1; i >= 0; i--) { const p = activeObjects[i]; if (mx > p.x && mx < p.x + p.width && my > p.y && my < p.y + p.height) return i; } return -1;
+    }
+
+    // LAYER HELPER
+    function getLayer(p) {
+        if (p.type === 'rect') return 1;
+        if (['tree'].includes(p.assetKey)) return 1;
+        if (['skiBlue', 'skiGreen', 'boarder'].includes(p.assetKey)) return 2;
+        return 0; // Low (Lines, Arrows, V)
     }
 
     function handleStart(x, y, isRight) {
@@ -274,7 +290,6 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
         if (draggingPlayerIndex !== -1) { const p = activeObjects[draggingPlayerIndex]; p.x = x - dragOffset.x; p.y = y - dragOffset.y; checkBounds(p); }
     }
     
-    // ZENTRALE SNAP LOGIK (Für Maus, Tastatur & Buttons)
     function triggerSnap(index) {
         if (index === -1) return;
         const p = activeObjects[index];
@@ -288,7 +303,6 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
         if (e.changedTouches && e.changedTouches.length > 0) { mx = e.changedTouches[0].clientX; my = e.changedTouches[0].clientY; }
         const isRight = (e.button === 2);
         
-        // Drag Drop Check
         if (draggingPlayerIndex !== -1) {
             const dr = dockContainer.getBoundingClientRect();
             if (mx >= dr.left - 20 && mx <= dr.right + 20 && my >= dr.top - 20 && my <= dr.bottom + 20) {
@@ -301,8 +315,6 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
         }
         
         draggingPlayerIndex = -1;
-        
-        // Mouse Rotation End -> Snap
         if (isRight && rotatingPlayerIndex !== -1) {
             triggerSnap(rotatingPlayerIndex);
             rotatingPlayerIndex = -1;
@@ -313,21 +325,22 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
     canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
     window.addEventListener('mouseup', e => handleEnd(e));
     canvas.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
-    canvas.addEventListener('wheel', e => { e.preventDefault(); if(activeObjects.length) performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1 : -1, 5); }, { passive: false });
+    // Mouse Wheel Zoom
+    canvas.addEventListener('wheel', e => { 
+        e.preventDefault(); 
+        if(activeObjects.length) performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9); // Multiplikativ
+    }, { passive: false });
     canvas.addEventListener('touchstart', e => { if(e.target===canvas)e.preventDefault(); handleStart(e.touches[0].clientX, e.touches[0].clientY, false); }, { passive: false });
     canvas.addEventListener('touchmove', e => { if(e.target===canvas)e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
     canvas.addEventListener('touchend', e => handleEnd(e));
 
     const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, RotateLeft: false, RotateRight: false, ZoomIn: false, ZoomOut: false };
     
-    // Button Logic
     function bindBtn(id, k) {
         const b = document.getElementById(id);
         const s = (e) => { e.preventDefault(); keys[k] = true; };
         const n = (e) => { 
-            e.preventDefault(); 
-            keys[k] = false; 
-            // SNAP ON BUTTON RELEASE
+            e.preventDefault(); keys[k] = false; 
             if (k === 'RotateLeft' || k === 'RotateRight') triggerSnap(activePlayerIndex);
         };
         b.addEventListener('mousedown', s); b.addEventListener('mouseup', n); b.addEventListener('mouseleave', n);
@@ -345,10 +358,7 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
     });
     
     window.addEventListener('keyup', e => {
-        // SNAP ON KEY RELEASE
-        if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä')) {
-            triggerSnap(activePlayerIndex);
-        }
+        if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä')) triggerSnap(activePlayerIndex);
         if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
         if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=false; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=false;
         if(e.key==='+') keys['ZoomIn']=false; if(e.key==='-') keys['ZoomOut']=false;
@@ -362,20 +372,12 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
         if(activeObjects.length === 0) return;
         if(activePlayerIndex >= activeObjects.length) activePlayerIndex=0;
         
-        // Mouse Rotation
         if(rotatingPlayerIndex !== -1) activeObjects[rotatingPlayerIndex].rotation += 3;
         
-        // Auto Snap Logic
         if(isSnapping && snappingPlayerIndex !== -1) {
-            const p = activeObjects[snappingPlayerIndex];
-            const diff = targetRotation - p.rotation;
-            if (Math.abs(diff) < 3.1) { 
-                p.rotation = targetRotation; 
-                isSnapping = false; 
-                snappingPlayerIndex = -1; 
-            } else {
-                p.rotation += (diff > 0 ? 3 : -3);
-            }
+            const p = activeObjects[snappingPlayerIndex], diff = targetRotation - p.rotation;
+            if(Math.abs(diff) < 3.1) { p.rotation = targetRotation; isSnapping = false; snappingPlayerIndex = -1; } 
+            else { p.rotation += (diff > 0 ? 3 : -3); }
         }
         
         const ap = activeObjects[activePlayerIndex];
@@ -384,9 +386,23 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
             if(keys['ArrowUp']) ap.dy = -ap.speed; else if(keys['ArrowDown']) ap.dy = ap.speed; else ap.dy *= 0.85; 
             ap.x += ap.dx; ap.y += ap.dy;
             if(keys['RotateLeft']) ap.rotation -= 3; if(keys['RotateRight']) ap.rotation += 3;
-            if(keys['ZoomIn']) performZoom(ap, 1, 3); if(keys['ZoomOut']) performZoom(ap, -1, 3);
+            // Key Zoom: Smoother factors
+            if(keys['ZoomIn']) performZoom(ap, 1.02); if(keys['ZoomOut']) performZoom(ap, 0.98);
             checkBounds(ap);
         }
+    }
+
+    function drawObject(p) {
+        ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2);
+        ctx.rotate(p.rotation * Math.PI / 180);
+        if (p.type === 'sprite') {
+            const img = ASSETS[p.assetKey];
+            try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){ ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
+        } else {
+            ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5;
+            ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height);
+        }
+        ctx.restore(); 
     }
 
     function drawLoop() {
@@ -395,22 +411,20 @@ Stabilität: Der "Safety Start" ist aktiv, falls das Laden hakt.
         let g = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 100, canvas.width/2, canvas.height/2, canvas.width);
         g.addColorStop(0, 'rgba(255,255,255,0.2)'); g.addColorStop(1, '#ebeff5'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        activeObjects.forEach((p, i) => {
-            ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2);
-            if (activeObjects.length > 1 && i === activePlayerIndex) {
+        activeObjects.forEach(p => { if(getLayer(p) === 0) drawObject(p); });
+        activeObjects.forEach(p => { if(getLayer(p) === 1) drawObject(p); });
+        activeObjects.forEach(p => { if(getLayer(p) === 2) drawObject(p); });
+
+        if(activeObjects.length > 0) {
+            const p = activeObjects[activePlayerIndex];
+            if(p) {
+                ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2);
                 ctx.beginPath(); ctx.arc(0, 0, Math.max(p.width, p.height)/1.4, 0, Math.PI*2);
                 ctx.strokeStyle = '#00bfff'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke();
+                ctx.restore();
             }
-            ctx.rotate(p.rotation * Math.PI / 180);
-            if (p.type === 'sprite') {
-                const img = ASSETS[p.assetKey];
-                try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){ ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
-            } else {
-                ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5;
-                ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height);
-            }
-            ctx.restore(); 
-        });
+        }
+        
         requestAnimationFrame(drawLoop);
     }
 
