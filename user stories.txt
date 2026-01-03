@@ -1,0 +1,35 @@
+User Stories 
+Skisim v46 
+
+
+User Stories für die Web-App, zugeschnitten auf die Rolle Sachverständige:r (z. B. für Alpinunfälle), basierend auf dem Funktionsumfang der Version 46.
+
+Bereich: Szenario-Erstellung & Objekte
+  Als Sachverständige:r möchte ich verschiedene Akteure (Skifahrer, Snowboarder) aus einer Bibliothek auf die Zeichenfläche ziehen können, um die Beteiligten eines Unfalls darzustellen.
+
+  Als Sachverständige:r möchte ich Umgebungsobjekte wie Bäume oder Hindernisse (Boxen) platzieren können, um die örtlichen Gegebenheiten der Unfallstelle zu skizzieren.
+
+  Als Sachverständige:r möchte ich symbolische Elemente wie Pfeile, Linien und Trichter (V-Form) nutzen, um Fahrlinien, Bewegungsrichtungen oder Sichtfelder zu visualisieren.
+
+  Als Sachverständige:r möchte ich, dass wichtige Objekte (Personen) automatisch über Bodenmarkierungen (Linien, Pfeile) liegen, um eine korrekte räumliche Überlagerung ohne manuelles Sortieren zu gewährleisten.
+
+Bereich: Manipulation & Präzision
+  Als Sachverständige:r möchte ich Objekte frei auf der Fläche verschieben können, um ihre Position zum Unfallzeitpunkt oder in der Endlage exakt zu bestimmen.
+
+  Als Sachverständige:r möchte ich Objekte drehen können, wobei die Drehung in 15-Grad-Schritten einrastet, um präzise Ausrichtungen (z. B. parallel zur Falllinie oder 90° Querstellung) einfach einstellen zu können.
+
+  Als Sachverständige:r möchte ich die Größe der Objekte skalieren können, wobei die Proportionen erhalten bleiben, um Größenverhältnisse realistisch abzubilden, ohne dass Formen (wie Winkel) verzerrt werden.
+
+  Als Sachverständige:r möchte ich zwischen verschiedenen Objekten (per Klick oder Tab-Taste) wechseln können, um nacheinander die Eigenschaften mehrerer Beteiligter zu bearbeiten.
+
+Bereich: Dokumentation & Export
+  Als Sachverständige:r möchte ich die erstellte Szene per Knopfdruck als Bilddatei (PNG) herunterladen, um die Skizze direkt in mein schriftliches Gutachten oder meine Akte einfügen zu können.
+
+  Als Sachverständige:r möchte ich sicher sein, dass der Hintergrund beim Export sauber dargestellt wird (weiß/Verlauf), um ein professionelles Erscheinungsbild im Bericht zu gewährleisten.
+
+Bereich: Usability & Steuerung
+  Als Sachverständige:r möchte ich die Bedienungsanleitung und Hinweise einklappen können, um die maximale Bildschirmfläche für die Zeichnung zur Verfügung zu haben.
+
+  Als Sachverständige:r möchte ich die App sowohl mit der Maus als auch über Touch-Elemente oder Tastaturkürzel steuern können, um je nach Gerät (Tablet vor Ort oder PC im Büro) effizient arbeiten zu können.
+
+  Als Sachverständige:r möchte ich visuell klar erkennen, welches Objekt gerade ausgewählt ist (blauer Ring), um Fehlbedienungen beim Verschieben oder Drehen zu vermeiden.
