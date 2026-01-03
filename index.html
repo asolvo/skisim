@@ -1,25 +1,25 @@
-<!-- Skisim V45 -->
-<!-- Bugfix for Scaling of V, Line and Arrow - change to multiplicative scaling. 
+<!-- Skisim V47 -->
+<!-- Add a Share Button 
 
 Apache V2 License
 2026-01-03 
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
+Erweiterung für die mobile Nutzung (Tablets vor Ort). Wir nutzen dafür die Web Share API.
 
-Das ist ein klassisches Problem bei der Skalierung.
+Die Änderungen:
+* Neuer "Share"-Button: Platziert links neben dem Download-Button.
 
-Die Ursache: Bisher habe ich eine additive Skalierung verwendet (Breite + 5px, Höhe + 5px).
+* Icon: Das typische Android-Share-Symbol (drei verbundene Punkte).
 
-Das Winkel-Problem: Wenn man zu einem Rechteck von 100x60 jeweils 10 Pixel addiert (110x70), ändert sich das Seitenverhältnis. Dadurch wird das darin enthaltene SVG (das "V") verzerrt und der Winkel ändert sich.
+Technische Umsetzung:
 
-Das Linien-Problem: Die Linie ist sehr flach (Höhe 20px). Meine bisherige Sperre verhinderte, dass ein Objekt unter 20px Höhe fällt. Da die Linie schon bei 20px startet, konnte sie nicht kleiner werden.
+* Der Canvas-Inhalt wird in eine Bilddatei (blob) umgewandelt.
 
-Die Lösung in Version 45: Ich habe die Zoom-Funktion auf multiplikative Skalierung umgestellt (z.B. Breite * 1.05).
+* Diese Datei wird an die native Teilen-Funktion des Geräts übergeben (navigator.share).
 
-Dadurch bleiben die Proportionen (Aspect Ratio) exakt erhalten, der V-Winkel bleibt konstant 120°.
-
-Die Größenbeschränkung prüft nun nur noch die längste Seite des Objekts. So können dünne Linien beliebig dünn werden, solange sie lang genug bleiben.
+Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder localhost und wird von den meisten modernen mobilen Browsern (Chrome Android, Safari iOS) unterstützt. Auf Desktop-Browsern ist der Support eingeschränkt (oft nur Text/Link, keine Dateien), daher habe ich eine kleine Fallback-Prüfung eingebaut.
 -->
 
 
@@ -28,7 +28,7 @@ Die Größenbeschränkung prüft nun nur noch die längste Seite des Objekts. So
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V45 (Proportional Zoom)</title>
+    <title>Ski-Simulation V47 (Export & Share)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -50,16 +50,20 @@ Die Größenbeschränkung prüft nun nur noch die längste Seite des Objekts. So
         .key-badge { background: #eee; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-family: monospace; }
         li { margin-bottom: 8px; font-size: 14px; color: #555; line-height: 1.4; }
 
-        /* Save Button */
-        #saveBtn { 
-            position: absolute; top: 20px; right: 125px; 
+        /* HEADER BUTTONS (Share & Save) */
+        .header-btn { 
+            position: absolute; top: 20px; 
             width: 50px; height: 50px; cursor: pointer; background: white; 
             border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 20;
             font-size: 24px; display: flex; justify-content: center; align-items: center;
             transition: transform 0.1s, background 0.2s;
         }
-        #saveBtn:hover { background: #f8f9fa; transform: scale(1.05); }
-        #saveBtn:active { transform: scale(0.95); background: #e9ecef; }
+        .header-btn:hover { background: #f8f9fa; transform: scale(1.05); }
+        .header-btn:active { transform: scale(0.95); background: #e9ecef; }
+        
+        /* Positionierung */
+        #saveBtn { right: 125px; } /* Rechts neben Dock (Dock ist ca 110px breit inkl Margin) */
+        #shareBtn { right: 185px; } /* Links neben Save Button */
 
         /* Loader */
         #loader {
@@ -117,10 +121,21 @@ Die Größenbeschränkung prüft nun nur noch die längste Seite des Objekts. So
             <li><strong>Zoomen:</strong> Mausrad / <span class="key-badge">+</span> <span class="key-badge">-</span>.</li>
             <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span>.</li>
         </ul>
+        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v47</div>
     </div>
 </div>
 
-<button id="saveBtn" title="Bild speichern">📥</button>
+<button id="shareBtn" class="header-btn" title="Teilen">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="18" cy="5" r="3"></circle>
+        <circle cx="6" cy="12" r="3"></circle>
+        <circle cx="18" cy="19" r="3"></circle>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+    </svg>
+</button>
+
+<button id="saveBtn" class="header-btn" title="Download">📥</button>
 
 <div id="dock">
     <div class="dock-title">Objekte</div>
@@ -246,15 +261,12 @@ Die Größenbeschränkung prüft nun nur noch die längste Seite des Objekts. So
 
     function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > canvas.width - p.width) p.x = canvas.width - p.width; if (p.y < 0) p.y = 0; if (p.y > canvas.height - p.height) p.y = canvas.height - p.height; }
     
-    // --- NEW: PROPORTIONAL ZOOM ---
+    // --- PROPORTIONAL ZOOM ---
     function performZoom(p, factor) {
-        const minSize = 20; // Mindestgröße (für die größte Seite)
+        const minSize = 20; 
         const nw = p.width * factor;
         const nh = p.height * factor;
-        
-        // Prüfen ob das Objekt zu klein wird (basierend auf der größeren Seite, damit dünne Linien erlaubt sind)
         if (Math.max(nw, nh) >= minSize) {
-            // Position anpassen, damit Zentrum gleich bleibt
             p.x -= (nw - p.width) / 2;
             p.y -= (nh - p.height) / 2;
             p.width = nw;
@@ -325,10 +337,9 @@ Die Größenbeschränkung prüft nun nur noch die längste Seite des Objekts. So
     canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
     window.addEventListener('mouseup', e => handleEnd(e));
     canvas.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
-    // Mouse Wheel Zoom
     canvas.addEventListener('wheel', e => { 
         e.preventDefault(); 
-        if(activeObjects.length) performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9); // Multiplikativ
+        if(activeObjects.length) performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9);
     }, { passive: false });
     canvas.addEventListener('touchstart', e => { if(e.target===canvas)e.preventDefault(); handleStart(e.touches[0].clientX, e.touches[0].clientY, false); }, { passive: false });
     canvas.addEventListener('touchmove', e => { if(e.target===canvas)e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
@@ -368,6 +379,28 @@ Die Größenbeschränkung prüft nun nur noch die längste Seite des Objekts. So
         const link = document.createElement('a'); link.download = `ski-sim-${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click();
     });
 
+    // --- SHARE FUNCTIONALITY ---
+    document.getElementById('shareBtn').addEventListener('click', async () => {
+        if (navigator.share) {
+            try {
+                // Canvas zu Blob konvertieren
+                const dataUrl = canvas.toDataURL('image/png');
+                const blob = await (await fetch(dataUrl)).blob();
+                const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' });
+                
+                await navigator.share({
+                    title: 'Ski-Unfallskizze',
+                    text: 'Erstellt mit Ski-Simulation V47',
+                    files: [file]
+                });
+            } catch (err) {
+                console.log('Teilen abgebrochen oder fehlgeschlagen:', err);
+            }
+        } else {
+            alert('Teilen wird von diesem Browser nicht unterstützt. Bitte nutze den Download-Button.');
+        }
+    });
+
     function update() {
         if(activeObjects.length === 0) return;
         if(activePlayerIndex >= activeObjects.length) activePlayerIndex=0;
@@ -386,7 +419,7 @@ Die Größenbeschränkung prüft nun nur noch die längste Seite des Objekts. So
             if(keys['ArrowUp']) ap.dy = -ap.speed; else if(keys['ArrowDown']) ap.dy = ap.speed; else ap.dy *= 0.85; 
             ap.x += ap.dx; ap.y += ap.dy;
             if(keys['RotateLeft']) ap.rotation -= 3; if(keys['RotateRight']) ap.rotation += 3;
-            // Key Zoom: Smoother factors
+            // Key Zoom (Multiplikativ)
             if(keys['ZoomIn']) performZoom(ap, 1.02); if(keys['ZoomOut']) performZoom(ap, 0.98);
             checkBounds(ap);
         }
