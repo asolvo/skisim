@@ -1,34 +1,33 @@
-<!-- Skisim V47 -->
-<!-- Add a Share Button 
+<!-- Skisim V55 -->
+<!-- Schneepflugfahrer:in und Verletzte:r nochmal überarbeitet
 
 Apache V2 License
-2026-01-03 
+2026-01-04 
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
-Erweiterung für die mobile Nutzung (Tablets vor Ort). Wir nutzen dafür die Web Share API.
+Die Änderungen im Detail:
+Pflugfahrer (SVG_SKI_PLOW) - Zurückgesetzt:
 
-Die Änderungen:
-* Neuer "Share"-Button: Platziert links neben dem Download-Button.
+Die Änderung aus V55 wurde rückgängig gemacht. Die Ski stehen wieder enger zusammen (Positionen x=40 und x=48), genau wie in Version 54. Das "V" ist wieder schmaler.
 
-* Icon: Das typische Android-Share-Symbol (drei verbundene Punkte).
+Verletzte Person (SVG_INJURED) - Angepasst:
 
-Technische Umsetzung:
+Keine Stiefel: Die grauen Blöcke für die Skistiefel wurden entfernt. Die Hosenbeine enden nun stumpf.
 
-* Der Canvas-Inhalt wird in eine Bilddatei (blob) umgewandelt.
+Jacke ohne Spitze: Die rote Jacke wurde unten abgeflacht, um die angedeutete "Spitze" oder Rundung in der Mitte zu entfernen. Sie bildet nun einen geraden Abschluss über der Hose.
 
-* Diese Datei wird an die native Teilen-Funktion des Geräts übergeben (navigator.share).
+Beibehalten: Die neuen, gefüllten Hosenbeine und die angedeuteten Arme aus V55 sind geblieben, da nur die Stiefel und die Jackenspitze entfernt werden sollten.
 
-Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder localhost und wird von den meisten modernen mobilen Browsern (Chrome Android, Safari iOS) unterstützt. Auf Desktop-Browsern ist der Support eingeschränkt (oft nur Text/Link, keine Dateien), daher habe ich eine kleine Fallback-Prüfung eingebaut.
+Der restliche Code basiert weiterhin auf dem stabilen Stand von V54/V55.
 -->
-
 
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V47 (Export & Share)</title>
+    <title>Ski-Simulation V56 (Pflug zurückgesetzt, Verletzter angepasst)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -61,9 +60,8 @@ Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder loca
         .header-btn:hover { background: #f8f9fa; transform: scale(1.05); }
         .header-btn:active { transform: scale(0.95); background: #e9ecef; }
         
-        /* Positionierung */
-        #saveBtn { right: 125px; } /* Rechts neben Dock (Dock ist ca 110px breit inkl Margin) */
-        #shareBtn { right: 185px; } /* Links neben Save Button */
+        #saveBtn { right: 125px; }
+        #shareBtn { right: 185px; }
 
         /* Loader */
         #loader {
@@ -121,7 +119,7 @@ Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder loca
             <li><strong>Zoomen:</strong> Mausrad / <span class="key-badge">+</span> <span class="key-badge">-</span>.</li>
             <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span>.</li>
         </ul>
-        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v47</div>
+        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v56</div>
     </div>
 </div>
 
@@ -169,16 +167,26 @@ Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder loca
     const SVG_LINE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" viewBox="0 0 200 20"><line x1="5" y1="10" x2="195" y2="10" stroke="#808080" stroke-width="3" stroke-linecap="round" /></svg>`);
     const SVG_ARROW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><line x1="5" y1="20" x2="85" y2="20" stroke="#3399ff" stroke-width="6" stroke-linecap="round"/><path d="M 95 20 L 75 10 L 75 30 Z" fill="#3399ff" /></svg>`);
     const SVG_V = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#808080" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`);
+    
+    // UPDATED V56: Pflugfahrer zurückgesetzt auf V54-Stand (engerer Stand)
+    const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="40" y="14" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(-25 46 14)"/><rect x="48" y="14" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(25 54 14)"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72" cy="50" r="7" fill="#3399ff"/></svg>`);
+    
+    // UPDATED V56: Verletzter (Keine Stiefel, Jacke unten flach)
+    const SVG_INJURED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="80" viewBox="0 0 100 80"><path d="M 35 55 Q 25 70 28 80 L 40 82 Q 45 70 50 60 Z" fill="#333"/><path d="M 55 55 Q 65 70 62 80 L 50 82 Q 45 70 40 60 Z" fill="#333"/><path d="M 30 30 Q 50 10 70 30 Q 80 50 65 60 L 35 60 Q 20 50 10 40 Q 10 40 30 30 Z" fill="#d9534f" stroke="#c9302c" stroke-width="2" stroke-linejoin="round"/><path d="M 32 42 Q 25 52 35 58" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M 60 42 Q 68 52 58 58" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="70" cy="30" r="14" fill="#808080" stroke="#666" stroke-width="1"/></svg>`);
+
 
     const ASSETS = { 
         skiBlue: new Image(), skiGreen: new Image(), boarder: new Image(), tree: new Image(),
-        lineGray: new Image(), arrowBlue: new Image(), vShape: new Image()
+        lineGray: new Image(), arrowBlue: new Image(), vShape: new Image(),
+        skiPlow: new Image(), injured: new Image()
     };
     
     const TEMPLATES = [
         { type: 'sprite', assetKey: 'skiBlue', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiGreen', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiPlow', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'boarder', width: 100, height: 100, rotation: 90 },
+        { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 },
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
         { type: 'sprite', assetKey: 'lineGray', width: 200, height: 20, rotation: 0 },
         { type: 'sprite', assetKey: 'arrowBlue', width: 100, height: 40, rotation: 0 },
@@ -197,12 +205,13 @@ Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder loca
     let isSnapping = false, snappingPlayerIndex = -1, targetRotation = 0, dragFromDockItem = null; 
 
     function preloadAssets(callback) {
-        let loaded = 0; const total = 7; let started = false;
+        let loaded = 0; const total = 9; let started = false;
         function checkDone() { loaded++; if (loaded === total && !started) { started = true; callback(); } }
         const keys = Object.keys(ASSETS);
         keys.forEach(k => { ASSETS[k].onload = checkDone; ASSETS[k].onerror = checkDone; });
         ASSETS.skiBlue.src = SVG_SKI_BLUE; ASSETS.skiGreen.src = SVG_SKI_GREEN; ASSETS.boarder.src = SVG_BOARDER;
         ASSETS.tree.src = SVG_TREE; ASSETS.lineGray.src = SVG_LINE; ASSETS.arrowBlue.src = SVG_ARROW; ASSETS.vShape.src = SVG_V;
+        ASSETS.skiPlow.src = SVG_SKI_PLOW; ASSETS.injured.src = SVG_INJURED;
         setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
 
@@ -282,8 +291,8 @@ Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder loca
     // LAYER HELPER
     function getLayer(p) {
         if (p.type === 'rect') return 1;
-        if (['tree'].includes(p.assetKey)) return 1;
-        if (['skiBlue', 'skiGreen', 'boarder'].includes(p.assetKey)) return 2;
+        if (['tree', 'injured'].includes(p.assetKey)) return 1;
+        if (['skiBlue', 'skiGreen', 'skiPlow', 'boarder'].includes(p.assetKey)) return 2;
         return 0; // Low (Lines, Arrows, V)
     }
 
@@ -337,10 +346,13 @@ Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder loca
     canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
     window.addEventListener('mouseup', e => handleEnd(e));
     canvas.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
+    
+    // Mouse Wheel Zoom
     canvas.addEventListener('wheel', e => { 
         e.preventDefault(); 
         if(activeObjects.length) performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9);
     }, { passive: false });
+    
     canvas.addEventListener('touchstart', e => { if(e.target===canvas)e.preventDefault(); handleStart(e.touches[0].clientX, e.touches[0].clientY, false); }, { passive: false });
     canvas.addEventListener('touchmove', e => { if(e.target===canvas)e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
     canvas.addEventListener('touchend', e => handleEnd(e));
@@ -383,22 +395,12 @@ Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder loca
     document.getElementById('shareBtn').addEventListener('click', async () => {
         if (navigator.share) {
             try {
-                // Canvas zu Blob konvertieren
                 const dataUrl = canvas.toDataURL('image/png');
                 const blob = await (await fetch(dataUrl)).blob();
                 const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' });
-                
-                await navigator.share({
-                    title: 'Ski-Unfallskizze',
-                    text: 'Erstellt mit Ski-Simulation V47',
-                    files: [file]
-                });
-            } catch (err) {
-                console.log('Teilen abgebrochen oder fehlgeschlagen:', err);
-            }
-        } else {
-            alert('Teilen wird von diesem Browser nicht unterstützt. Bitte nutze den Download-Button.');
-        }
+                await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V56', files: [file] });
+            } catch (err) { console.log('Teilen abgebrochen/fehlgeschlagen:', err); }
+        } else { alert('Teilen wird von diesem Browser nicht unterstützt. Bitte nutze den Download-Button.'); }
     });
 
     function update() {
@@ -419,7 +421,6 @@ Hinweis: Diese Funktion funktioniert in der Regel nur auf HTTPS-Seiten oder loca
             if(keys['ArrowUp']) ap.dy = -ap.speed; else if(keys['ArrowDown']) ap.dy = ap.speed; else ap.dy *= 0.85; 
             ap.x += ap.dx; ap.y += ap.dy;
             if(keys['RotateLeft']) ap.rotation -= 3; if(keys['RotateRight']) ap.rotation += 3;
-            // Key Zoom (Multiplikativ)
             if(keys['ZoomIn']) performZoom(ap, 1.02); if(keys['ZoomOut']) performZoom(ap, 0.98);
             checkBounds(ap);
         }
