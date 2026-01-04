@@ -1,36 +1,36 @@
-<!-- Skisim V59 -->
-<!-- Textbox improved for touch
+<!-- Skisim V62 -->
+<!-- Color change also for line, arrow and V possible
 
 Apache V2 License
 2026-01-04 
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
-Deine Idee mit dem doppelten Antippen (Double Tap) ist tatsächlich die beste und intuitivste Lösung. Das ist ein Standard-Interaktionsmuster (bekannt aus Apps wie Instagram, Miro oder Grafikprogrammen), um in den "Bearbeitungsmodus" eines Objekts zu gelangen.
 
-Es ist besser als ein zusätzlicher Button, da es die Oberfläche sauber hält.
+Die Umsetzung erfordert einen kleinen Trick, da diese Objekte bisher statische Bilder (Sprites) waren und wir sie nun in dynamisch zeichenbare Objekte umwandeln müssen.
 
-Hier ist Version 60.
+Hier ist Version 62.
 
-Die Änderungen:
-Double-Tap / Doppelklick Logik:
+Die technischen Änderungen (Hintergrundwissen):
+Um die Farbe von Linie, Pfeil und V-Form zu ändern, habe ich sie von statischen Bildern ('sprite') in neue, dynamische Objekttypen umgewandelt: 'line', 'arrow' und 'vshape'.
 
-Ich habe in die Funktion handleStart (die bei Maus-Klick und Touch-Start feuert) eine Zeitmessung eingebaut.
+Neue Objekttypen: Diese Objekte haben nun – genau wie die Box – eine eigene color-Eigenschaft.
 
-Wenn du ein Text-Objekt zweimal innerhalb von 300 Millisekunden antippst (oder anklickst), öffnet sich das Eingabefenster sofort.
+Dynamisches Zeichnen: Anstatt ein fertiges SVG-Bild auf den Canvas zu kleben, zeichnet der Code diese Formen nun "live" mit Javascript-Befehlen (moveTo, lineTo, stroke etc.). Dadurch können wir vor dem Zeichnen die Farbe des "Stiftes" (ctx.strokeStyle oder ctx.fillStyle) auf die aktuelle Farbe des Objekts setzen.
 
-Code-Optimierung:
+Dock & Drag: Im Dock (rechts) und beim Ziehen verwende ich weiterhin die alten statischen Bilder als Vorschau, damit es gut aussieht. Sobald das Objekt aber auf der Piste landet, wird es zum neuen, farbwechsel-fähigen Typ.
 
-Die Logik zum Öffnen des Fensters wurde in eine eigene Funktion openTextEditor(object) ausgelagert. Diese wird nun sowohl von der Enter-Taste als auch vom Doppelklick aufgerufen.
+Tastatur-Logik: Die Taste "c" reagiert nun nicht mehr nur auf 'rect' (Box), sondern auch auf die neuen Typen 'line', 'arrow' und 'vshape'.
 
-UI-Hinweis:
+Das Ergebnis für den Nutzer:
+Du kannst nun Linien, Pfeile, V-Formen und Boxen markieren.
 
-In der Info-Box steht nun: "Text: Markieren & Enter / Doppelklick".
+Drücke "c", um die Farbe durch die bekannte Palette (Grau, Schwarz, Gelb, Rot, Blau, Grün...) zu wechseln.
 
-Hier ist der vollständige Code:
+Die Info-Box wurde aktualisiert: "Farbe (Box/Linien): Taste 'c'".
+
+Hier ist der vollständige Code für Version 62:
 -->
-
-
 
 
 <!DOCTYPE html>
@@ -38,7 +38,7 @@ Hier ist der vollständige Code:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V60 (Touch Text Edit)</title>
+    <title>Ski-Simulation V62 (Farbe für alle Linien)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -126,12 +126,13 @@ Hier ist der vollständige Code:
         <ul style="margin:0; padding-left: 20px;">
             <li><strong>Objekte:</strong> Ziehen zum Hinzufügen.</li>
             <li><strong>Text:</strong> Markieren & <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
+            <li><strong>Farbe (Box/Linien):</strong> Taste <span class="key-badge">c</span>.</li>
             <li><strong>Verschieben:</strong> Maus/Touch.</li>
             <li><strong>Drehen:</strong> Rechte Maustaste / <span class="key-badge">ö</span> <span class="key-badge">ä</span>.</li>
             <li><strong>Zoomen:</strong> Mausrad / <span class="key-badge">+</span> <span class="key-badge">-</span>.</li>
             <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span>.</li>
         </ul>
-        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v60</div>
+        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v62</div>
     </div>
 </div>
 
@@ -167,28 +168,30 @@ Hier ist der vollständige Code:
 <script>
     function toggleUI() { document.getElementById('instructionBox').classList.toggle('collapsed'); }
 
-    // --- ASSETS ---
+    // --- ASSETS (Static SVGs for Sprites and Dock Previews) ---
     const SVG_SKI_BLUE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="35" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72" cy="50" r="7" fill="#3399ff"/></svg>`);
     const SVG_SKI_GREEN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="35" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#32CD32" stroke="#228B22" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="50" r="7" fill="#32CD32"/><circle cx="72" cy="50" r="7" fill="#32CD32"/></svg>`);
     const SVG_BOARDER = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="35" ry="12" fill="rgba(0,0,0,0.2)"/><path d="M 5 38 Q 50 34 95 38 L 98 40 Q 102 50 98 60 L 95 62 Q 50 66 5 62 L 2 60 Q -2 50 2 40 Z" fill="#81ae98" stroke="#5a7a6a" stroke-width="1"/><rect x="15" y="40" width="12" height="20" rx="4" fill="#222"/><rect x="73" y="40" width="12" height="20" rx="4" fill="#222"/><ellipse cx="50" cy="50" rx="22" ry="14" fill="#b83dba" stroke="#8a2e8c" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="38" width="24" height="8" rx="3" fill="#333"/><rect x="40" y="39" width="20" height="6" rx="2" fill="#87ceeb"/><path d="M 28 50 L 15 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M 72 50 L 85 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><circle cx="15" cy="48" r="6" fill="#111"/><circle cx="85" cy="48" r="6" fill="#111"/></svg>`);
     const SVG_TREE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M50 5 L65 20 L95 15 L80 50 L90 85 L65 80 L50 95 L35 80 L10 85 L20 50 L5 15 L35 20 Z" fill="#0a2915" stroke="#051f0e" stroke-width="1" stroke-linejoin="round"/><path d="M50 12 L58 35 L85 28 L70 48 L92 68 L65 65 L50 92 L35 65 L8 68 L30 48 L15 28 L42 35 Z" fill="#1a472a" stroke="#0e2b18" stroke-width="1" stroke-linejoin="round" transform="rotate(5 50 50)"/><path d="M50 22 L60 40 L82 38 L68 52 L80 72 L50 68 L20 72 L32 52 L18 38 L40 40 Z" fill="#2e7d32" stroke="#1b5e20" stroke-width="1" stroke-linejoin="round" transform="rotate(20 50 50)"/><path d="M50 32 L58 45 L75 42 L62 55 L70 72 L50 65 L30 72 L38 55 L25 42 L42 45 Z" fill="#4caf50" stroke="#388e3c" stroke-width="1" stroke-linejoin="round" transform="rotate(-10 50 50)"/><circle cx="50" cy="50" r="5" fill="#81c784"/></svg>`);
-    const SVG_LINE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" viewBox="0 0 200 20"><line x1="5" y1="10" x2="195" y2="10" stroke="#808080" stroke-width="3" stroke-linecap="round" /></svg>`);
-    const SVG_ARROW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><line x1="5" y1="20" x2="85" y2="20" stroke="#3399ff" stroke-width="6" stroke-linecap="round"/><path d="M 95 20 L 75 10 L 75 30 Z" fill="#3399ff" /></svg>`);
-    const SVG_V = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#808080" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`);
+    // NOTE: Line/Arrow/V-Shape SVGs are now only used for dock previews and ghost drag.
+    const SVG_LINE_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" viewBox="0 0 200 20"><line x1="5" y1="10" x2="195" y2="10" stroke="#808080" stroke-width="4" stroke-linecap="round" /></svg>`);
+    const SVG_ARROW_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><line x1="5" y1="20" x2="85" y2="20" stroke="#0000ff" stroke-width="6" stroke-linecap="round"/><path d="M 95 20 L 75 10 L 75 30 Z" fill="#0000ff" /></svg>`);
+    const SVG_V_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#808080" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`);
     
-    // CUSTOM INKSCAPE PFLUGFAHRER (Detailed)
     const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="37.023964" y="35.509697" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(-25)"/><rect x="41.606819" y="-6.7521315" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(25)"/><rect x="29.947439" y="34.780109" width="40.105122" height="30.439781" rx="12.031537" fill="#3399ff" stroke="#0056b3" stroke-width="1.89488"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72.856575" cy="42.936256" r="5.3266931" fill="#333"/><circle cx="72" cy="50" r="7" fill="#3399ff"/><circle cx="72.398407" cy="46.840637" r="7" fill="#3399ff"/><circle cx="27.282869" cy="43.219124" r="5.0876493" fill="#333"/><circle cx="27.537849" cy="47.868526" r="7" fill="#3399ff"/><path fill="#826dff" stroke="#544bb3" stroke-width="0.0710732" stroke-linecap="round" stroke-linejoin="round" d="m 26.698432,56.845502 c -0.667894,-0.131 -1.566917,-0.473694 -2.160106,-0.823398 -1.898546,-1.119258 -3.065111,-2.867871 -3.459405,-5.185451 -0.0671,-0.394422 -0.198227,-0.986055 -0.291385,-1.314741 -0.241444,-0.851876 -0.244849,-2.32468 -0.0076,-3.283606 1.169417,-4.726449 6.66981,-6.835578 10.69416,-4.100681 0.531849,0.361438 1.32698,1.144604 1.712851,1.687076 0.661537,0.930017 1.048532,1.903386 1.267196,3.187251 0.05971,0.350598 0.18942,0.924303 0.28824,1.274901 0.249474,0.885096 0.256045,2.506428 0.01379,3.402268 -0.360517,1.333155 -1.008202,2.413352 -2.027714,3.381789 -0.943482,0.896216 -2.047984,1.472984 -3.342006,1.74519 -0.59985,0.126183 -2.110363,0.142705 -2.688026,0.0294 z"/><path fill="#826dff" d="m 70.55556,56.815465 c -1.272123,-0.292075 -2.367548,-0.873992 -3.284024,-1.744555 -1.020379,-0.96926 -1.669683,-2.047432 -2.022137,-3.357763 -0.244882,-0.910404 -0.243566,-2.525074 0.0028,-3.426294 0.120106,-0.43937 0.183234,-0.934571 0.203156,-1.593626 0.05825,-1.927187 0.812842,-3.642411 2.145459,-4.876761 3.920014,-3.630949 10.123656,-1.865147 11.534362,3.283136 0.247704,0.903982 0.25338,2.507979 0.01226,3.466135 -0.104144,0.413853 -0.186133,1.049203 -0.210791,1.633466 -0.127233,3.014686 -1.99193,5.494622 -4.833055,6.427674 -0.681537,0.223823 -0.87211,0.251101 -1.912351,0.27373 -0.783305,0.01704 -1.310051,-0.01038 -1.635675,-0.08514 z"/></svg>`);
-    
-    // CUSTOM INKSCAPE INJURED
     const SVG_INJURED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="m 35,55 c -6.666667,10 0.689243,33.122178 2.689243,39.788845 l 11.298805,0.215139 C 44.225764,81.585658 46.666667,66.666667 50,60 Z" fill="#333333"/><path d="m 55,55 c 6.666667,10 3.836654,34.269588 1.836654,40.936255 L 49.298805,94.430279 C 45.965472,86.430279 43.333333,66.666667 40,60 Z" fill="#333333"/><path d="M 33.952191,33.569721 C 47.285525,20.236388 56.666667,16.666667 70,30 67.742364,43.652058 68.179283,51.229748 60.155378,60.063745 L 35,60 C 25,53.333333 28.90571,51.447543 30.207171,41.721116 Z" fill="#d9534f" stroke="#c9302c" stroke-width="2" stroke-linejoin="round"/><path d="M 41.880478,28.167331 C 37.213811,34.833997 30.309429,45.203187 35,58" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><path d="m 66.884462,44.868525 c 2.209827,6.475432 0.140771,8.494024 -2.50996,18.358566" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="70" cy="30" r="14" fill="#808080" stroke="#666" stroke-width="1"/></svg>`);
-
 
     const ASSETS = { 
         skiBlue: new Image(), skiGreen: new Image(), boarder: new Image(), tree: new Image(),
-        lineGray: new Image(), arrowBlue: new Image(), vShape: new Image(),
-        skiPlow: new Image(), injured: new Image()
+        skiPlow: new Image(), injured: new Image(),
+        // Previews only
+        linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image()
     };
     
+    // COLORS for Cycle: Grey, Black, White (10%), Yellow, Red, Orange, Blue, DarkGreen, Brown
+    const COLOR_PALETTE = ['#808080', '#000000', '#e6e6e6', '#ffd700', '#ff0000', '#ffa500', '#0000ff', '#006400', '#8b4513'];
+
+    // UPDATED TEMPLATES: Line/Arrow/V are now dynamic types, not sprites.
     const TEMPLATES = [
         { type: 'sprite', assetKey: 'skiBlue', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiGreen', width: 100, height: 100, rotation: 0 },
@@ -197,9 +200,10 @@ Hier ist der vollständige Code:
         { type: 'sprite', assetKey: 'injured', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
         { type: 'text', text: 'Text', color: '#000000', width: 80, height: 30, rotation: 0 },
-        { type: 'sprite', assetKey: 'lineGray', width: 200, height: 20, rotation: 0 },
-        { type: 'sprite', assetKey: 'arrowBlue', width: 100, height: 40, rotation: 0 },
-        { type: 'sprite', assetKey: 'vShape', width: 100, height: 60, rotation: 0 },
+        // New Dynamic Types with initial colors
+        { type: 'line', color: '#808080', width: 200, height: 20, rotation: 0 },
+        { type: 'arrow', color: '#0000ff', width: 100, height: 40, rotation: 0 },
+        { type: 'vshape', color: '#808080', width: 100, height: 60, rotation: 0 },
         { type: 'rect', color: '#808080', width: 80, height: 120, rotation: 0 }
     ];
 
@@ -220,8 +224,8 @@ Hier ist der vollständige Code:
         const keys = Object.keys(ASSETS);
         keys.forEach(k => { ASSETS[k].onload = checkDone; ASSETS[k].onerror = checkDone; });
         ASSETS.skiBlue.src = SVG_SKI_BLUE; ASSETS.skiGreen.src = SVG_SKI_GREEN; ASSETS.boarder.src = SVG_BOARDER;
-        ASSETS.tree.src = SVG_TREE; ASSETS.lineGray.src = SVG_LINE; ASSETS.arrowBlue.src = SVG_ARROW; ASSETS.vShape.src = SVG_V;
-        ASSETS.skiPlow.src = SVG_SKI_PLOW; ASSETS.injured.src = SVG_INJURED;
+        ASSETS.tree.src = SVG_TREE; ASSETS.skiPlow.src = SVG_SKI_PLOW; ASSETS.injured.src = SVG_INJURED;
+        ASSETS.linePreview.src = SVG_LINE_PREVIEW; ASSETS.arrowPreview.src = SVG_ARROW_PREVIEW; ASSETS.vPreview.src = SVG_V_PREVIEW;
         setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
 
@@ -239,21 +243,35 @@ Hier ist der vollständige Code:
 
     function createObject(tpl, x, y) {
         let obj = { type: tpl.type, x: x, y: y, width: tpl.width, height: tpl.height, rotation: tpl.rotation, speed: 7, dx: 0, dy: 0 };
-        if(tpl.type === 'sprite') obj.assetKey = tpl.assetKey; 
-        else if(tpl.type === 'text') { obj.text = tpl.text; obj.color = tpl.color; }
-        else obj.color = tpl.color;
+        if(tpl.type === 'sprite') {
+            obj.assetKey = tpl.assetKey;
+        } else if(tpl.type === 'text') { 
+            obj.text = tpl.text; obj.color = tpl.color; 
+        } else {
+            // rect, line, arrow, vshape all have color
+            obj.color = tpl.color;
+        }
         return obj;
+    }
+
+    function getDockPreviewAsset(tpl) {
+        if (tpl.type === 'sprite') return ASSETS[tpl.assetKey];
+        if (tpl.type === 'line') return ASSETS.linePreview;
+        if (tpl.type === 'arrow') return ASSETS.arrowPreview;
+        if (tpl.type === 'vshape') return ASSETS.vPreview;
+        return null;
     }
 
     function renderDock() {
         dockContainer.innerHTML = '<div class="dock-title">Objekte</div>';
         dockedObjects.forEach((tpl, index) => {
             const el = document.createElement('div'); el.className = 'dock-item';
-            if (tpl.type === 'sprite') { 
-                const img = document.createElement('img'); img.src = ASSETS[tpl.assetKey].src; el.appendChild(img); 
+            const previewAsset = getDockPreviewAsset(tpl);
+            if (previewAsset) {
+                 const img = document.createElement('img'); img.src = previewAsset.src; el.appendChild(img);
             } else if (tpl.type === 'text') {
                 const sp = document.createElement('span'); sp.className = 'text-preview'; sp.innerText = 'T'; el.appendChild(sp);
-            } else { 
+            } else if (tpl.type === 'rect') {
                 const box = document.createElement('div'); box.className = 'color-box'; box.style.background = tpl.color; el.appendChild(box); 
             }
             const startHandler = (e) => handleDockDragStart(e, tpl, index);
@@ -264,12 +282,14 @@ Hier ist der vollständige Code:
 
     function handleDockDragStart(e, tpl, index) {
         e.preventDefault(); dragFromDockItem = { tpl: tpl, index: index };
-        if (tpl.type === 'sprite') { 
-            ghostDrag.src = ASSETS[tpl.assetKey].src; ghostDrag.style.background = 'transparent'; 
+        const previewAsset = getDockPreviewAsset(tpl);
+        
+        if (previewAsset) {
+            ghostDrag.src = previewAsset.src; ghostDrag.style.background = 'transparent'; ghostDrag.style.border = 'none';
         } else if (tpl.type === 'text') {
             ghostDrag.src = ''; ghostDrag.style.background = 'white'; ghostDrag.style.border = '1px solid black'; ghostDrag.style.borderRadius = '4px';
-        } else { 
-            ghostDrag.src = ''; ghostDrag.style.backgroundColor = tpl.color; 
+        } else if (tpl.type === 'rect') {
+            ghostDrag.src = ''; ghostDrag.style.backgroundColor = tpl.color; ghostDrag.style.border = 'none';
         }
         ghostDrag.style.display = 'block'; moveGhost(getClientPos(e));
         document.addEventListener('mousemove', handleDockDragMove); document.addEventListener('touchmove', handleDockDragMove, {passive: false});
@@ -335,10 +355,10 @@ Hier ist der vollständige Code:
         if (idx !== -1) {
             const p = activeObjects[idx]; activePlayerIndex = idx;
             
-            // Double Tap Check (Time-based for Touch & Mouse)
+            // Double Tap Check
             if (p.type === 'text' && (now - lastTapTime < 300)) {
                 openTextEditor(p);
-                lastTapTime = 0; // Reset
+                lastTapTime = 0; 
                 return;
             }
             lastTapTime = now;
@@ -373,9 +393,11 @@ Hier ist der vollständige Code:
             if (mx >= dr.left - 20 && mx <= dr.right + 20 && my >= dr.top - 20 && my <= dr.bottom + 20) {
                 const p = activeObjects[draggingPlayerIndex];
                 let ni = { type: p.type, width: p.width, height: p.height, rotation: (p.type==='sprite' && p.assetKey==='boarder') ? 90 : 0 };
+                
                 if(p.type === 'sprite') ni.assetKey = p.assetKey; 
                 else if (p.type === 'text') { ni.text = p.text; ni.color = p.color; }
-                else ni.color = p.color;
+                else { ni.color = p.color; } // rect, line, arrow, vshape
+
                 dockedObjects.push(ni); activeObjects.splice(draggingPlayerIndex, 1); renderDock();
                 draggingPlayerIndex = -1; activePlayerIndex = 0; return;
             }
@@ -425,6 +447,16 @@ Hier ist der vollständige Code:
             openTextEditor(activeObjects[activePlayerIndex]);
             return;
         }
+        // Color Cycle for rect, line, arrow, vshape
+        if (e.key === 'c' || e.key === 'C') {
+            const p = activeObjects[activePlayerIndex];
+            if (p && ['rect', 'line', 'arrow', 'vshape'].includes(p.type)) {
+                let idx = COLOR_PALETTE.indexOf(p.color);
+                if (idx === -1) idx = 0; 
+                p.color = COLOR_PALETTE[(idx + 1) % COLOR_PALETTE.length];
+            }
+            return;
+        }
         if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
         if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=true;
         if(e.key==='+') keys['ZoomIn']=true; if(e.key==='-') keys['ZoomOut']=true;
@@ -448,7 +480,7 @@ Hier ist der vollständige Code:
                 const dataUrl = canvas.toDataURL('image/png');
                 const blob = await (await fetch(dataUrl)).blob();
                 const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' });
-                await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V58', files: [file] });
+                await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V62', files: [file] });
             } catch (err) { console.log('Teilen abgebrochen/fehlgeschlagen:', err); }
         } else { alert('Teilen wird von diesem Browser nicht unterstützt. Bitte nutze den Download-Button.'); }
     });
@@ -479,19 +511,37 @@ Hier ist der vollständige Code:
     function drawObject(p) {
         ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2);
         ctx.rotate(p.rotation * Math.PI / 180);
+        
         if (p.type === 'sprite') {
             const img = ASSETS[p.assetKey];
-            try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){ ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
-        } else if (p.type === 'text') {
-            ctx.font = 'bold ' + p.height + 'px Arial';
-            ctx.fillStyle = p.color;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
+            try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){}
+        } 
+        else if (p.type === 'text') {
+            ctx.font = 'bold ' + p.height + 'px Arial'; ctx.fillStyle = p.color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             ctx.fillText(p.text, 0, 0);
-        } else {
+        } 
+        else if (p.type === 'rect') {
             ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5;
             ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height);
         }
+        // DYNAMIC SHAPES (Line, Arrow, V) using p.color
+        else if (p.type === 'line') {
+            ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2, 0);
+            ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/5); ctx.lineCap = 'round'; ctx.stroke();
+        }
+        else if (p.type === 'vshape') {
+            ctx.beginPath(); ctx.moveTo(-p.width/2, -p.height/2); ctx.lineTo(0, p.height/2); ctx.lineTo(p.width/2, -p.height/2);
+            ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/15); ctx.lineCap = 'round'; ctx.stroke();
+        }
+        else if (p.type === 'arrow') {
+            const headLen = p.width * 0.2; const bodyH = p.height * 0.2;
+            ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = bodyH; ctx.lineCap = 'round';
+            // Body
+            ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke();
+            // Head
+            ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -p.height/2); ctx.lineTo(p.width/2 - headLen, p.height/2); ctx.fill();
+        }
+        
         ctx.restore(); 
     }
 
