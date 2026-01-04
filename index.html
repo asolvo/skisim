@@ -1,33 +1,34 @@
 <!-- Skisim V55 -->
-<!-- Schneepflugfahrer:in und Verletzte:r nochmal überarbeitet
+<!-- Schneepflugfahrer:in und Verletzte:r selbst in Inkscape überarbeitet
 
 Apache V2 License
 2026-01-04 
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
-Die Änderungen im Detail:
-Pflugfahrer (SVG_SKI_PLOW) - Zurückgesetzt:
 
-Die Änderung aus V55 wurde rückgängig gemacht. Die Ski stehen wieder enger zusammen (Positionen x=40 und x=48), genau wie in Version 54. Das "V" ist wieder schmaler.
+Ich habe deinen SVG-Code genommen und für das Web optimiert (Metadaten von Inkscape wie sodipodi und inkscape:version entfernt, damit der Code schlank bleibt).
 
-Verletzte Person (SVG_INJURED) - Angepasst:
+Wichtige Anpassung: In deinem Inkscape-Code gehen die Pfade für die Beine bis ca. y=94 hinunter. Da das Bild ursprünglich nur 80px hoch war, wären die Füße abgeschnitten worden. Ich habe daher die viewBox im SVG auf 0 0 100 100 und die Höhe im Template ebenfalls auf 100 angepasst, damit der Verletzte vollständig sichtbar ist.
 
-Keine Stiefel: Die grauen Blöcke für die Skistiefel wurden entfernt. Die Hosenbeine enden nun stumpf.
+Verletzte Person: Dein individuelles SVG wurde integriert (mit angepasster Höhe, damit nichts abgeschnitten wird).
 
-Jacke ohne Spitze: Die rote Jacke wurde unten abgeflacht, um die angedeutete "Spitze" oder Rundung in der Mitte zu entfernen. Sie bildet nun einen geraden Abschluss über der Hose.
+Deine eigene SVG-Version des Pflugfahrers ist sehr detailliert und enthält auch Hände und Schultern, was ihn viel lebendiger macht als die einfache geometrische Version.
+Ich habe deinen SVG-Code wieder für das Web optimiert (Metadaten entfernt, unnötige Attribute wie sodipodi gelöscht, aber alle grafischen Pfade 1:1 beibehalten).
 
-Beibehalten: Die neuen, gefüllten Hosenbeine und die angedeuteten Arme aus V55 sind geblieben, da nur die Stiefel und die Jackenspitze entfernt werden sollten.
+Änderungen:
+Pflugfahrer (SVG_SKI_PLOW): Dein detailliertes SVG wurde integriert.
 
-Der restliche Code basiert weiterhin auf dem stabilen Stand von V54/V55.
+Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
 -->
+
 
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V56 (Pflug zurückgesetzt, Verletzter angepasst)</title>
+    <title>Ski-Simulation V58 (Custom Inkscape Pflug & Verletzter)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -119,7 +120,7 @@ Der restliche Code basiert weiterhin auf dem stabilen Stand von V54/V55.
             <li><strong>Zoomen:</strong> Mausrad / <span class="key-badge">+</span> <span class="key-badge">-</span>.</li>
             <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span>.</li>
         </ul>
-        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v56</div>
+        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v58</div>
     </div>
 </div>
 
@@ -168,11 +169,11 @@ Der restliche Code basiert weiterhin auf dem stabilen Stand von V54/V55.
     const SVG_ARROW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><line x1="5" y1="20" x2="85" y2="20" stroke="#3399ff" stroke-width="6" stroke-linecap="round"/><path d="M 95 20 L 75 10 L 75 30 Z" fill="#3399ff" /></svg>`);
     const SVG_V = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#808080" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`);
     
-    // UPDATED V56: Pflugfahrer zurückgesetzt auf V54-Stand (engerer Stand)
-    const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="40" y="14" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(-25 46 14)"/><rect x="48" y="14" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(25 54 14)"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72" cy="50" r="7" fill="#3399ff"/></svg>`);
+    // CUSTOM INKSCAPE PFLUGFAHRER (Detailed)
+    const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="37.023964" y="35.509697" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(-25)"/><rect x="41.606819" y="-6.7521315" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(25)"/><rect x="29.947439" y="34.780109" width="40.105122" height="30.439781" rx="12.031537" fill="#3399ff" stroke="#0056b3" stroke-width="1.89488"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72.856575" cy="42.936256" r="5.3266931" fill="#333"/><circle cx="72" cy="50" r="7" fill="#3399ff"/><circle cx="72.398407" cy="46.840637" r="7" fill="#3399ff"/><circle cx="27.282869" cy="43.219124" r="5.0876493" fill="#333"/><circle cx="27.537849" cy="47.868526" r="7" fill="#3399ff"/><path fill="#826dff" stroke="#544bb3" stroke-width="0.0710732" stroke-linecap="round" stroke-linejoin="round" d="m 26.698432,56.845502 c -0.667894,-0.131 -1.566917,-0.473694 -2.160106,-0.823398 -1.898546,-1.119258 -3.065111,-2.867871 -3.459405,-5.185451 -0.0671,-0.394422 -0.198227,-0.986055 -0.291385,-1.314741 -0.241444,-0.851876 -0.244849,-2.32468 -0.0076,-3.283606 1.169417,-4.726449 6.66981,-6.835578 10.69416,-4.100681 0.531849,0.361438 1.32698,1.144604 1.712851,1.687076 0.661537,0.930017 1.048532,1.903386 1.267196,3.187251 0.05971,0.350598 0.18942,0.924303 0.28824,1.274901 0.249474,0.885096 0.256045,2.506428 0.01379,3.402268 -0.360517,1.333155 -1.008202,2.413352 -2.027714,3.381789 -0.943482,0.896216 -2.047984,1.472984 -3.342006,1.74519 -0.59985,0.126183 -2.110363,0.142705 -2.688026,0.0294 z"/><path fill="#826dff" d="m 70.55556,56.815465 c -1.272123,-0.292075 -2.367548,-0.873992 -3.284024,-1.744555 -1.020379,-0.96926 -1.669683,-2.047432 -2.022137,-3.357763 -0.244882,-0.910404 -0.243566,-2.525074 0.0028,-3.426294 0.120106,-0.43937 0.183234,-0.934571 0.203156,-1.593626 0.05825,-1.927187 0.812842,-3.642411 2.145459,-4.876761 3.920014,-3.630949 10.123656,-1.865147 11.534362,3.283136 0.247704,0.903982 0.25338,2.507979 0.01226,3.466135 -0.104144,0.413853 -0.186133,1.049203 -0.210791,1.633466 -0.127233,3.014686 -1.99193,5.494622 -4.833055,6.427674 -0.681537,0.223823 -0.87211,0.251101 -1.912351,0.27373 -0.783305,0.01704 -1.310051,-0.01038 -1.635675,-0.08514 z"/></svg>`);
     
-    // UPDATED V56: Verletzter (Keine Stiefel, Jacke unten flach)
-    const SVG_INJURED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="80" viewBox="0 0 100 80"><path d="M 35 55 Q 25 70 28 80 L 40 82 Q 45 70 50 60 Z" fill="#333"/><path d="M 55 55 Q 65 70 62 80 L 50 82 Q 45 70 40 60 Z" fill="#333"/><path d="M 30 30 Q 50 10 70 30 Q 80 50 65 60 L 35 60 Q 20 50 10 40 Q 10 40 30 30 Z" fill="#d9534f" stroke="#c9302c" stroke-width="2" stroke-linejoin="round"/><path d="M 32 42 Q 25 52 35 58" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M 60 42 Q 68 52 58 58" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="70" cy="30" r="14" fill="#808080" stroke="#666" stroke-width="1"/></svg>`);
+    // CUSTOM INKSCAPE INJURED
+    const SVG_INJURED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="m 35,55 c -6.666667,10 0.689243,33.122178 2.689243,39.788845 l 11.298805,0.215139 C 44.225764,81.585658 46.666667,66.666667 50,60 Z" fill="#333333"/><path d="m 55,55 c 6.666667,10 3.836654,34.269588 1.836654,40.936255 L 49.298805,94.430279 C 45.965472,86.430279 43.333333,66.666667 40,60 Z" fill="#333333"/><path d="M 33.952191,33.569721 C 47.285525,20.236388 56.666667,16.666667 70,30 67.742364,43.652058 68.179283,51.229748 60.155378,60.063745 L 35,60 C 25,53.333333 28.90571,51.447543 30.207171,41.721116 Z" fill="#d9534f" stroke="#c9302c" stroke-width="2" stroke-linejoin="round"/><path d="M 41.880478,28.167331 C 37.213811,34.833997 30.309429,45.203187 35,58" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><path d="m 66.884462,44.868525 c 2.209827,6.475432 0.140771,8.494024 -2.50996,18.358566" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="70" cy="30" r="14" fill="#808080" stroke="#666" stroke-width="1"/></svg>`);
 
 
     const ASSETS = { 
@@ -186,7 +187,7 @@ Der restliche Code basiert weiterhin auf dem stabilen Stand von V54/V55.
         { type: 'sprite', assetKey: 'skiGreen', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiPlow', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'boarder', width: 100, height: 100, rotation: 90 },
-        { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 },
+        { type: 'sprite', assetKey: 'injured', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
         { type: 'sprite', assetKey: 'lineGray', width: 200, height: 20, rotation: 0 },
         { type: 'sprite', assetKey: 'arrowBlue', width: 100, height: 40, rotation: 0 },
@@ -398,7 +399,7 @@ Der restliche Code basiert weiterhin auf dem stabilen Stand von V54/V55.
                 const dataUrl = canvas.toDataURL('image/png');
                 const blob = await (await fetch(dataUrl)).blob();
                 const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' });
-                await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V56', files: [file] });
+                await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V58', files: [file] });
             } catch (err) { console.log('Teilen abgebrochen/fehlgeschlagen:', err); }
         } else { alert('Teilen wird von diesem Browser nicht unterstützt. Bitte nutze den Download-Button.'); }
     });
