@@ -1,26 +1,36 @@
-<!-- Skisim V55 -->
-<!-- Schneepflugfahrer:in und Verletzte:r selbst in Inkscape überarbeitet
+<!-- Skisim V59 -->
+<!-- Textbox improved for touch
 
 Apache V2 License
 2026-01-04 
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
+Deine Idee mit dem doppelten Antippen (Double Tap) ist tatsächlich die beste und intuitivste Lösung. Das ist ein Standard-Interaktionsmuster (bekannt aus Apps wie Instagram, Miro oder Grafikprogrammen), um in den "Bearbeitungsmodus" eines Objekts zu gelangen.
 
-Ich habe deinen SVG-Code genommen und für das Web optimiert (Metadaten von Inkscape wie sodipodi und inkscape:version entfernt, damit der Code schlank bleibt).
+Es ist besser als ein zusätzlicher Button, da es die Oberfläche sauber hält.
 
-Wichtige Anpassung: In deinem Inkscape-Code gehen die Pfade für die Beine bis ca. y=94 hinunter. Da das Bild ursprünglich nur 80px hoch war, wären die Füße abgeschnitten worden. Ich habe daher die viewBox im SVG auf 0 0 100 100 und die Höhe im Template ebenfalls auf 100 angepasst, damit der Verletzte vollständig sichtbar ist.
+Hier ist Version 60.
 
-Verletzte Person: Dein individuelles SVG wurde integriert (mit angepasster Höhe, damit nichts abgeschnitten wird).
+Die Änderungen:
+Double-Tap / Doppelklick Logik:
 
-Deine eigene SVG-Version des Pflugfahrers ist sehr detailliert und enthält auch Hände und Schultern, was ihn viel lebendiger macht als die einfache geometrische Version.
-Ich habe deinen SVG-Code wieder für das Web optimiert (Metadaten entfernt, unnötige Attribute wie sodipodi gelöscht, aber alle grafischen Pfade 1:1 beibehalten).
+Ich habe in die Funktion handleStart (die bei Maus-Klick und Touch-Start feuert) eine Zeitmessung eingebaut.
 
-Änderungen:
-Pflugfahrer (SVG_SKI_PLOW): Dein detailliertes SVG wurde integriert.
+Wenn du ein Text-Objekt zweimal innerhalb von 300 Millisekunden antippst (oder anklickst), öffnet sich das Eingabefenster sofort.
 
-Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
+Code-Optimierung:
+
+Die Logik zum Öffnen des Fensters wurde in eine eigene Funktion openTextEditor(object) ausgelagert. Diese wird nun sowohl von der Enter-Taste als auch vom Doppelklick aufgerufen.
+
+UI-Hinweis:
+
+In der Info-Box steht nun: "Text: Markieren & Enter / Doppelklick".
+
+Hier ist der vollständige Code:
 -->
+
+
 
 
 <!DOCTYPE html>
@@ -28,7 +38,7 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V58 (Custom Inkscape Pflug & Verletzter)</title>
+    <title>Ski-Simulation V60 (Touch Text Edit)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -50,7 +60,7 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
         .key-badge { background: #eee; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-family: monospace; }
         li { margin-bottom: 8px; font-size: 14px; color: #555; line-height: 1.4; }
 
-        /* HEADER BUTTONS (Share & Save) */
+        /* HEADER BUTTONS */
         .header-btn { 
             position: absolute; top: 20px; 
             width: 50px; height: 50px; cursor: pointer; background: white; 
@@ -90,6 +100,7 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
         .dock-item:active { cursor: grabbing; border-color: #00bfff; background: #eef; }
         .dock-item img { pointer-events: none; width: 100%; height: 100%; object-fit: contain; }
         .color-box { width: 40px !important; height: 50px !important; display: block; margin: auto; border: 1px solid #999; }
+        .text-preview { font-family: Arial, sans-serif; font-weight: bold; font-size: 20px; color: #333; pointer-events: none; }
 
         #ghost-drag { position: absolute; pointer-events: none; opacity: 0.8; z-index: 100; display: none; width: 80px; height: 80px; object-fit: contain; }
         
@@ -113,27 +124,23 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
     </div>
     <div class="ui-content">
         <ul style="margin:0; padding-left: 20px;">
-            <li><strong>Objekte (rechts):</strong> Ziehe Figuren auf die Piste/zurück.</li>
-            <li><strong>Aktivieren:</strong> Klicke ein Objekt an.</li>
-            <li><strong>Verschieben:</strong> Linke Maustaste/Touch.</li>
+            <li><strong>Objekte:</strong> Ziehen zum Hinzufügen.</li>
+            <li><strong>Text:</strong> Markieren & <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
+            <li><strong>Verschieben:</strong> Maus/Touch.</li>
             <li><strong>Drehen:</strong> Rechte Maustaste / <span class="key-badge">ö</span> <span class="key-badge">ä</span>.</li>
             <li><strong>Zoomen:</strong> Mausrad / <span class="key-badge">+</span> <span class="key-badge">-</span>.</li>
             <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span>.</li>
         </ul>
-        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v58</div>
+        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v60</div>
     </div>
 </div>
 
 <button id="shareBtn" class="header-btn" title="Teilen">
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="18" cy="5" r="3"></circle>
-        <circle cx="6" cy="12" r="3"></circle>
-        <circle cx="18" cy="19" r="3"></circle>
-        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+        <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
     </svg>
 </button>
-
 <button id="saveBtn" class="header-btn" title="Download">📥</button>
 
 <div id="dock">
@@ -189,6 +196,7 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
         { type: 'sprite', assetKey: 'boarder', width: 100, height: 100, rotation: 90 },
         { type: 'sprite', assetKey: 'injured', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
+        { type: 'text', text: 'Text', color: '#000000', width: 80, height: 30, rotation: 0 },
         { type: 'sprite', assetKey: 'lineGray', width: 200, height: 20, rotation: 0 },
         { type: 'sprite', assetKey: 'arrowBlue', width: 100, height: 40, rotation: 0 },
         { type: 'sprite', assetKey: 'vShape', width: 100, height: 60, rotation: 0 },
@@ -204,6 +212,7 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
     let activeObjects = [], dockedObjects = [], activePlayerIndex = 0; 
     let draggingPlayerIndex = -1, rotatingPlayerIndex = -1, dragOffset = { x: 0, y: 0 };
     let isSnapping = false, snappingPlayerIndex = -1, targetRotation = 0, dragFromDockItem = null; 
+    let lastTapTime = 0;
 
     function preloadAssets(callback) {
         let loaded = 0; const total = 9; let started = false;
@@ -230,7 +239,9 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
 
     function createObject(tpl, x, y) {
         let obj = { type: tpl.type, x: x, y: y, width: tpl.width, height: tpl.height, rotation: tpl.rotation, speed: 7, dx: 0, dy: 0 };
-        if(tpl.type === 'sprite') obj.assetKey = tpl.assetKey; else obj.color = tpl.color;
+        if(tpl.type === 'sprite') obj.assetKey = tpl.assetKey; 
+        else if(tpl.type === 'text') { obj.text = tpl.text; obj.color = tpl.color; }
+        else obj.color = tpl.color;
         return obj;
     }
 
@@ -238,8 +249,13 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
         dockContainer.innerHTML = '<div class="dock-title">Objekte</div>';
         dockedObjects.forEach((tpl, index) => {
             const el = document.createElement('div'); el.className = 'dock-item';
-            if (tpl.type === 'sprite') { const img = document.createElement('img'); img.src = ASSETS[tpl.assetKey].src; el.appendChild(img); }
-            else { const box = document.createElement('div'); box.className = 'color-box'; box.style.background = tpl.color; el.appendChild(box); }
+            if (tpl.type === 'sprite') { 
+                const img = document.createElement('img'); img.src = ASSETS[tpl.assetKey].src; el.appendChild(img); 
+            } else if (tpl.type === 'text') {
+                const sp = document.createElement('span'); sp.className = 'text-preview'; sp.innerText = 'T'; el.appendChild(sp);
+            } else { 
+                const box = document.createElement('div'); box.className = 'color-box'; box.style.background = tpl.color; el.appendChild(box); 
+            }
             const startHandler = (e) => handleDockDragStart(e, tpl, index);
             el.addEventListener('mousedown', startHandler); el.addEventListener('touchstart', startHandler, {passive: false});
             dockContainer.appendChild(el);
@@ -248,8 +264,13 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
 
     function handleDockDragStart(e, tpl, index) {
         e.preventDefault(); dragFromDockItem = { tpl: tpl, index: index };
-        if (tpl.type === 'sprite') { ghostDrag.src = ASSETS[tpl.assetKey].src; ghostDrag.style.background = 'transparent'; }
-        else { ghostDrag.src = ''; ghostDrag.style.backgroundColor = tpl.color; }
+        if (tpl.type === 'sprite') { 
+            ghostDrag.src = ASSETS[tpl.assetKey].src; ghostDrag.style.background = 'transparent'; 
+        } else if (tpl.type === 'text') {
+            ghostDrag.src = ''; ghostDrag.style.background = 'white'; ghostDrag.style.border = '1px solid black'; ghostDrag.style.borderRadius = '4px';
+        } else { 
+            ghostDrag.src = ''; ghostDrag.style.backgroundColor = tpl.color; 
+        }
         ghostDrag.style.display = 'block'; moveGhost(getClientPos(e));
         document.addEventListener('mousemove', handleDockDragMove); document.addEventListener('touchmove', handleDockDragMove, {passive: false});
         document.addEventListener('mouseup', handleDockDragEnd); document.addEventListener('touchend', handleDockDragEnd);
@@ -271,7 +292,6 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
 
     function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > canvas.width - p.width) p.x = canvas.width - p.width; if (p.y < 0) p.y = 0; if (p.y > canvas.height - p.height) p.y = canvas.height - p.height; }
     
-    // --- PROPORTIONAL ZOOM ---
     function performZoom(p, factor) {
         const minSize = 20; 
         const nw = p.width * factor;
@@ -289,22 +309,45 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
         for (let i = activeObjects.length - 1; i >= 0; i--) { const p = activeObjects[i]; if (mx > p.x && mx < p.x + p.width && my > p.y && my < p.y + p.height) return i; } return -1;
     }
 
-    // LAYER HELPER
     function getLayer(p) {
+        if (p.type === 'text') return 3; 
         if (p.type === 'rect') return 1;
         if (['tree', 'injured'].includes(p.assetKey)) return 1;
         if (['skiBlue', 'skiGreen', 'skiPlow', 'boarder'].includes(p.assetKey)) return 2;
-        return 0; // Low (Lines, Arrows, V)
+        return 0; 
+    }
+
+    function openTextEditor(p) {
+        if (!p || p.type !== 'text') return;
+        const nt = prompt("Text ändern:", p.text);
+        if(nt !== null) { 
+            p.text = nt; 
+            ctx.font = 'bold ' + p.height + 'px Arial';
+            const m = ctx.measureText(nt);
+            p.width = m.width + 20; 
+        }
     }
 
     function handleStart(x, y, isRight) {
         const idx = getPlayerUnderMouse(x, y);
+        const now = Date.now();
+        
         if (idx !== -1) {
             const p = activeObjects[idx]; activePlayerIndex = idx;
+            
+            // Double Tap Check (Time-based for Touch & Mouse)
+            if (p.type === 'text' && (now - lastTapTime < 300)) {
+                openTextEditor(p);
+                lastTapTime = 0; // Reset
+                return;
+            }
+            lastTapTime = now;
+
             if (isRight) { rotatingPlayerIndex = idx; isSnapping = false; }
             else { draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0; }
             return true;
-        } return false;
+        } 
+        return false;
     }
     function handleMove(x, y) {
         const idx = getPlayerUnderMouse(x, y);
@@ -330,7 +373,9 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
             if (mx >= dr.left - 20 && mx <= dr.right + 20 && my >= dr.top - 20 && my <= dr.bottom + 20) {
                 const p = activeObjects[draggingPlayerIndex];
                 let ni = { type: p.type, width: p.width, height: p.height, rotation: (p.type==='sprite' && p.assetKey==='boarder') ? 90 : 0 };
-                if(p.type === 'sprite') ni.assetKey = p.assetKey; else ni.color = p.color;
+                if(p.type === 'sprite') ni.assetKey = p.assetKey; 
+                else if (p.type === 'text') { ni.text = p.text; ni.color = p.color; }
+                else ni.color = p.color;
                 dockedObjects.push(ni); activeObjects.splice(draggingPlayerIndex, 1); renderDock();
                 draggingPlayerIndex = -1; activePlayerIndex = 0; return;
             }
@@ -376,6 +421,10 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
     window.addEventListener('keydown', e => {
         if (e.key==='s'||e.key==='S') { document.getElementById('saveBtn').click(); return; }
         if (e.code==='Tab') { e.preventDefault(); if(activeObjects.length>1) activePlayerIndex=(activePlayerIndex+1)%activeObjects.length; return; }
+        if (e.key==='Enter') {
+            openTextEditor(activeObjects[activePlayerIndex]);
+            return;
+        }
         if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
         if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=true;
         if(e.key==='+') keys['ZoomIn']=true; if(e.key==='-') keys['ZoomOut']=true;
@@ -433,6 +482,12 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
         if (p.type === 'sprite') {
             const img = ASSETS[p.assetKey];
             try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){ ctx.fillStyle = "rgba(0,0,0,0.1)"; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
+        } else if (p.type === 'text') {
+            ctx.font = 'bold ' + p.height + 'px Arial';
+            ctx.fillStyle = p.color;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(p.text, 0, 0);
         } else {
             ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5;
             ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height);
@@ -449,6 +504,7 @@ Damit haben wir jetzt zwei sehr hochwertige, individuelle Figuren in der App.
         activeObjects.forEach(p => { if(getLayer(p) === 0) drawObject(p); });
         activeObjects.forEach(p => { if(getLayer(p) === 1) drawObject(p); });
         activeObjects.forEach(p => { if(getLayer(p) === 2) drawObject(p); });
+        activeObjects.forEach(p => { if(getLayer(p) === 3) drawObject(p); });
 
         if(activeObjects.length > 0) {
             const p = activeObjects[activePlayerIndex];
