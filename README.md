@@ -2,9 +2,21 @@
 Ski simulation for investigating accident situations, suitable for experts and specialists.
 
 
-This is a prototype for a new ski simulation. 
-You can move the skiers using the keyboard (+ -, arrow keys, ö ä, Tab) or with the mouse (select and move with the left mouse button, right-click = rotate, mouse wheel = zoom in) or with touch using the controls.
+Objects: Drag objects from menu to add to scene.
+Move with mouse, fingers or with arrow keys <--> ^ v
 
-You may also save a screenshot using the "Save" key or with "s".
+Rotate: Right mouse button / ö ä keys.
 
-So, not fully functional yet, but a first demo of what's possible. The most important commands work.
+Scale: Mouse wheel / + - keys.
+
+Text/Vector: Enter or double-click.
+
+Change Color (box/lines): C key.
+
+Switch: Tab (also "no focus").
+Focus: Click on an empty area to remove focus.
+
+
+Result of simulation:
+You may also save a PNG screenshot of the resulting scene using the "download" key or with "s".
+You may share the PNG screenshot through your OS sharing possibilities. 
