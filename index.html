@@ -1,5 +1,5 @@
-<!-- Skisim V80 -->
-<!-- Key "del" supported. 
+<!-- Skisim V82 -->
+<!-- Bugfix, weil App beim Start hängt
 
 Apache V2 License
 2026-01-07 
@@ -7,38 +7,20 @@ Christian Klingler, asolvo
 erstellt mit Google Gemini 3 Pro 
 
 
-Bisher war es ein "Verschiebe"-Prinzip (wie bei Spielfiguren), jetzt brauchen wir für Werkzeuge (Pfeile, Linien) ein "Kopier"-Prinzip (wie ein Stempel).
+Da hat sich der Fehler aus Version 65 wieder eingeschlichen.
+Die Ursache: Ich habe die Objekte lineGray, arrowBlue und vShape in der ASSETS-Liste stehen lassen, obwohl diese mittlerweile dynamisch gezeichnet werden und keine Bildquellen mehr bekommen. Der Lade-Balken wartet also auf drei Bilder, die nie kommen.
 
-Die Neuerungen:
-1. Unendlich viele Objekte (Kopier-Modus):
-
-Wenn du folgende Objekte aus dem Dock ziehst, bleiben sie im Dock erhalten:
-  Pfeil (wie gewünscht)
-  Linie
-  V-Form
-  Box
-  Text
-  Geschwindigkeits-Vektor
-  Baum 
-
-Du kannst also 5 Pfeile nacheinander auf die Piste ziehen.
-
-2. Einmalige Objekte (Verschiebe-Modus):
-
-   Die Menschen (Skifahrer, Rodler, Verletzter) sind weiterhin einzigartig. Wenn du sie auf die Piste ziehst, verschwinden sie aus dem Dock (damit man nicht versehentlich 3 gleiche Unfallverursacher hat).
-
-3. Löschen via Dock (Mülleimer-Funktion):
-
-  Wenn du einen Pfeil (oder ein anderes unendliches Objekt) von der Piste zurück in das Dock ziehst, wird er einfach gelöscht (da er ja schon als Vorlage im Dock liegt).
-  Wenn du einen Skifahrer zurückziehst, wird er im Dock geparkt (wieder verfügbar gemacht).
-
+Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App wieder sofort.
 -->
+
+
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V80 (Multi-Instanz Pfeile)</title>
+    <title>Ski-Simulation V82 (Bugfix Loading)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -59,6 +41,10 @@ Du kannst also 5 Pfeile nacheinander auf die Piste ziehen.
         .ui-content { padding: 15px; }
         .key-badge { background: #eee; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-family: monospace; }
         li { margin-bottom: 8px; font-size: 14px; color: #555; line-height: 1.4; }
+
+        /* VERSION INFO LINK */
+        #versionTrigger { margin-top: 12px; font-size: 12px; color: #888; text-align: right; cursor: pointer; text-decoration: underline; }
+        #versionTrigger:hover { color: #333; }
 
         /* HEADER BUTTONS */
         .header-btn { 
@@ -113,12 +99,41 @@ Du kannst also 5 Pfeile nacheinander auf die Piste ziehen.
         
         #btnColor { width: 60px; font-size: 24px; }
 
+        /* IMPRESSUM MODAL */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
+        .modal-content { background-color: #fefefe; margin: 15vh auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 400px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); font-family: 'Segoe UI', sans-serif; position: relative; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; position: absolute; right: 15px; top: 10px; }
+        .close-btn:hover { color: #000; }
+        .modal h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #333; }
+        .modal-body { font-size: 14px; line-height: 1.6; color: #444; }
+        .modal-body strong { display: block; margin-top: 10px; color: #222; }
+        .modal-link { display: block; margin-top: 20px; text-align: center; color: #007bff; text-decoration: none; font-weight: bold; border-top: 1px solid #eee; padding-top: 15px; }
+        .modal-link:hover { text-decoration: underline; }
+
         @media (max-height: 500px) { .ui { display: none; } }
     </style>
 </head>
 <body>
 
 <div id="loader">Lade Simulation...</div>
+
+<div id="impressumModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h3>ASI-Tirol Skisimulation</h3>
+        <div class="modal-body">
+            Verantwortlich für die Skisimulation (App):
+            <br><br>
+            <strong>Werner Senn</strong>
+            6591 Gurnau, Grins, Austria
+            <br>
+            <strong>Christian Klingler</strong>
+            6511 Zams, Austria
+        </div>
+        <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
+    </div>
+</div>
 
 <div class="ui" id="instructionBox">
     <div class="ui-header" onclick="toggleUI()">
@@ -134,7 +149,7 @@ Du kannst also 5 Pfeile nacheinander auf die Piste ziehen.
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
         </ul>
-        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v80</div>
+        <div id="versionTrigger">v82 (Info)</div>
     </div>
 </div>
 
@@ -185,11 +200,11 @@ Du kannst also 5 Pfeile nacheinander auf die Piste ziehen.
     // CUSTOM INKSCAPE SLED (Updated V78 - Green Seat, Round Head)
     const SVG_SLED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M26.49 4.49v80.9q0 10.11 6.89 10.11" stroke="#8b4513" stroke-width="5.86" fill="none" stroke-linecap="round"/><path d="M73.52 4.48v80.93q0 10.12-6.8 10.12" stroke="#8b4513" stroke-width="5.85" fill="none" stroke-linecap="round"/><rect x="26.38" y="37.83" width="47.19" height="8" fill="#a0522d"/><g transform="matrix(.945 0 0 1 2.75 0)" fill="#536c53"><rect x="25" y="30" width="50.02" height="8"/><rect x="24.98" y="14.61" width="50" height="8"/><rect x="25" y="45" width="50" height="8"/><rect x="24.98" y="60" width="50.02" height="8"/><rect x="24.98" y="52.67" width="50" height="8"/><rect x="25" y="22.15" width="49.98" height="8"/></g><rect x="34" y="55" width="14" height="30" rx="4" fill="#333"/><rect x="52" y="55" width="14" height="30" rx="4" fill="#333"/><rect x="29.35" y="27.6" width="41.3" height="29.91" rx="10.33" fill="#e67e22" stroke="#d35400" stroke-width="1.88"/><rect x="32" y="82" width="18" height="12" rx="4" fill="#4d4d4d"/><rect x="50" y="82" width="18" height="12" rx="4" fill="#4d4d4d"/><circle cx="50" cy="33" r="13" fill="#808080" stroke="#555" stroke-width="1"/><ellipse cx="62.12" cy="55.94" rx="5.01" ry="13.18" transform="matrix(.99 -.16 .15 .99 0 0)" fill="#e67e22"/><ellipse cx="-36.89" cy="39.43" rx="5.01" ry="13.18" transform="matrix(-.99 -.16 -.15 .99 0 0)" fill="#e67e22"/></svg>`);
 
+    // Cleaned up ASSETS (removed lineGray, arrowBlue, vShape as they are now dynamic)
     const ASSETS = { 
         skiBlue: new Image(), skiGreen: new Image(), 
         skiLeftShoulder: new Image(), skiRightShoulder: new Image(),
         boarder: new Image(), tree: new Image(),
-        lineGray: new Image(), arrowBlue: new Image(), vShape: new Image(),
         skiPlow: new Image(), injured: new Image(), sled: new Image(),
         linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image()
     };
@@ -230,10 +245,8 @@ Du kannst also 5 Pfeile nacheinander auf die Piste ziehen.
     let lastTapTime = 0;
 
     function isInfiniteResource(obj) {
-        // Defines which objects remain in dock (copy mode)
         if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect'].includes(obj.type)) return true;
         if (obj.type === 'sprite' && obj.assetKey === 'tree') return true; 
-        // Note: Arrow (Pfeil) is included here via 'arrow' type
         return false;
     }
 
@@ -562,8 +575,16 @@ Du kannst also 5 Pfeile nacheinander auf die Piste ziehen.
         if(e.key==='+') keys['ZoomIn']=false; if(e.key==='-') keys['ZoomOut']=false;
     });
 
+    // IMPRESSUM MODAL LOGIC
+    const modal = document.getElementById("impressumModal");
+    const trigger = document.getElementById("versionTrigger");
+    const span = document.getElementsByClassName("close-btn")[0];
+    trigger.onclick = function() { modal.style.display = "block"; }
+    span.onclick = function() { modal.style.display = "none"; }
+    window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
+
     document.getElementById('saveBtn').addEventListener('click', () => { const link = document.createElement('a'); link.download = `ski-sim-${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click(); });
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V80', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V82', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
@@ -612,4 +633,3 @@ Du kannst also 5 Pfeile nacheinander auf die Piste ziehen.
 </script>
 </body>
 </html>
-
