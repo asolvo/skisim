@@ -1,5 +1,5 @@
-<!-- Skisim V74 -->
-<!-- Multitouch for zoom and turn, no UI elements for zoom and turn any more. 
+<!-- Skisim V80 -->
+<!-- Key "del" supported. 
 
 Apache V2 License
 2026-01-07 
@@ -7,36 +7,38 @@ Christian Klingler, asolvo
 erstellt mit Google Gemini 3 Pro 
 
 
-Die Änderungen:
-UI-Bereinigung:
+Bisher war es ein "Verschiebe"-Prinzip (wie bei Spielfiguren), jetzt brauchen wir für Werkzeuge (Pfeile, Linien) ein "Kopier"-Prinzip (wie ein Stempel).
 
-Die Buttons für Zoom (+ / -) und Drehen (↺ / ↻) wurden entfernt.
+Die Neuerungen:
+1. Unendlich viele Objekte (Kopier-Modus):
 
-Das Bedienfeld ("Gamepad") ist nun viel schlanker.
+Wenn du folgende Objekte aus dem Dock ziehst, bleiben sie im Dock erhalten:
+  Pfeil (wie gewünscht)
+  Linie
+  V-Form
+  Box
+  Text
+  Geschwindigkeits-Vektor
+  Baum 
 
-Links gibt es nur noch den Farbe-Button (🎨).
+Du kannst also 5 Pfeile nacheinander auf die Piste ziehen.
 
-Rechts bleiben die Pfeiltasten zur feinen Positionierung (hilfreich, wenn man den Finger nicht auf dem Objekt haben will).
+2. Einmalige Objekte (Verschiebe-Modus):
 
-Bedienung jetzt:
+   Die Menschen (Skifahrer, Rodler, Verletzter) sind weiterhin einzigartig. Wenn du sie auf die Piste ziehst, verschwinden sie aus dem Dock (damit man nicht versehentlich 3 gleiche Unfallverursacher hat).
 
-Zoom: Mausrad oder 2-Finger-Pinch. (Tastatur: + / -)
+3. Löschen via Dock (Mülleimer-Funktion):
 
-Drehen: Rechte Maustaste oder 2-Finger-Drehen. (Tastatur: ö / ä)
+  Wenn du einen Pfeil (oder ein anderes unendliches Objekt) von der Piste zurück in das Dock ziehst, wird er einfach gelöscht (da er ja schon als Vorlage im Dock liegt).
+  Wenn du einen Skifahrer zurückziehst, wird er im Dock geparkt (wieder verfügbar gemacht).
 
-Farbe: Button 🎨 oder Taste c.
-
-Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen sauberer.
 -->
-
-
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V74 (Clean UI)</title>
+    <title>Ski-Simulation V80 (Multi-Instanz Pfeile)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -130,9 +132,9 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
             <li><strong>Text/Vektor:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
-            <li><strong>PC-Steuerung:</strong> Mausrad (Zoom), Rechtsklick (Drehen).</li>
+            <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
         </ul>
-        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v74</div>
+        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v80</div>
     </div>
 </div>
 
@@ -179,16 +181,20 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
     const SVG_V_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#808080" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`);
     const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="37.023964" y="35.509697" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(-25)"/><rect x="41.606819" y="-6.7521315" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(25)"/><rect x="29.947439" y="34.780109" width="40.105122" height="30.439781" rx="12.031537" fill="#3399ff" stroke="#0056b3" stroke-width="1.89488"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72.856575" cy="42.936256" r="5.3266931" fill="#333"/><circle cx="72" cy="50" r="7" fill="#3399ff"/><circle cx="72.398407" cy="46.840637" r="7" fill="#3399ff"/><circle cx="27.282869" cy="43.219124" r="5.0876493" fill="#333"/><circle cx="27.537849" cy="47.868526" r="7" fill="#3399ff"/><path fill="#826dff" stroke="#544bb3" stroke-width="0.0710732" stroke-linecap="round" stroke-linejoin="round" d="m 26.698432,56.845502 c -0.667894,-0.131 -1.566917,-0.473694 -2.160106,-0.823398 -1.898546,-1.119258 -3.065111,-2.867871 -3.459405,-5.185451 -0.0671,-0.394422 -0.198227,-0.986055 -0.291385,-1.314741 -0.241444,-0.851876 -0.244849,-2.32468 -0.0076,-3.283606 1.169417,-4.726449 6.66981,-6.835578 10.69416,-4.100681 0.531849,0.361438 1.32698,1.144604 1.712851,1.687076 0.661537,0.930017 1.048532,1.903386 1.267196,3.187251 0.05971,0.350598 0.18942,0.924303 0.28824,1.274901 0.249474,0.885096 0.256045,2.506428 0.01379,3.402268 -0.360517,1.333155 -1.008202,2.413352 -2.027714,3.381789 -0.943482,0.896216 -2.047984,1.472984 -3.342006,1.74519 -0.59985,0.126183 -2.110363,0.142705 -2.688026,0.0294 z"/><path fill="#826dff" d="m 70.55556,56.815465 c -1.272123,-0.292075 -2.367548,-0.873992 -3.284024,-1.744555 -1.020379,-0.96926 -1.669683,-2.047432 -2.022137,-3.357763 -0.244882,-0.910404 -0.243566,-2.525074 0.0028,-3.426294 0.120106,-0.43937 0.183234,-0.934571 0.203156,-1.593626 0.05825,-1.927187 0.812842,-3.642411 2.145459,-4.876761 3.920014,-3.630949 10.123656,-1.865147 11.534362,3.283136 0.247704,0.903982 0.25338,2.507979 0.01226,3.466135 -0.104144,0.413853 -0.186133,1.049203 -0.210791,1.633466 -0.127233,3.014686 -1.99193,5.494622 -4.833055,6.427674 -0.681537,0.223823 -0.87211,0.251101 -1.912351,0.27373 -0.783305,0.01704 -1.310051,-0.01038 -1.635675,-0.08514 z"/></svg>`);
     const SVG_INJURED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="m 35,55 c -6.666667,10 0.689243,33.122178 2.689243,39.788845 l 11.298805,0.215139 C 44.225764,81.585658 46.666667,66.666667 50,60 Z" fill="#333333"/><path d="m 55,55 c 6.666667,10 3.836654,34.269588 1.836654,40.936255 L 49.298805,94.430279 C 45.965472,86.430279 43.333333,66.666667 40,60 Z" fill="#333333"/><path d="M 33.952191,33.569721 C 47.285525,20.236388 56.666667,16.666667 70,30 67.742364,43.652058 68.179283,51.229748 60.155378,60.063745 L 35,60 C 25,53.333333 28.90571,51.447543 30.207171,41.721116 Z" fill="#d9534f" stroke="#c9302c" stroke-width="2" stroke-linejoin="round"/><path d="M 41.880478,28.167331 C 37.213811,34.833997 30.309429,45.203187 35,58" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><path d="m 66.884462,44.868525 c 2.209827,6.475432 0.140771,8.494024 -2.50996,18.358566" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="70" cy="30" r="14" fill="#808080" stroke="#666" stroke-width="1"/></svg>`);
+    
+    // CUSTOM INKSCAPE SLED (Updated V78 - Green Seat, Round Head)
+    const SVG_SLED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M26.49 4.49v80.9q0 10.11 6.89 10.11" stroke="#8b4513" stroke-width="5.86" fill="none" stroke-linecap="round"/><path d="M73.52 4.48v80.93q0 10.12-6.8 10.12" stroke="#8b4513" stroke-width="5.85" fill="none" stroke-linecap="round"/><rect x="26.38" y="37.83" width="47.19" height="8" fill="#a0522d"/><g transform="matrix(.945 0 0 1 2.75 0)" fill="#536c53"><rect x="25" y="30" width="50.02" height="8"/><rect x="24.98" y="14.61" width="50" height="8"/><rect x="25" y="45" width="50" height="8"/><rect x="24.98" y="60" width="50.02" height="8"/><rect x="24.98" y="52.67" width="50" height="8"/><rect x="25" y="22.15" width="49.98" height="8"/></g><rect x="34" y="55" width="14" height="30" rx="4" fill="#333"/><rect x="52" y="55" width="14" height="30" rx="4" fill="#333"/><rect x="29.35" y="27.6" width="41.3" height="29.91" rx="10.33" fill="#e67e22" stroke="#d35400" stroke-width="1.88"/><rect x="32" y="82" width="18" height="12" rx="4" fill="#4d4d4d"/><rect x="50" y="82" width="18" height="12" rx="4" fill="#4d4d4d"/><circle cx="50" cy="33" r="13" fill="#808080" stroke="#555" stroke-width="1"/><ellipse cx="62.12" cy="55.94" rx="5.01" ry="13.18" transform="matrix(.99 -.16 .15 .99 0 0)" fill="#e67e22"/><ellipse cx="-36.89" cy="39.43" rx="5.01" ry="13.18" transform="matrix(-.99 -.16 -.15 .99 0 0)" fill="#e67e22"/></svg>`);
 
     const ASSETS = { 
         skiBlue: new Image(), skiGreen: new Image(), 
         skiLeftShoulder: new Image(), skiRightShoulder: new Image(),
         boarder: new Image(), tree: new Image(),
         lineGray: new Image(), arrowBlue: new Image(), vShape: new Image(),
-        skiPlow: new Image(), injured: new Image(),
+        skiPlow: new Image(), injured: new Image(), sled: new Image(),
         linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image()
     };
     
+    // COLORS for Cycle
     const COLOR_PALETTE = ['#808080', '#000000', '#e6e6e6', '#ffd700', '#ff0000', '#ffa500', '#0000ff', '#006400', '#8b4513'];
 
     const TEMPLATES = [
@@ -198,6 +204,7 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
         { type: 'sprite', assetKey: 'skiRightShoulder', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiPlow', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'boarder', width: 100, height: 100, rotation: 90 },
+        { type: 'sprite', assetKey: 'sled', width: 80, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'injured', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
         { type: 'text', text: 'Text', color: '#000000', width: 80, height: 30, rotation: 0 },
@@ -222,6 +229,14 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
     let isSnapping = false, snappingPlayerIndex = -1, targetRotation = 0, dragFromDockItem = null; 
     let lastTapTime = 0;
 
+    function isInfiniteResource(obj) {
+        // Defines which objects remain in dock (copy mode)
+        if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect'].includes(obj.type)) return true;
+        if (obj.type === 'sprite' && obj.assetKey === 'tree') return true; 
+        // Note: Arrow (Pfeil) is included here via 'arrow' type
+        return false;
+    }
+
     function getGermanLabel(tpl) {
         if (tpl.type === 'text') return 'Textfeld';
         if (tpl.type === 'velocity') return 'Geschwindigkeits-Vektor';
@@ -237,6 +252,7 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
                 case 'skiRightShoulder': return 'Skifahrer (Grün, Schulter zurück)';
                 case 'skiPlow': return 'Pflugfahrer';
                 case 'boarder': return 'Snowboarder';
+                case 'sled': return 'Rodler';
                 case 'injured': return 'Verletzte Person';
                 case 'tree': return 'Baum';
             }
@@ -253,6 +269,7 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
         ASSETS.tree.src = SVG_TREE; ASSETS.skiPlow.src = SVG_SKI_PLOW; ASSETS.injured.src = SVG_INJURED;
         ASSETS.skiLeftShoulder.src = SVG_SKI_LEFT_SHOULDER;
         ASSETS.skiRightShoulder.src = SVG_SKI_RIGHT_SHOULDER; 
+        ASSETS.sled.src = SVG_SLED;
         ASSETS.linePreview.src = SVG_LINE_PREVIEW; ASSETS.arrowPreview.src = SVG_ARROW_PREVIEW; ASSETS.vPreview.src = SVG_V_PREVIEW;
         setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
@@ -336,16 +353,36 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
     function getClientPos(e) { if(e.touches && e.touches.length > 0) return { x: e.touches[0].clientX, y: e.touches[0].clientY }; return { x: e.clientX, y: e.clientY }; }
     function moveGhost(pos) { ghostDrag.style.left = (pos.x - 40) + 'px'; ghostDrag.style.top = (pos.y - 40) + 'px'; }
     function handleDockDragMove(e) { if (!dragFromDockItem) return; e.preventDefault(); moveGhost(getClientPos(e)); }
+    
     function handleDockDragEnd(e) {
         document.removeEventListener('mousemove', handleDockDragMove); document.removeEventListener('touchmove', handleDockDragMove);
         document.removeEventListener('mouseup', handleDockDragEnd); document.removeEventListener('touchend', handleDockDragEnd);
         ghostDrag.style.display = 'none'; if (!dragFromDockItem) return;
         let pos = getClientPos(e); if (e.changedTouches && e.changedTouches.length > 0) pos = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
+        
         if (pos.x < window.innerWidth - 120) {
             activeObjects.push(createObject(dragFromDockItem.tpl, pos.x - 50, pos.y - 50));
-            dockedObjects.splice(dragFromDockItem.index, 1); renderDock(); activePlayerIndex = activeObjects.length - 1;
+            // Check if infinite
+            if (!isInfiniteResource(dragFromDockItem.tpl)) {
+                dockedObjects.splice(dragFromDockItem.index, 1);
+            }
+            renderDock(); activePlayerIndex = activeObjects.length - 1;
         }
         dragFromDockItem = null;
+    }
+
+    function returnToDock(index) {
+        if (index === -1 || index >= activeObjects.length) return;
+        const p = activeObjects[index];
+        // Only return to dock if NOT infinite. If infinite, just delete.
+        if (!isInfiniteResource(p)) {
+            let ni = { type: p.type, width: p.width, height: p.height, rotation: (p.type==='sprite' && p.assetKey==='boarder') ? 90 : 0 };
+            if(p.type === 'sprite') ni.assetKey = p.assetKey; else if (p.type === 'text' || p.type === 'velocity') { ni.text = p.text; ni.color = p.color; } else { ni.color = p.color; }
+            dockedObjects.push(ni); 
+        }
+        activeObjects.splice(index, 1); 
+        renderDock();
+        activePlayerIndex = -1; draggingPlayerIndex = -1; rotatingPlayerIndex = -1;
     }
 
     function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > canvas.width - p.width) p.x = canvas.width - p.width; if (p.y < 0) p.y = 0; if (p.y > canvas.height - p.height) p.y = canvas.height - p.height; }
@@ -371,7 +408,7 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
         if (p.type === 'text' || p.type === 'velocity') return 3; 
         if (p.type === 'rect') return 1;
         if (['tree', 'injured'].includes(p.assetKey)) return 1;
-        if (['skiBlue', 'skiGreen', 'skiLeftShoulder', 'skiRightShoulder', 'skiPlow', 'boarder'].includes(p.assetKey)) return 2;
+        if (['skiBlue', 'skiGreen', 'skiLeftShoulder', 'skiRightShoulder', 'skiPlow', 'boarder', 'sled'].includes(p.assetKey)) return 2;
         return 0; 
     }
 
@@ -441,11 +478,8 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
         if (draggingPlayerIndex !== -1) {
             const dr = dockContainer.getBoundingClientRect();
             if (mx >= dr.left - 20 && mx <= dr.right + 20 && my >= dr.top - 20 && my <= dr.bottom + 20) {
-                const p = activeObjects[draggingPlayerIndex];
-                let ni = { type: p.type, width: p.width, height: p.height, rotation: (p.type==='sprite' && p.assetKey==='boarder') ? 90 : 0 };
-                if(p.type === 'sprite') ni.assetKey = p.assetKey; else if (p.type === 'text' || p.type === 'velocity') { ni.text = p.text; ni.color = p.color; } else { ni.color = p.color; }
-                dockedObjects.push(ni); activeObjects.splice(draggingPlayerIndex, 1); renderDock();
-                draggingPlayerIndex = -1; activePlayerIndex = 0; return;
+                returnToDock(draggingPlayerIndex);
+                return;
             }
         }
         draggingPlayerIndex = -1;
@@ -514,6 +548,7 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
         if (activePlayerIndex === -1) return;
         if (e.key==='Enter') { openTextEditor(activeObjects[activePlayerIndex]); return; }
         if (e.key === 'c' || e.key === 'C') { cycleColor(activePlayerIndex); return; }
+        if (e.key === 'Delete' || e.key === 'Del') { returnToDock(activePlayerIndex); return; }
         if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
         if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=true;
         if(e.key==='+') keys['ZoomIn']=true; if(e.key==='-') keys['ZoomOut']=true;
@@ -528,7 +563,7 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
     });
 
     document.getElementById('saveBtn').addEventListener('click', () => { const link = document.createElement('a'); link.download = `ski-sim-${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click(); });
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V74', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V80', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
@@ -577,3 +612,4 @@ Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen saub
 </script>
 </body>
 </html>
+
