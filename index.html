@@ -1,27 +1,22 @@
-<!-- Skisim V90 -->
-<!-- New skier 4, rechte Schulter vorne 
+<!-- Skisim V72 -->
+<!-- m/s, UI for color change
 
 Apache V2 License
-2026-01-06 
+2026-01-07 
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
 
-Gern geschehen! Das ist das perfekte Gegenstück zum vorherigen Skifahrer. Mit beiden Figuren kannst du jetzt Links- und Rechtskurven korrekt darstellen.
+Vektor-Genauigkeit:
+* Die Umrechnung ist nun präziser. Anstatt zu runden (z. B. 11 m/s), wird nun eine Nachkommastelle angezeigt (z. B. 11,1 m/s).
+  Das Dezimaltrennzeichen ist ein Komma, passend zur deutschen Einstellung.
 
-Ich habe deinen SVG-Code für den Skifahrer 4 (Rechte Schulter vor) optimiert und integriert.
+Neuer Button "Farbe":
+* Im unteren Bedienfeld ("Gamepad") gibt es links nun einen neuen Button mit einem Farb-Icon (🎨).
+  Dieser Button macht genau dasselbe wie die Taste "c". Damit können nun auch Tablet/Handy-Nutzer die Farben von Boxen, Pfeilen und Linien durchwechseln.
 
-Die Neuerungen:
-Neuer Skifahrer "Rechts-Vorne" (SVG_SKI_RIGHT_SHOULDER):
-Basiert auf deinem SVG (gespiegelte Version).
-Farbe: #669966 (wie die anderen grünen Skifahrer).
-
-Im Dock verfügbar als eigenes Icon.
-
-Tooltips:
-
-Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück)".
-(Technisch gesehen ist es "Rechte Schulter vor", aber oft bezeichnet man das im Vergleich zum anderen als "Gegenstück" oder einfach die andere Kurvenlage).
+Code-Optimierung:
+* Die Farbwechsel-Logik wurde in eine zentrale Funktion cycleColor() ausgelagert, damit sie von Tastatur und Touch-Button gleichermaßen genutzt werden kann.
 -->
 
 
@@ -30,7 +25,7 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V71 (Neuer Skifahrer 4: Rechts vor)</title>
+    <title>Ski-Simulation V72 (Farb-Button & Präzise Vektoren)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -103,6 +98,9 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
         button.touch-btn { width: 45px; height: 45px; border: 1px solid #ccc; background: white; border-radius: 8px; font-size: 20px; font-weight: bold; color: #333; cursor: pointer; touch-action: manipulation; user-select: none; display: flex; justify-content: center; align-items: center; }
         button.touch-btn:active { background: #00bfff; color: white; border-color: #0099cc; }
         
+        /* NEW Color Button Style */
+        #btnColor { width: 100%; font-size: 22px; }
+
         @media (max-height: 500px) { .ui { display: none; } }
     </style>
 </head>
@@ -120,11 +118,11 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
             <li><strong>Objekte:</strong> Ziehen zum Hinzufügen.</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
             <li><strong>Text/Vektor:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
-            <li><strong>Farbe (Box/Linien):</strong> Taste <span class="key-badge">c</span>.</li>
+            <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
             <li><strong>Drehen:</strong> Rechte Maustaste / <span class="key-badge">ö</span> <span class="key-badge">ä</span>.</li>
-            <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span> (auch "kein Fokus").</li>
+            <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span>.</li>
         </ul>
-        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v71</div>
+        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v72</div>
     </div>
 </div>
 
@@ -146,9 +144,14 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
     <div class="control-group">
         <span style="font-size:10px; color:#777">Zoom</span>
         <div class="btn-row"><button class="touch-btn" id="btnZoomIn">+</button><button class="touch-btn" id="btnZoomOut">-</button></div>
+        
         <span style="font-size:10px; color:#777; margin-top:5px">Drehen</span>
         <div class="btn-row"><button class="touch-btn" id="btnRotLeft">↺</button><button class="touch-btn" id="btnRotRight">↻</button></div>
+        
+        <span style="font-size:10px; color:#777; margin-top:5px">Farbe</span>
+        <div class="btn-row"><button class="touch-btn" id="btnColor" title="Farbe ändern">🎨</button></div>
     </div>
+
     <div class="control-group">
         <button class="touch-btn" id="btnUp">▲</button>
         <div class="btn-row"><button class="touch-btn" id="btnLeft">◀</button><button class="touch-btn" id="btnDown">▼</button><button class="touch-btn" id="btnRight">▶</button></div>
@@ -175,7 +178,7 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
     const SVG_BOARDER = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="35" ry="12" fill="rgba(0,0,0,0.2)"/><path d="M 5 38 Q 50 34 95 38 L 98 40 Q 102 50 98 60 L 95 62 Q 50 66 5 62 L 2 60 Q -2 50 2 40 Z" fill="#81ae98" stroke="#5a7a6a" stroke-width="1"/><rect x="15" y="40" width="12" height="20" rx="4" fill="#222"/><rect x="73" y="40" width="12" height="20" rx="4" fill="#222"/><ellipse cx="50" cy="50" rx="22" ry="14" fill="#b83dba" stroke="#8a2e8c" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="38" width="24" height="8" rx="3" fill="#333"/><rect x="40" y="39" width="20" height="6" rx="2" fill="#87ceeb"/><path d="M 28 50 L 15 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M 72 50 L 85 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><circle cx="15" cy="48" r="6" fill="#111"/><circle cx="85" cy="48" r="6" fill="#111"/></svg>`);
     
     // CUSTOM INKSCAPE TREE
-    const SVG_TREE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="m 50,5 15,15 30.318725,-1.414343 -15,35 9.760956,33.565737 L 65.63745,81.673307 50,95 33.645418,82.47012 10,85 18.565737,47.689243 5,15 32.211155,18.565737 Z" fill="#0a2915" stroke="#051f0e" stroke-width="1" stroke-linejoin="round"/><path d="M 50,12 58,35 84.986183,21.442386 70,48 91.211221,64.469655 65,65 41.280431,82.844644 35.14188,65.707458 6.5632786,66.206041 27.759567,47.076213 11.876549,21.554472 40.821275,31.583757 Z" fill="#1a472a" stroke="#0e2b18" stroke-width="1" stroke-linejoin="round" transform="rotate(5,50,50)"/><path d="M 50,12 58,35 86.444638,31.712922 70,48 91.701523,51.789027 60.127173,65.986217 62.047618,89.826171 43.270107,72.674952 20.316374,78.040461 23.620933,52.797335 4.3870163,41.086333 40.821275,31.583757 Z" fill="#1a472a" stroke="#0e2b18" stroke-width="1" stroke-linejoin="round" transform="rotate(5,50,50)"/><path d="M 50,22 60,40 82,38 68,52 80,72 50,68 20,72 32,52 19.149841,35.800796 40,40 Z" fill="#2e7d32" stroke="#1b5e20" stroke-width="1" stroke-linejoin="round" transform="rotate(20,50,50)"/><path d="M 50,32 58,45 75,42 62,55 69.71853,72.678564 50.077896,60.8873 31.758194,68.911777 38,55 25,42 42,45 Z" fill="#4caf50" stroke="#388e3c" stroke-width="1" stroke-linejoin="round" transform="rotate(-10,50,50)"/><circle cx="50" cy="50" r="5" fill="#81c784"/></svg>`);
+    const SVG_TREE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="m 50,5 15,15 30.318725,-1.414343 -15,35 9.760956,33.565737 L 65.63745,81.673307 50,95 33.645418,82.47012 10,85 18.565737,47.689243 5,15 32.211155,18.565737 Z" fill="#0a2915" stroke="#051f0e" stroke-width="1" stroke-linejoin="round"/><path d="M 50,12 58,35 84.986183,21.442386 70,48 91.211221,64.469655 65,65 41.280431,82.844644 35.14188,65.707458 6.5632786,66.206041 27.759567,47.076213 11.876549,21.554472 40.821275,31.583757 Z" fill="#1a472a" stroke="#0e2b18" stroke-width="1" stroke-linejoin="round" transform="rotate(5,50,50)"/><path d="M 50,22 60,40 82,38 68,52 80,72 50,68 20,72 32,52 19.149841,35.800796 40,40 Z" fill="#2e7d32" stroke="#1b5e20" stroke-width="1" stroke-linejoin="round" transform="rotate(20,50,50)"/><path d="M 50,32 58,45 75,42 62,55 69.71853,72.678564 50.077896,60.8873 31.758194,68.911777 38,55 25,42 42,45 Z" fill="#4caf50" stroke="#388e3c" stroke-width="1" stroke-linejoin="round" transform="rotate(-10,50,50)"/><circle cx="50" cy="50" r="5" fill="#81c784"/></svg>`);
 
     // Previews only
     const SVG_LINE_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" viewBox="0 0 200 20"><line x1="5" y1="10" x2="195" y2="10" stroke="#808080" stroke-width="4" stroke-linecap="round" /></svg>`);
@@ -382,6 +385,15 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
         return 0; 
     }
 
+    function cycleColor(index) {
+        const p = activeObjects[index];
+        if (p && ['rect', 'line', 'arrow', 'vshape', 'velocity'].includes(p.type)) {
+            let idx = COLOR_PALETTE.indexOf(p.color);
+            if (idx === -1) idx = 0;
+            p.color = COLOR_PALETTE[(idx + 1) % COLOR_PALETTE.length];
+        }
+    }
+
     function openTextEditor(p) {
         if (!p) return;
         if (p.type === 'text') {
@@ -396,7 +408,8 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
             const nt = prompt("Geschwindigkeit in km/h:", "");
             if (nt !== null && !isNaN(parseFloat(nt))) {
                 const kmh = parseFloat(nt);
-                const ms = Math.round(kmh / 3.6);
+                // Precision update: 1 decimal place, German comma
+                const ms = (kmh / 3.6).toFixed(1).replace('.', ',');
                 p.text = kmh + " km/h (" + ms + " m/s)";
             }
         }
@@ -501,6 +514,15 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
     bindBtn('btnUp', 'ArrowUp'); bindBtn('btnDown', 'ArrowDown'); bindBtn('btnLeft', 'ArrowLeft'); bindBtn('btnRight', 'ArrowRight');
     bindBtn('btnRotLeft', 'RotateLeft'); bindBtn('btnRotRight', 'RotateRight'); bindBtn('btnZoomIn', 'ZoomIn'); bindBtn('btnZoomOut', 'ZoomOut');
 
+    // New Color Button Event
+    const btnColor = document.getElementById('btnColor');
+    const colorAction = (e) => {
+        e.preventDefault();
+        if (activePlayerIndex !== -1) cycleColor(activePlayerIndex);
+    };
+    btnColor.addEventListener('click', colorAction);
+    btnColor.addEventListener('touchstart', colorAction, {passive: false});
+
     window.addEventListener('keydown', e => {
         if (e.key==='s'||e.key==='S') { document.getElementById('saveBtn').click(); return; }
         
@@ -528,12 +550,7 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
         }
         // Color Cycle
         if (e.key === 'c' || e.key === 'C') {
-            const p = activeObjects[activePlayerIndex];
-            if (p && ['rect', 'line', 'arrow', 'vshape', 'velocity'].includes(p.type)) {
-                let idx = COLOR_PALETTE.indexOf(p.color);
-                if (idx === -1) idx = 0; 
-                p.color = COLOR_PALETTE[(idx + 1) % COLOR_PALETTE.length];
-            }
+            cycleColor(activePlayerIndex);
             return;
         }
         if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
@@ -561,7 +578,7 @@ Der Tooltip für den neuen Skifahrer lautet: "Skifahrer (Grün, Schulter zurück
                 const dataUrl = canvas.toDataURL('image/png');
                 const blob = await (await fetch(dataUrl)).blob();
                 const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' });
-                await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V71', files: [file] });
+                await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V72', files: [file] });
             } catch (err) { console.log('Teilen abgebrochen/fehlgeschlagen:', err); }
         } else { alert('Teilen wird von diesem Browser nicht unterstützt. Bitte nutze den Download-Button.'); }
     });
