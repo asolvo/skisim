@@ -1,5 +1,5 @@
-<!-- Skisim V72 -->
-<!-- m/s, UI for color change
+<!-- Skisim V74 -->
+<!-- Multitouch for zoom and turn, no UI elements for zoom and turn any more. 
 
 Apache V2 License
 2026-01-07 
@@ -7,17 +7,28 @@ Christian Klingler, asolvo
 erstellt mit Google Gemini 3 Pro 
 
 
-Vektor-Genauigkeit:
-* Die Umrechnung ist nun präziser. Anstatt zu runden (z. B. 11 m/s), wird nun eine Nachkommastelle angezeigt (z. B. 11,1 m/s).
-  Das Dezimaltrennzeichen ist ein Komma, passend zur deutschen Einstellung.
+Die Änderungen:
+UI-Bereinigung:
 
-Neuer Button "Farbe":
-* Im unteren Bedienfeld ("Gamepad") gibt es links nun einen neuen Button mit einem Farb-Icon (🎨).
-  Dieser Button macht genau dasselbe wie die Taste "c". Damit können nun auch Tablet/Handy-Nutzer die Farben von Boxen, Pfeilen und Linien durchwechseln.
+Die Buttons für Zoom (+ / -) und Drehen (↺ / ↻) wurden entfernt.
 
-Code-Optimierung:
-* Die Farbwechsel-Logik wurde in eine zentrale Funktion cycleColor() ausgelagert, damit sie von Tastatur und Touch-Button gleichermaßen genutzt werden kann.
+Das Bedienfeld ("Gamepad") ist nun viel schlanker.
+
+Links gibt es nur noch den Farbe-Button (🎨).
+
+Rechts bleiben die Pfeiltasten zur feinen Positionierung (hilfreich, wenn man den Finger nicht auf dem Objekt haben will).
+
+Bedienung jetzt:
+
+Zoom: Mausrad oder 2-Finger-Pinch. (Tastatur: + / -)
+
+Drehen: Rechte Maustaste oder 2-Finger-Drehen. (Tastatur: ö / ä)
+
+Farbe: Button 🎨 oder Taste c.
+
+Der Code ist dadurch etwas kürzer und die Ansicht auf kleinen Bildschirmen sauberer.
 -->
+
 
 
 <!DOCTYPE html>
@@ -25,7 +36,7 @@ Code-Optimierung:
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V72 (Farb-Button & Präzise Vektoren)</title>
+    <title>Ski-Simulation V74 (Clean UI)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -92,14 +103,13 @@ Code-Optimierung:
 
         #ghost-drag { position: absolute; pointer-events: none; opacity: 0.8; z-index: 100; display: none; width: 80px; height: 80px; object-fit: contain; }
         
-        #gamepad { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; pointer-events: none; align-items: flex-end; z-index: 20; }
+        #gamepad { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 40px; pointer-events: none; align-items: flex-end; z-index: 20; }
         .control-group { background: rgba(255,255,255,0.8); padding: 10px; border-radius: 15px; pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .btn-row { display: flex; gap: 5px; }
         button.touch-btn { width: 45px; height: 45px; border: 1px solid #ccc; background: white; border-radius: 8px; font-size: 20px; font-weight: bold; color: #333; cursor: pointer; touch-action: manipulation; user-select: none; display: flex; justify-content: center; align-items: center; }
         button.touch-btn:active { background: #00bfff; color: white; border-color: #0099cc; }
         
-        /* NEW Color Button Style */
-        #btnColor { width: 100%; font-size: 22px; }
+        #btnColor { width: 60px; font-size: 24px; }
 
         @media (max-height: 500px) { .ui { display: none; } }
     </style>
@@ -117,12 +127,12 @@ Code-Optimierung:
         <ul style="margin:0; padding-left: 20px;">
             <li><strong>Objekte:</strong> Ziehen zum Hinzufügen.</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
+            <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
             <li><strong>Text/Vektor:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
-            <li><strong>Drehen:</strong> Rechte Maustaste / <span class="key-badge">ö</span> <span class="key-badge">ä</span>.</li>
-            <li><strong>Wechseln:</strong> <span class="key-badge">Tab</span>.</li>
+            <li><strong>PC-Steuerung:</strong> Mausrad (Zoom), Rechtsklick (Drehen).</li>
         </ul>
-        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v72</div>
+        <div style="margin-top: 12px; font-size: 10px; color: #bbb; text-align: right;">v74</div>
     </div>
 </div>
 
@@ -142,14 +152,8 @@ Code-Optimierung:
 
 <div id="gamepad">
     <div class="control-group">
-        <span style="font-size:10px; color:#777">Zoom</span>
-        <div class="btn-row"><button class="touch-btn" id="btnZoomIn">+</button><button class="touch-btn" id="btnZoomOut">-</button></div>
-        
-        <span style="font-size:10px; color:#777; margin-top:5px">Drehen</span>
-        <div class="btn-row"><button class="touch-btn" id="btnRotLeft">↺</button><button class="touch-btn" id="btnRotRight">↻</button></div>
-        
-        <span style="font-size:10px; color:#777; margin-top:5px">Farbe</span>
-        <div class="btn-row"><button class="touch-btn" id="btnColor" title="Farbe ändern">🎨</button></div>
+        <span style="font-size:10px; color:#777;">Farbe</span>
+        <button class="touch-btn" id="btnColor" title="Farbe ändern">🎨</button>
     </div>
 
     <div class="control-group">
@@ -165,49 +169,33 @@ Code-Optimierung:
 
     // --- ASSETS ---
     const SVG_SKI_BLUE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="35" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72" cy="50" r="7" fill="#3399ff"/></svg>`);
-    
-    // CUSTOM INKSCAPE SKI GREEN (Straight)
     const SVG_SKI_GREEN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="35" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="29.96" y="34.32" width="40.08" height="31.37" rx="12.02" fill="#669966" stroke="#5c895c" stroke-width="1.92"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="39.67" y="42" width="20.65" height="10" rx="2.58" fill="#333"/><rect x="41.12" y="44" width="17.77" height="6" rx="1.78" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="29.27" cy="50" r="7" fill="#669966"/><circle cx="70.88" cy="50.16" r="7" fill="#669966"/></svg>`);
-    
-    // SKIER 3 (Left Shoulder Forward)
     const SVG_SKI_LEFT_SHOULDER = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g transform="matrix(-1,0,0,1,100,0)"><rect x="35" y="7" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="3" width="12" height="90" rx="5" fill="#333"/><rect x="20.98" y="40.87" width="40" height="31.6" rx="12" fill="#669966" stroke="#228B22" stroke-width="1.93" transform="matrix(0.99,-0.14,0.17,0.99,0,0)"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="34.63" y="48.42" width="20.14" height="9.98" rx="2.52" fill="#333" transform="matrix(0.99,-0.15,0.10,0.99,0,0)"/><rect x="36.09" y="50.31" width="17.04" height="5.99" rx="1.70" fill="#87ceeb" transform="matrix(0.99,-0.15,0.11,0.99,0,0)"/><line x1="28" y1="54" x2="25" y2="74" stroke="#000" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="44" x2="75" y2="64" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="54" r="7" fill="#669966"/><circle cx="72" cy="44" r="7" fill="#669966"/></g></svg>`);
-
-    // SKIER 4 (Right Shoulder Forward)
     const SVG_SKI_RIGHT_SHOULDER = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="35" y="7" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="3" width="12" height="90" rx="5" fill="#333"/><rect x="20.98" y="40.87" width="40" height="31.6" rx="12" fill="#669966" stroke="#228B22" stroke-width="1.93" transform="matrix(0.99,-0.14,0.17,0.99,0,0)"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="34.63" y="48.42" width="20.14" height="9.98" rx="2.52" fill="#333" transform="matrix(0.99,-0.15,0.10,0.99,0,0)"/><rect x="36.09" y="50.31" width="17.04" height="5.99" rx="1.70" fill="#87ceeb" transform="matrix(0.99,-0.15,0.11,0.99,0,0)"/><line x1="28" y1="54" x2="25" y2="74" stroke="#000" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="44" x2="75" y2="64" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="54" r="7" fill="#669966"/><circle cx="72" cy="44" r="7" fill="#669966"/></svg>`);
-
     const SVG_BOARDER = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><ellipse cx="50" cy="55" rx="35" ry="12" fill="rgba(0,0,0,0.2)"/><path d="M 5 38 Q 50 34 95 38 L 98 40 Q 102 50 98 60 L 95 62 Q 50 66 5 62 L 2 60 Q -2 50 2 40 Z" fill="#81ae98" stroke="#5a7a6a" stroke-width="1"/><rect x="15" y="40" width="12" height="20" rx="4" fill="#222"/><rect x="73" y="40" width="12" height="20" rx="4" fill="#222"/><ellipse cx="50" cy="50" rx="22" ry="14" fill="#b83dba" stroke="#8a2e8c" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="38" width="24" height="8" rx="3" fill="#333"/><rect x="40" y="39" width="20" height="6" rx="2" fill="#87ceeb"/><path d="M 28 50 L 15 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M 72 50 L 85 48" stroke="#b83dba" stroke-width="10" stroke-linecap="round" fill="none"/><circle cx="15" cy="48" r="6" fill="#111"/><circle cx="85" cy="48" r="6" fill="#111"/></svg>`);
-    
-    // CUSTOM INKSCAPE TREE
     const SVG_TREE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="m 50,5 15,15 30.318725,-1.414343 -15,35 9.760956,33.565737 L 65.63745,81.673307 50,95 33.645418,82.47012 10,85 18.565737,47.689243 5,15 32.211155,18.565737 Z" fill="#0a2915" stroke="#051f0e" stroke-width="1" stroke-linejoin="round"/><path d="M 50,12 58,35 84.986183,21.442386 70,48 91.211221,64.469655 65,65 41.280431,82.844644 35.14188,65.707458 6.5632786,66.206041 27.759567,47.076213 11.876549,21.554472 40.821275,31.583757 Z" fill="#1a472a" stroke="#0e2b18" stroke-width="1" stroke-linejoin="round" transform="rotate(5,50,50)"/><path d="M 50,22 60,40 82,38 68,52 80,72 50,68 20,72 32,52 19.149841,35.800796 40,40 Z" fill="#2e7d32" stroke="#1b5e20" stroke-width="1" stroke-linejoin="round" transform="rotate(20,50,50)"/><path d="M 50,32 58,45 75,42 62,55 69.71853,72.678564 50.077896,60.8873 31.758194,68.911777 38,55 25,42 42,45 Z" fill="#4caf50" stroke="#388e3c" stroke-width="1" stroke-linejoin="round" transform="rotate(-10,50,50)"/><circle cx="50" cy="50" r="5" fill="#81c784"/></svg>`);
-
-    // Previews only
     const SVG_LINE_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" viewBox="0 0 200 20"><line x1="5" y1="10" x2="195" y2="10" stroke="#808080" stroke-width="4" stroke-linecap="round" /></svg>`);
     const SVG_ARROW_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><line x1="5" y1="20" x2="85" y2="20" stroke="#0000ff" stroke-width="6" stroke-linecap="round"/><path d="M 95 20 L 75 10 L 75 30 Z" fill="#0000ff" /></svg>`);
     const SVG_V_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#808080" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`);
-    
-    // CUSTOM INKSCAPE PFLUGFAHRER (Detailed)
     const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="37.023964" y="35.509697" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(-25)"/><rect x="41.606819" y="-6.7521315" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(25)"/><rect x="29.947439" y="34.780109" width="40.105122" height="30.439781" rx="12.031537" fill="#3399ff" stroke="#0056b3" stroke-width="1.89488"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72.856575" cy="42.936256" r="5.3266931" fill="#333"/><circle cx="72" cy="50" r="7" fill="#3399ff"/><circle cx="72.398407" cy="46.840637" r="7" fill="#3399ff"/><circle cx="27.282869" cy="43.219124" r="5.0876493" fill="#333"/><circle cx="27.537849" cy="47.868526" r="7" fill="#3399ff"/><path fill="#826dff" stroke="#544bb3" stroke-width="0.0710732" stroke-linecap="round" stroke-linejoin="round" d="m 26.698432,56.845502 c -0.667894,-0.131 -1.566917,-0.473694 -2.160106,-0.823398 -1.898546,-1.119258 -3.065111,-2.867871 -3.459405,-5.185451 -0.0671,-0.394422 -0.198227,-0.986055 -0.291385,-1.314741 -0.241444,-0.851876 -0.244849,-2.32468 -0.0076,-3.283606 1.169417,-4.726449 6.66981,-6.835578 10.69416,-4.100681 0.531849,0.361438 1.32698,1.144604 1.712851,1.687076 0.661537,0.930017 1.048532,1.903386 1.267196,3.187251 0.05971,0.350598 0.18942,0.924303 0.28824,1.274901 0.249474,0.885096 0.256045,2.506428 0.01379,3.402268 -0.360517,1.333155 -1.008202,2.413352 -2.027714,3.381789 -0.943482,0.896216 -2.047984,1.472984 -3.342006,1.74519 -0.59985,0.126183 -2.110363,0.142705 -2.688026,0.0294 z"/><path fill="#826dff" d="m 70.55556,56.815465 c -1.272123,-0.292075 -2.367548,-0.873992 -3.284024,-1.744555 -1.020379,-0.96926 -1.669683,-2.047432 -2.022137,-3.357763 -0.244882,-0.910404 -0.243566,-2.525074 0.0028,-3.426294 0.120106,-0.43937 0.183234,-0.934571 0.203156,-1.593626 0.05825,-1.927187 0.812842,-3.642411 2.145459,-4.876761 3.920014,-3.630949 10.123656,-1.865147 11.534362,3.283136 0.247704,0.903982 0.25338,2.507979 0.01226,3.466135 -0.104144,0.413853 -0.186133,1.049203 -0.210791,1.633466 -0.127233,3.014686 -1.99193,5.494622 -4.833055,6.427674 -0.681537,0.223823 -0.87211,0.251101 -1.912351,0.27373 -0.783305,0.01704 -1.310051,-0.01038 -1.635675,-0.08514 z"/></svg>`);
-    
-    // CUSTOM INKSCAPE INJURED
     const SVG_INJURED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="m 35,55 c -6.666667,10 0.689243,33.122178 2.689243,39.788845 l 11.298805,0.215139 C 44.225764,81.585658 46.666667,66.666667 50,60 Z" fill="#333333"/><path d="m 55,55 c 6.666667,10 3.836654,34.269588 1.836654,40.936255 L 49.298805,94.430279 C 45.965472,86.430279 43.333333,66.666667 40,60 Z" fill="#333333"/><path d="M 33.952191,33.569721 C 47.285525,20.236388 56.666667,16.666667 70,30 67.742364,43.652058 68.179283,51.229748 60.155378,60.063745 L 35,60 C 25,53.333333 28.90571,51.447543 30.207171,41.721116 Z" fill="#d9534f" stroke="#c9302c" stroke-width="2" stroke-linejoin="round"/><path d="M 41.880478,28.167331 C 37.213811,34.833997 30.309429,45.203187 35,58" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><path d="m 66.884462,44.868525 c 2.209827,6.475432 0.140771,8.494024 -2.50996,18.358566" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="70" cy="30" r="14" fill="#808080" stroke="#666" stroke-width="1"/></svg>`);
 
     const ASSETS = { 
         skiBlue: new Image(), skiGreen: new Image(), 
-        skiLeftShoulder: new Image(), skiRightShoulder: new Image(), // NEW
+        skiLeftShoulder: new Image(), skiRightShoulder: new Image(),
         boarder: new Image(), tree: new Image(),
         lineGray: new Image(), arrowBlue: new Image(), vShape: new Image(),
         skiPlow: new Image(), injured: new Image(),
         linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image()
     };
     
-    // COLORS for Cycle
     const COLOR_PALETTE = ['#808080', '#000000', '#e6e6e6', '#ffd700', '#ff0000', '#ffa500', '#0000ff', '#006400', '#8b4513'];
 
     const TEMPLATES = [
         { type: 'sprite', assetKey: 'skiBlue', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiGreen', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiLeftShoulder', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'skiRightShoulder', width: 100, height: 100, rotation: 0 }, // NEW
+        { type: 'sprite', assetKey: 'skiRightShoulder', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiPlow', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'boarder', width: 100, height: 100, rotation: 90 },
         { type: 'sprite', assetKey: 'injured', width: 100, height: 100, rotation: 0 },
@@ -225,6 +213,9 @@ Code-Optimierung:
     const dockContainer = document.getElementById('dock');
     const ghostDrag = document.getElementById('ghost-drag');
     const loader = document.getElementById('loader');
+
+    // Gesture State
+    let gestureStart = { dist: 0, angle: 0, width: 0, height: 0, rotation: 0 };
 
     let activeObjects = [], dockedObjects = [], activePlayerIndex = -1; 
     let draggingPlayerIndex = -1, rotatingPlayerIndex = -1, dragOffset = { x: 0, y: 0 };
@@ -261,7 +252,7 @@ Code-Optimierung:
         ASSETS.skiBlue.src = SVG_SKI_BLUE; ASSETS.skiGreen.src = SVG_SKI_GREEN; ASSETS.boarder.src = SVG_BOARDER;
         ASSETS.tree.src = SVG_TREE; ASSETS.skiPlow.src = SVG_SKI_PLOW; ASSETS.injured.src = SVG_INJURED;
         ASSETS.skiLeftShoulder.src = SVG_SKI_LEFT_SHOULDER;
-        ASSETS.skiRightShoulder.src = SVG_SKI_RIGHT_SHOULDER; // NEW
+        ASSETS.skiRightShoulder.src = SVG_SKI_RIGHT_SHOULDER; 
         ASSETS.linePreview.src = SVG_LINE_PREVIEW; ASSETS.arrowPreview.src = SVG_ARROW_PREVIEW; ASSETS.vPreview.src = SVG_V_PREVIEW;
         setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
@@ -273,7 +264,7 @@ Code-Optimierung:
         loader.style.display = 'none';
         resize();
         activeObjects.push(createObject(TEMPLATES[0], canvas.width/2 - 50, canvas.height/2 - 50));
-        activePlayerIndex = 0; // Select initial object
+        activePlayerIndex = 0; 
         dockedObjects = TEMPLATES.slice(1);
         renderDock();
         requestAnimationFrame(drawLoop);
@@ -303,7 +294,7 @@ Code-Optimierung:
         dockContainer.innerHTML = '<div class="dock-title">Objekte</div>';
         dockedObjects.forEach((tpl, index) => {
             const el = document.createElement('div'); el.className = 'dock-item';
-            el.title = getGermanLabel(tpl); // Tooltip
+            el.title = getGermanLabel(tpl); 
             
             const previewAsset = getDockPreviewAsset(tpl);
             if (previewAsset) {
@@ -325,7 +316,6 @@ Code-Optimierung:
         e.preventDefault(); dragFromDockItem = { tpl: tpl, index: index };
         const previewAsset = getDockPreviewAsset(tpl);
         
-        // Set Alt Text for Ghost Drag
         if (tpl.type === 'text') ghostDrag.alt = 'text';
         else if (tpl.type === 'velocity') ghostDrag.alt = 'vector';
         else ghostDrag.alt = 'box';
@@ -408,12 +398,14 @@ Code-Optimierung:
             const nt = prompt("Geschwindigkeit in km/h:", "");
             if (nt !== null && !isNaN(parseFloat(nt))) {
                 const kmh = parseFloat(nt);
-                // Precision update: 1 decimal place, German comma
                 const ms = (kmh / 3.6).toFixed(1).replace('.', ',');
                 p.text = kmh + " km/h (" + ms + " m/s)";
             }
         }
     }
+
+    function getTouchDist(t1, t2) { return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY); }
+    function getTouchAngle(t1, t2) { return Math.atan2(t1.clientY - t2.clientY, t1.clientX - t2.clientX); }
 
     function handleStart(x, y, isRight) {
         const idx = getPlayerUnderMouse(x, y);
@@ -421,26 +413,16 @@ Code-Optimierung:
         
         if (idx !== -1) {
             const p = activeObjects[idx]; activePlayerIndex = idx;
-            
-            // Double Tap Check
-            if ((p.type === 'text' || p.type === 'velocity') && (now - lastTapTime < 300)) {
-                openTextEditor(p);
-                lastTapTime = 0; 
-                return;
-            }
+            if ((p.type === 'text' || p.type === 'velocity') && (now - lastTapTime < 300)) { openTextEditor(p); lastTapTime = 0; return; }
             lastTapTime = now;
-
             if (isRight) { rotatingPlayerIndex = idx; isSnapping = false; }
             else { draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0; }
             return true;
         } else {
-            // Clicked on background -> Deselect
-            activePlayerIndex = -1;
-            draggingPlayerIndex = -1;
-            rotatingPlayerIndex = -1;
-            return false;
+            activePlayerIndex = -1; draggingPlayerIndex = -1; rotatingPlayerIndex = -1; return false;
         }
     }
+    
     function handleMove(x, y) {
         const idx = getPlayerUnderMouse(x, y);
         if (draggingPlayerIndex !== -1) canvas.style.cursor = 'grabbing'; else if (idx !== -1) canvas.style.cursor = 'grab'; else canvas.style.cursor = 'default';
@@ -449,110 +431,89 @@ Code-Optimierung:
     
     function triggerSnap(index) {
         if (index === -1) return;
-        const p = activeObjects[index];
-        targetRotation = Math.round(p.rotation / 15) * 15;
-        isSnapping = true;
-        snappingPlayerIndex = index;
+        const p = activeObjects[index]; targetRotation = Math.round(p.rotation / 15) * 15; isSnapping = true; snappingPlayerIndex = index;
     }
 
     function handleEnd(e) {
         let mx = e.clientX, my = e.clientY;
         if (e.changedTouches && e.changedTouches.length > 0) { mx = e.changedTouches[0].clientX; my = e.changedTouches[0].clientY; }
         const isRight = (e.button === 2);
-        
         if (draggingPlayerIndex !== -1) {
             const dr = dockContainer.getBoundingClientRect();
             if (mx >= dr.left - 20 && mx <= dr.right + 20 && my >= dr.top - 20 && my <= dr.bottom + 20) {
                 const p = activeObjects[draggingPlayerIndex];
                 let ni = { type: p.type, width: p.width, height: p.height, rotation: (p.type==='sprite' && p.assetKey==='boarder') ? 90 : 0 };
-                
-                if(p.type === 'sprite') ni.assetKey = p.assetKey; 
-                else if (p.type === 'text' || p.type === 'velocity') { ni.text = p.text; ni.color = p.color; }
-                else { ni.color = p.color; } // rect, line, arrow, vshape
-
+                if(p.type === 'sprite') ni.assetKey = p.assetKey; else if (p.type === 'text' || p.type === 'velocity') { ni.text = p.text; ni.color = p.color; } else { ni.color = p.color; }
                 dockedObjects.push(ni); activeObjects.splice(draggingPlayerIndex, 1); renderDock();
                 draggingPlayerIndex = -1; activePlayerIndex = 0; return;
             }
         }
-        
         draggingPlayerIndex = -1;
-        if (isRight && rotatingPlayerIndex !== -1) {
-            triggerSnap(rotatingPlayerIndex);
-            rotatingPlayerIndex = -1;
-        }
+        if (isRight && rotatingPlayerIndex !== -1) { triggerSnap(rotatingPlayerIndex); rotatingPlayerIndex = -1; }
     }
 
     canvas.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY, e.button === 2));
     canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
     window.addEventListener('mouseup', e => handleEnd(e));
     canvas.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
+    canvas.addEventListener('wheel', e => { e.preventDefault(); if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9); }, { passive: false });
     
-    // Mouse Wheel Zoom
-    canvas.addEventListener('wheel', e => { 
-        e.preventDefault();
-        if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) {
-            performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9);
+    // TOUCH HANDLER
+    canvas.addEventListener('touchstart', e => { 
+        if(e.target===canvas) e.preventDefault();
+        if (e.touches.length === 2 && activePlayerIndex !== -1) {
+            const p = activeObjects[activePlayerIndex];
+            gestureStart.dist = getTouchDist(e.touches[0], e.touches[1]);
+            gestureStart.angle = getTouchAngle(e.touches[0], e.touches[1]);
+            gestureStart.width = p.width; gestureStart.height = p.height; gestureStart.rotation = p.rotation;
+            return;
         }
+        handleStart(e.touches[0].clientX, e.touches[0].clientY, false); 
+    }, { passive: false });
+
+    canvas.addEventListener('touchmove', e => { 
+        if(e.target===canvas) e.preventDefault(); 
+        if (e.touches.length === 2 && activePlayerIndex !== -1) {
+            const p = activeObjects[activePlayerIndex];
+            const dist = getTouchDist(e.touches[0], e.touches[1]);
+            const angle = getTouchAngle(e.touches[0], e.touches[1]);
+            const scale = dist / gestureStart.dist;
+            p.width = gestureStart.width * scale; p.height = gestureStart.height * scale;
+            p.rotation = gestureStart.rotation + (angle - gestureStart.angle) * (180/Math.PI);
+            return;
+        }
+        handleMove(e.touches[0].clientX, e.touches[0].clientY); 
     }, { passive: false });
     
-    canvas.addEventListener('touchstart', e => { if(e.target===canvas)e.preventDefault(); handleStart(e.touches[0].clientX, e.touches[0].clientY, false); }, { passive: false });
-    canvas.addEventListener('touchmove', e => { if(e.target===canvas)e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
-    canvas.addEventListener('touchend', e => handleEnd(e));
+    canvas.addEventListener('touchend', e => { if(e.touches.length < 2) handleEnd(e); });
 
     const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, RotateLeft: false, RotateRight: false, ZoomIn: false, ZoomOut: false };
-    
     function bindBtn(id, k) {
         const b = document.getElementById(id);
         const s = (e) => { e.preventDefault(); keys[k] = true; };
-        const n = (e) => { 
-            e.preventDefault(); keys[k] = false; 
-            if (k === 'RotateLeft' || k === 'RotateRight') triggerSnap(activePlayerIndex);
-        };
+        const n = (e) => { e.preventDefault(); keys[k] = false; if (k === 'RotateLeft' || k === 'RotateRight') triggerSnap(activePlayerIndex); };
         b.addEventListener('mousedown', s); b.addEventListener('mouseup', n); b.addEventListener('mouseleave', n);
         b.addEventListener('touchstart', s, {passive:false}); b.addEventListener('touchend', n, {passive:false});
     }
     bindBtn('btnUp', 'ArrowUp'); bindBtn('btnDown', 'ArrowDown'); bindBtn('btnLeft', 'ArrowLeft'); bindBtn('btnRight', 'ArrowRight');
-    bindBtn('btnRotLeft', 'RotateLeft'); bindBtn('btnRotRight', 'RotateRight'); bindBtn('btnZoomIn', 'ZoomIn'); bindBtn('btnZoomOut', 'ZoomOut');
 
-    // New Color Button Event
     const btnColor = document.getElementById('btnColor');
-    const colorAction = (e) => {
-        e.preventDefault();
-        if (activePlayerIndex !== -1) cycleColor(activePlayerIndex);
-    };
-    btnColor.addEventListener('click', colorAction);
-    btnColor.addEventListener('touchstart', colorAction, {passive: false});
+    const colorAction = (e) => { e.preventDefault(); if (activePlayerIndex !== -1) cycleColor(activePlayerIndex); };
+    btnColor.addEventListener('click', colorAction); btnColor.addEventListener('touchstart', colorAction, {passive: false});
 
     window.addEventListener('keydown', e => {
         if (e.key==='s'||e.key==='S') { document.getElementById('saveBtn').click(); return; }
-        
-        // Tab Cycle: includes -1 (no selection)
         if (e.code==='Tab') { 
             e.preventDefault(); 
             if(activeObjects.length > 0) {
-                if (activePlayerIndex === -1) {
-                    activePlayerIndex = 0;
-                } else {
-                    activePlayerIndex++;
-                    if(activePlayerIndex >= activeObjects.length) {
-                        activePlayerIndex = -1; // Go to "no selection"
-                    }
-                }
+                if (activePlayerIndex === -1) activePlayerIndex = 0; 
+                else { activePlayerIndex++; if(activePlayerIndex >= activeObjects.length) activePlayerIndex = -1; }
             }
             return; 
         }
-
-        if (activePlayerIndex === -1) return; // Ignore other keys if nothing selected
-
-        if (e.key==='Enter') {
-            openTextEditor(activeObjects[activePlayerIndex]);
-            return;
-        }
-        // Color Cycle
-        if (e.key === 'c' || e.key === 'C') {
-            cycleColor(activePlayerIndex);
-            return;
-        }
+        if (activePlayerIndex === -1) return;
+        if (e.key==='Enter') { openTextEditor(activeObjects[activePlayerIndex]); return; }
+        if (e.key === 'c' || e.key === 'C') { cycleColor(activePlayerIndex); return; }
         if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
         if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=true;
         if(e.key==='+') keys['ZoomIn']=true; if(e.key==='-') keys['ZoomOut']=true;
@@ -560,43 +521,20 @@ Code-Optimierung:
     
     window.addEventListener('keyup', e => {
         if (activePlayerIndex === -1) return;
-
         if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä')) triggerSnap(activePlayerIndex);
         if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
         if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=false; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=false;
         if(e.key==='+') keys['ZoomIn']=false; if(e.key==='-') keys['ZoomOut']=false;
     });
 
-    document.getElementById('saveBtn').addEventListener('click', () => {
-        const link = document.createElement('a'); link.download = `ski-sim-${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click();
-    });
-
-    // --- SHARE FUNCTIONALITY ---
-    document.getElementById('shareBtn').addEventListener('click', async () => {
-        if (navigator.share) {
-            try {
-                const dataUrl = canvas.toDataURL('image/png');
-                const blob = await (await fetch(dataUrl)).blob();
-                const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' });
-                await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V72', files: [file] });
-            } catch (err) { console.log('Teilen abgebrochen/fehlgeschlagen:', err); }
-        } else { alert('Teilen wird von diesem Browser nicht unterstützt. Bitte nutze den Download-Button.'); }
-    });
+    document.getElementById('saveBtn').addEventListener('click', () => { const link = document.createElement('a'); link.download = `ski-sim-${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click(); });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V74', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
-        if(activeObjects.length === 0) return;
-        if (activePlayerIndex === -1) return; // No focus, no updates
-        
+        if(activeObjects.length === 0 || activePlayerIndex === -1) return;
         if(activePlayerIndex >= activeObjects.length) activePlayerIndex = -1; 
-        
         if(rotatingPlayerIndex !== -1) activeObjects[rotatingPlayerIndex].rotation += 3;
-        
-        if(isSnapping && snappingPlayerIndex !== -1) {
-            const p = activeObjects[snappingPlayerIndex], diff = targetRotation - p.rotation;
-            if(Math.abs(diff) < 3.1) { p.rotation = targetRotation; isSnapping = false; snappingPlayerIndex = -1; } 
-            else { p.rotation += (diff > 0 ? 3 : -3); }
-        }
-        
+        if(isSnapping && snappingPlayerIndex !== -1) { const p = activeObjects[snappingPlayerIndex], diff = targetRotation - p.rotation; if(Math.abs(diff) < 3.1) { p.rotation = targetRotation; isSnapping = false; snappingPlayerIndex = -1; } else { p.rotation += (diff > 0 ? 3 : -3); } }
         const ap = activeObjects[activePlayerIndex];
         if (ap && draggingPlayerIndex !== activePlayerIndex) {
             if(keys['ArrowLeft']) ap.dx = -ap.speed; else if(keys['ArrowRight']) ap.dx = ap.speed; else ap.dx *= 0.85; 
@@ -609,48 +547,14 @@ Code-Optimierung:
     }
 
     function drawObject(p) {
-        ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2);
-        ctx.rotate(p.rotation * Math.PI / 180);
-        
-        if (p.type === 'sprite') {
-            const img = ASSETS[p.assetKey];
-            try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){}
-        } 
-        else if (p.type === 'text') {
-            ctx.font = 'bold ' + p.height + 'px Arial'; ctx.fillStyle = p.color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(p.text, 0, 0);
-        } 
-        else if (p.type === 'rect') {
-            ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5;
-            ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height);
-        }
-        else if (p.type === 'line') {
-            ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2, 0);
-            ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/5); ctx.lineCap = 'round'; ctx.stroke();
-        }
-        else if (p.type === 'vshape') {
-            ctx.beginPath(); ctx.moveTo(-p.width/2, -p.height/2); ctx.lineTo(0, p.height/2); ctx.lineTo(p.width/2, -p.height/2);
-            ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/15); ctx.lineCap = 'round'; ctx.stroke();
-        }
-        else if (p.type === 'arrow') {
-            const headLen = p.width * 0.2; const bodyH = p.height * 0.2;
-            ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = bodyH; ctx.lineCap = 'round';
-            ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -p.height/2); ctx.lineTo(p.width/2 - headLen, p.height/2); ctx.fill();
-        }
-        else if (p.type === 'velocity') {
-            const headLen = p.width * 0.15; 
-            ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = 4; ctx.lineCap = 'round';
-            // Arrow
-            ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -8); ctx.lineTo(p.width/2 - headLen, 8); ctx.fill();
-            // Label
-            ctx.save(); ctx.translate(0, -15);
-            ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-            ctx.fillText(p.text, 0, 0);
-            ctx.restore();
-        }
-        
+        ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2); ctx.rotate(p.rotation * Math.PI / 180);
+        if (p.type === 'sprite') { const img = ASSETS[p.assetKey]; try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){} } 
+        else if (p.type === 'text') { ctx.font = 'bold ' + p.height + 'px Arial'; ctx.fillStyle = p.color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(p.text, 0, 0); } 
+        else if (p.type === 'rect') { ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
+        else if (p.type === 'line') { ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2, 0); ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/5); ctx.lineCap = 'round'; ctx.stroke(); }
+        else if (p.type === 'vshape') { ctx.beginPath(); ctx.moveTo(-p.width/2, -p.height/2); ctx.lineTo(0, p.height/2); ctx.lineTo(p.width/2, -p.height/2); ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/15); ctx.lineCap = 'round'; ctx.stroke(); }
+        else if (p.type === 'arrow') { const headLen = p.width * 0.2; const bodyH = p.height * 0.2; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = bodyH; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -p.height/2); ctx.lineTo(p.width/2 - headLen, p.height/2); ctx.fill(); }
+        else if (p.type === 'velocity') { const headLen = p.width * 0.15; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -8); ctx.lineTo(p.width/2 - headLen, 8); ctx.fill(); ctx.save(); ctx.translate(0, -15); ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); }
         ctx.restore(); 
     }
 
@@ -659,25 +563,16 @@ Code-Optimierung:
         ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
         let g = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 100, canvas.width/2, canvas.height/2, canvas.width);
         g.addColorStop(0, 'rgba(255,255,255,0.2)'); g.addColorStop(1, '#ebeff5'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height);
-
         activeObjects.forEach(p => { if(getLayer(p) === 0) drawObject(p); });
         activeObjects.forEach(p => { if(getLayer(p) === 1) drawObject(p); });
         activeObjects.forEach(p => { if(getLayer(p) === 2) drawObject(p); });
         activeObjects.forEach(p => { if(getLayer(p) === 3) drawObject(p); });
-
         if(activeObjects.length > 0 && activePlayerIndex !== -1) {
             const p = activeObjects[activePlayerIndex];
-            if(p) {
-                ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2);
-                ctx.beginPath(); ctx.arc(0, 0, Math.max(p.width, p.height)/1.4, 0, Math.PI*2);
-                ctx.strokeStyle = '#00bfff'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke();
-                ctx.restore();
-            }
+            if(p) { ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2); ctx.beginPath(); ctx.arc(0, 0, Math.max(p.width, p.height)/1.4, 0, Math.PI*2); ctx.strokeStyle = '#00bfff'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.restore(); }
         }
-        
         requestAnimationFrame(drawLoop);
     }
-
     preloadAssets(startGame);
 </script>
 </body>
