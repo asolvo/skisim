@@ -1,35 +1,37 @@
 User Stories 
-Skisim v46 
+Skisim v92 
 
 
-User Stories für die Web-App, zugeschnitten auf die Rolle Sachverständige:r (z. B. für Alpinunfälle), basierend auf dem Funktionsumfang der Version 46.
+User Stories für die Web-App, zugeschnitten auf die Rolle Sachverständige:r (z. B. für Alpinunfälle), basierend auf dem Funktionsumfang der Version 92.
 
-Bereich: Szenario-Erstellung & Objekte
-  Als Sachverständige:r möchte ich verschiedene Akteure (Skifahrer, Snowboarder) aus einer Bibliothek auf die Zeichenfläche ziehen können, um die Beteiligten eines Unfalls darzustellen.
 
-  Als Sachverständige:r möchte ich Umgebungsobjekte wie Bäume oder Hindernisse (Boxen) platzieren können, um die örtlichen Gegebenheiten der Unfallstelle zu skizzieren.
 
-  Als Sachverständige:r möchte ich symbolische Elemente wie Pfeile, Linien und Trichter (V-Form) nutzen, um Fahrlinien, Bewegungsrichtungen oder Sichtfelder zu visualisieren.
+User Stories, basierend auf dem aktuellen Entwicklungsstand (Version 92) und den zuletzt hinzugefügten Funktionen.
 
-  Als Sachverständige:r möchte ich, dass wichtige Objekte (Personen) automatisch über Bodenmarkierungen (Linien, Pfeile) liegen, um eine korrekte räumliche Überlagerung ohne manuelles Sortieren zu gewährleisten.
+1. Steuerung & Interaktion (Touch & Desktop)
+  Multitouch: Als Tablet-Nutzer möchte ich Objekte mit einer Zwei-Finger-Geste gleichzeitig zoomen und drehen können, damit die Bedienung intuitiv und schnell funktioniert.
 
-Bereich: Manipulation & Präzision
-  Als Sachverständige:r möchte ich Objekte frei auf der Fläche verschieben können, um ihre Position zum Unfallzeitpunkt oder in der Endlage exakt zu bestimmen.
+  Zoom/Drehen (Desktop): Als PC-Nutzer möchte ich weiterhin mit dem Mausrad zoomen und der rechten Maustaste drehen können.
 
-  Als Sachverständige:r möchte ich Objekte drehen können, wobei die Drehung in 15-Grad-Schritten einrastet, um präzise Ausrichtungen (z. B. parallel zur Falllinie oder 90° Querstellung) einfach einstellen zu können.
+  Löschen: Als Nutzer möchte ich ein markiertes Objekt durch Drücken der "Entf"-Taste oder durch Zurückziehen in das Menü (Dock) von der Piste entfernen können.
 
-  Als Sachverständige:r möchte ich die Größe der Objekte skalieren können, wobei die Proportionen erhalten bleiben, um Größenverhältnisse realistisch abzubilden, ohne dass Formen (wie Winkel) verzerrt werden.
+2. Objekt-Management (Dock-Verhalten)
+  Unendliche Ressourcen: Als Nutzer möchte ich Objekte wie Pfeile, Linien, Zäune, Schilder und Bäume mehrfach hintereinander auf die Piste ziehen können (Kopier-Modus), ohne dass sie aus dem Menü verschwinden.
 
-  Als Sachverständige:r möchte ich zwischen verschiedenen Objekten (per Klick oder Tab-Taste) wechseln können, um nacheinander die Eigenschaften mehrerer Beteiligter zu bearbeiten.
+  Einzigartige Ressourcen: Als Nutzer möchte ich, dass Personen (Skifahrer, Rodler, Verletzte) beim Hinzufügen aus dem Menü verschwinden (Verschiebe-Modus), damit ich nicht versehentlich Duplikate derselben Person erstelle.
 
-Bereich: Dokumentation & Export
-  Als Sachverständige:r möchte ich die erstellte Szene per Knopfdruck als Bilddatei (PNG) herunterladen, um die Skizze direkt in mein schriftliches Gutachten oder meine Akte einfügen zu können.
+3. Neue & Angepasste Objekte
+  Rodler: Als Nutzer möchte ich einen Rodler (Vogelperspektive, Holzschlitten) platzieren können, um Rodel-Unfälle zu skizzieren.
 
-  Als Sachverständige:r möchte ich sicher sein, dass der Hintergrund beim Export sauber dargestellt wird (weiß/Verlauf), um ein professionelles Erscheinungsbild im Bericht zu gewährleisten.
+  Verletzter: Als Nutzer möchte ich eine verletzte Person darstellen, die anatomisch korrekt aussieht (runde Knie, unverzerrter Kopf, Seitenverhältnis 100x80), um die Unfallendlage zu markieren.
 
-Bereich: Usability & Steuerung
-  Als Sachverständige:r möchte ich die Bedienungsanleitung und Hinweise einklappen können, um die maximale Bildschirmfläche für die Zeichnung zur Verfügung zu haben.
+  Warnschild: Als Nutzer möchte ich ein rundes Warnschild aufstellen können und dessen Farbe ändern (z.B. hellrot/dunkelrot), wobei der Pfosten grau bleibt.
 
-  Als Sachverständige:r möchte ich die App sowohl mit der Maus als auch über Touch-Elemente oder Tastaturkürzel steuern können, um je nach Gerät (Tablet vor Ort oder PC im Büro) effizient arbeiten zu können.
+  Fangzaun: Als Nutzer möchte ich einen Fangzaun (gelb-rotes Netzmuster) in der Draufsicht platzieren können, um Pistenbegrenzungen realistisch darzustellen.
 
-  Als Sachverständige:r möchte ich visuell klar erkennen, welches Objekt gerade ausgewählt ist (blauer Ring), um Fehlbedienungen beim Verschieben oder Drehen zu vermeiden.
+4. Benutzeroberfläche (UI) & Rechtliches
+  Clean UI: Als Nutzer möchte ich eine aufgeräumte Oberfläche ohne überflüssige Zoom/Dreh-Buttons haben, da ich nun Gesten/Tastatur nutze.
+
+  Impressum: Als Nutzer möchte ich auf die Versionsnummer (Info) klicken können, um ein Pop-up mit den Verantwortlichen (Werner Senn, Christian Klingler) und dem Link zur Webseite zu sehen.
+
+  Stabilität: Als Nutzer möchte ich, dass die Anwendung sofort lädt, ohne bei "Lade Simulation..." hängen zu bleiben (behobener Bug durch Bereinigung der Asset-Liste).
