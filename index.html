@@ -1,16 +1,27 @@
-<!-- Skisim V82 -->
-<!-- Bugfix, weil App beim Start hängt
+<!-- Skisim V92 -->
+<!-- Schild kann Farbe wechseln. 
 
 Apache V2 License
-2026-01-07 
+2026-01-09 
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
 
-Da hat sich der Fehler aus Version 65 wieder eingeschlichen.
-Die Ursache: Ich habe die Objekte lineGray, arrowBlue und vShape in der ASSETS-Liste stehen lassen, obwohl diese mittlerweile dynamisch gezeichnet werden und keine Bildquellen mehr bekommen. Der Lade-Balken wartet also auf drei Bilder, die nie kommen.
+Um das Schild farblich veränderbar zu machen, müssen wir es von einem statischen "Sprite" (einem festen Bild) in ein dynamisches Objekt umwandeln, das live auf dem Canvas gezeichnet wird – ähnlich wie die Rechtecke oder Pfeile.
 
-Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App wieder sofort.
+Was wurde geändert?
+1. Neuer Objekttyp "sign": Das Schild ist kein sprite mehr, sondern hat jetzt seinen eigenen Typ sign.
+
+2. Dynamisches Zeichnen: In der Funktion drawObject wird das Schild nun aus geometrischen Formen zusammengesetzt:
+  * Ein graues Rechteck für den Pfosten (Farbe fixiert auf #666666).
+  * Ein Kreis für das Schild (Farbe wird über p.color gesteuert).
+  * Weißer Text "Schild" darauf (Farbe fixiert auf #ffffff).
+
+3. Standardfarbe: Die Startfarbe im Template wurde von Rot auf das dunklere #aa0000 geändert.
+
+4. Farbwechsel: Der Typ sign wurde in die Funktion cycleColor aufgenommen. Wenn du das Schild auswählst und 'c' drückst (oder den Farb-Button), ändert sich nur die Farbe des Kreises durch die Palette.
+
+5. Dock Vorschau: Das SVG_SIGN wird nur noch für das kleine Vorschaubild im Dock verwendet und wurde ebenfalls auf die neue dunkelrote Farbe angepasst, damit es zum Standardobjekt passt.
 -->
 
 
@@ -20,7 +31,7 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V82 (Bugfix Loading)</title>
+    <title>Ski-Simulation V91 (Schild mit Farbwechsel)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -149,7 +160,7 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
         </ul>
-        <div id="versionTrigger">v82 (Info)</div>
+        <div id="versionTrigger">v91 (Info)</div>
     </div>
 </div>
 
@@ -194,18 +205,23 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
     const SVG_LINE_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" viewBox="0 0 200 20"><line x1="5" y1="10" x2="195" y2="10" stroke="#808080" stroke-width="4" stroke-linecap="round" /></svg>`);
     const SVG_ARROW_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><line x1="5" y1="20" x2="85" y2="20" stroke="#0000ff" stroke-width="6" stroke-linecap="round"/><path d="M 95 20 L 75 10 L 75 30 Z" fill="#0000ff" /></svg>`);
     const SVG_V_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#808080" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`);
-    const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="37.023964" y="35.509697" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(-25)"/><rect x="41.606819" y="-6.7521315" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(25)"/><rect x="29.947439" y="34.780109" width="40.105122" height="30.439781" rx="12.031537" fill="#3399ff" stroke="#0056b3" stroke-width="1.89488"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72.856575" cy="42.936256" r="5.3266931" fill="#333"/><circle cx="72" cy="50" r="7" fill="#3399ff"/><circle cx="72.398407" cy="46.840637" r="7" fill="#3399ff"/><circle cx="27.282869" cy="43.219124" r="5.0876493" fill="#333"/><circle cx="27.537849" cy="47.868526" r="7" fill="#3399ff"/><path fill="#826dff" stroke="#544bb3" stroke-width="0.0710732" stroke-linecap="round" stroke-linejoin="round" d="m 26.698432,56.845502 c -0.667894,-0.131 -1.566917,-0.473694 -2.160106,-0.823398 -1.898546,-1.119258 -3.065111,-2.867871 -3.459405,-5.185451 -0.0671,-0.394422 -0.198227,-0.986055 -0.291385,-1.314741 -0.241444,-0.851876 -0.244849,-2.32468 -0.0076,-3.283606 1.169417,-4.726449 6.66981,-6.835578 10.69416,-4.100681 0.531849,0.361438 1.32698,1.144604 1.712851,1.687076 0.661537,0.930017 1.048532,1.903386 1.267196,3.187251 0.05971,0.350598 0.18942,0.924303 0.28824,1.274901 0.249474,0.885096 0.256045,2.506428 0.01379,3.402268 -0.360517,1.333155 -1.008202,2.413352 -2.027714,3.381789 -0.943482,0.896216 -2.047984,1.472984 -3.342006,1.74519 -0.59985,0.126183 -2.110363,0.142705 -2.688026,0.0294 z"/><path fill="#826dff" d="m 70.55556,56.815465 c -1.272123,-0.292075 -2.367548,-0.873992 -3.284024,-1.744555 -1.020379,-0.96926 -1.669683,-2.047432 -2.022137,-3.357763 -0.244882,-0.910404 -0.243566,-2.525074 0.0028,-3.426294 0.120106,-0.43937 0.183234,-0.934571 0.203156,-1.593626 0.05825,-1.927187 0.812842,-3.642411 2.145459,-4.876761 3.920014,-3.630949 10.123656,-1.865147 11.534362,3.283136 0.247704,0.903982 0.25338,2.507979 0.01226,3.466135 -0.104144,0.413853 -0.186133,1.049203 -0.210791,1.633466 -0.127233,3.014686 -1.99193,5.494622 -4.833055,6.427674 -0.681537,0.223823 -0.87211,0.251101 -1.912351,0.27373 -0.783305,0.01704 -1.310051,-0.01038 -1.635675,-0.08514 z"/></svg>`);
-    const SVG_INJURED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="m 35,55 c -6.666667,10 0.689243,33.122178 2.689243,39.788845 l 11.298805,0.215139 C 44.225764,81.585658 46.666667,66.666667 50,60 Z" fill="#333333"/><path d="m 55,55 c 6.666667,10 3.836654,34.269588 1.836654,40.936255 L 49.298805,94.430279 C 45.965472,86.430279 43.333333,66.666667 40,60 Z" fill="#333333"/><path d="M 33.952191,33.569721 C 47.285525,20.236388 56.666667,16.666667 70,30 67.742364,43.652058 68.179283,51.229748 60.155378,60.063745 L 35,60 C 25,53.333333 28.90571,51.447543 30.207171,41.721116 Z" fill="#d9534f" stroke="#c9302c" stroke-width="2" stroke-linejoin="round"/><path d="M 41.880478,28.167331 C 37.213811,34.833997 30.309429,45.203187 35,58" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><path d="m 66.884462,44.868525 c 2.209827,6.475432 0.140771,8.494024 -2.50996,18.358566" stroke="#a32623" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="70" cy="30" r="14" fill="#808080" stroke="#666" stroke-width="1"/></svg>`);
+    const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="37.023964" y="35.509697" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(-25)"/><rect x="41.606819" y="-6.7521315" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(25)"/><rect x="29.947439" y="34.780109" width="40.105122" height="30.439781" rx="12.031537" fill="#826dff" stroke="#544bb3" stroke-width="1.89488"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><circle cx="28" cy="50" r="7" fill="#826dff"/><circle cx="72.856575" cy="42.936256" r="5.3266931" fill="#333"/><circle cx="72" cy="50" r="7" fill="#826dff"/><circle cx="72.398407" cy="46.840637" r="7" fill="#826dff"/><circle cx="27.282869" cy="43.219124" r="5.0876493" fill="#333"/><circle cx="27.537849" cy="47.868526" r="7" fill="#826dff"/><path fill="#826dff" stroke="#544bb3" stroke-width="0.0710732" stroke-linecap="round" stroke-linejoin="round" d="m 26.698432,56.845502 c -0.667894,-0.131 -1.566917,-0.473694 -2.160106,-0.823398 -1.898546,-1.119258 -3.065111,-2.867871 -3.459405,-5.185451 -0.0671,-0.394422 -0.198227,-0.986055 -0.291385,-1.314741 -0.241444,-0.851876 -0.244849,-2.32468 -0.0076,-3.283606 1.169417,-4.726449 6.66981,-6.835578 10.69416,-4.100681 0.531849,0.361438 1.32698,1.144604 1.712851,1.687076 0.661537,0.930017 1.048532,1.903386 1.267196,3.187251 0.05971,0.350598 0.18942,0.924303 0.28824,1.274901 0.249474,0.885096 0.256045,2.506428 0.01379,3.402268 -0.360517,1.333155 -1.008202,2.413352 -2.027714,3.381789 -0.943482,0.896216 -2.047984,1.472984 -3.342006,1.74519 -0.59985,0.126183 -2.110363,0.142705 -2.688026,0.0294 z"/><path fill="#826dff" d="m 70.55556,56.815465 c -1.272123,-0.292075 -2.367548,-0.873992 -3.284024,-1.744555 -1.020379,-0.96926 -1.669683,-2.047432 -2.022137,-3.357763 -0.244882,-0.910404 -0.243566,-2.525074 0.0028,-3.426294 0.120106,-0.43937 0.183234,-0.934571 0.203156,-1.593626 0.05825,-1.927187 0.812842,-3.642411 2.145459,-4.876761 3.920014,-3.630949 10.123656,-1.865147 11.534362,3.283136 0.247704,0.903982 0.25338,2.507979 0.01226,3.466135 -0.104144,0.413853 -0.186133,1.049203 -0.210791,1.633466 -0.127233,3.014686 -1.99193,5.494622 -4.833055,6.427674 -0.681537,0.223823 -0.87211,0.251101 -1.912351,0.27373 -0.783305,0.01704 -1.310051,-0.01038 -1.635675,-0.08514 z"/></svg>`);
     
-    // CUSTOM INKSCAPE SLED (Updated V78 - Green Seat, Round Head)
+    // CUSTOM INKSCAPE SLED (Updated V78)
     const SVG_SLED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M26.49 4.49v80.9q0 10.11 6.89 10.11" stroke="#8b4513" stroke-width="5.86" fill="none" stroke-linecap="round"/><path d="M73.52 4.48v80.93q0 10.12-6.8 10.12" stroke="#8b4513" stroke-width="5.85" fill="none" stroke-linecap="round"/><rect x="26.38" y="37.83" width="47.19" height="8" fill="#a0522d"/><g transform="matrix(.945 0 0 1 2.75 0)" fill="#536c53"><rect x="25" y="30" width="50.02" height="8"/><rect x="24.98" y="14.61" width="50" height="8"/><rect x="25" y="45" width="50" height="8"/><rect x="24.98" y="60" width="50.02" height="8"/><rect x="24.98" y="52.67" width="50" height="8"/><rect x="25" y="22.15" width="49.98" height="8"/></g><rect x="34" y="55" width="14" height="30" rx="4" fill="#333"/><rect x="52" y="55" width="14" height="30" rx="4" fill="#333"/><rect x="29.35" y="27.6" width="41.3" height="29.91" rx="10.33" fill="#e67e22" stroke="#d35400" stroke-width="1.88"/><rect x="32" y="82" width="18" height="12" rx="4" fill="#4d4d4d"/><rect x="50" y="82" width="18" height="12" rx="4" fill="#4d4d4d"/><circle cx="50" cy="33" r="13" fill="#808080" stroke="#555" stroke-width="1"/><ellipse cx="62.12" cy="55.94" rx="5.01" ry="13.18" transform="matrix(.99 -.16 .15 .99 0 0)" fill="#e67e22"/><ellipse cx="-36.89" cy="39.43" rx="5.01" ry="13.18" transform="matrix(-.99 -.16 -.15 .99 0 0)" fill="#e67e22"/></svg>`);
 
-    // Cleaned up ASSETS (removed lineGray, arrowBlue, vShape as they are now dynamic)
+    // UPDATED SVG_INJURED (Custom Version 3 - Fixed Knee Sharpness & Aspect Ratio)
+    const SVG_INJURED_CUSTOM = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="80" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="m40.74 54.8c8.2 5.48 25.31-4.54 30.78-6.18l2.05-5.3c-11.01 3.91-23.26 1.91-28.73-0.82z" fill="#333" stroke-width=".82"/><path d="m84.29 40.08c-13.82-6.98-24.8-4.84-30.28-3.2l-1.3 9.87c6.57 2.74 24.11 4.29 30.79 6.06zM74.33 37.24c-8.2-5.48-28.12-3.15-33.6 1.5l1.24 6.19c6.56 2.73 22.9 5.86 28.37 8.59z" fill="#333" stroke-width=".82"/><path d="m 21.88,52.95 c -6.525637,-2.488863 -8.215365,-4.892222 -4.418178,-16.039872 2.842028,-8.343425 9.634345,-9.996753 16.84184,-7.735162 5.880333,1.84517 10.22313,6.588845 10.567352,12.503482 l -0.03025,11.942052 c -4.99,4.35 -4.55,3.13 -12.53,2.06 z" fill="#d9534f" stroke="#c9302c" stroke-width="1.64" stroke-linejoin="round"/><path d="m17.74 49.06c9.85 7.3 12.87 6.47 27.63 6.89" stroke="#a32623" stroke-width="4.1" stroke-linecap="round" fill="none"/><path d="m28.8 30.74c10.72-0.59 14.02-0.21 21.35 4.36" stroke="#a32623" stroke-width="5.66" stroke-linecap="round" fill="none"/><circle cx="-3.02" cy="-34.09" fill="#808080" stroke="#666" stroke-width=".71" transform="rotate(160.2)" r="9.89"/><ellipse cx="90.22" cy="16.98" rx="5.01" ry="6.23" transform="rotate(15.91)" fill="#6c5353" stroke="#666" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="93.38" cy="21.55" rx="5.01" ry="6.23" transform="rotate(15.91)" fill="#6c5353" stroke="#666" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
+
+    // NEW: SVG_SIGN (Round red sign with text "Schild", short post) - UPDATED COLOR to #aa0000 for Dock Preview
+    const SVG_SIGN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="47" y="75" width="6" height="25" fill="#666"/><circle cx="50" cy="45" r="30" fill="#aa0000"/><text x="50" y="52" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="18" text-anchor="middle">Schild</text></svg>`);
+
+    // Cleaned up ASSETS
     const ASSETS = { 
         skiBlue: new Image(), skiGreen: new Image(), 
         skiLeftShoulder: new Image(), skiRightShoulder: new Image(),
         boarder: new Image(), tree: new Image(),
-        skiPlow: new Image(), injured: new Image(), sled: new Image(),
+        skiPlow: new Image(), injured: new Image(), sled: new Image(), sign: new Image(), // Added sign
         linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image()
     };
     
@@ -220,8 +236,10 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
         { type: 'sprite', assetKey: 'skiPlow', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'boarder', width: 100, height: 100, rotation: 90 },
         { type: 'sprite', assetKey: 'sled', width: 80, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'injured', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 }, 
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
+        // CHANGED type to 'sign', added default color #aa0000
+        { type: 'sign', color: '#aa0000', width: 80, height: 80, rotation: 0 },
         { type: 'text', text: 'Text', color: '#000000', width: 80, height: 30, rotation: 0 },
         { type: 'velocity', text: '40 km/h (11 m/s)', color: '#d9534f', width: 150, height: 40, rotation: 0 },
         { type: 'line', color: '#808080', width: 200, height: 20, rotation: 0 },
@@ -246,7 +264,8 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
 
     function isInfiniteResource(obj) {
         if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect'].includes(obj.type)) return true;
-        if (obj.type === 'sprite' && obj.assetKey === 'tree') return true; 
+        // UPDATED: check for type 'sign' instead of assetKey
+        if ((obj.type === 'sprite' && obj.assetKey === 'tree') || obj.type === 'sign') return true; 
         return false;
     }
 
@@ -257,6 +276,8 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
         if (tpl.type === 'arrow') return 'Pfeil';
         if (tpl.type === 'vshape') return 'V-Form';
         if (tpl.type === 'rect') return 'Box / Hindernis';
+        // NEW LABEL FOR SIGN
+        if (tpl.type === 'sign') return 'Warnschild (Veränderbar)';
         if (tpl.type === 'sprite') {
             switch(tpl.assetKey) {
                 case 'skiBlue': return 'Skifahrer (Blau)';
@@ -279,10 +300,12 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
         const keys = Object.keys(ASSETS);
         keys.forEach(k => { ASSETS[k].onload = checkDone; ASSETS[k].onerror = checkDone; });
         ASSETS.skiBlue.src = SVG_SKI_BLUE; ASSETS.skiGreen.src = SVG_SKI_GREEN; ASSETS.boarder.src = SVG_BOARDER;
-        ASSETS.tree.src = SVG_TREE; ASSETS.skiPlow.src = SVG_SKI_PLOW; ASSETS.injured.src = SVG_INJURED;
+        ASSETS.tree.src = SVG_TREE; ASSETS.skiPlow.src = SVG_SKI_PLOW; 
+        ASSETS.injured.src = SVG_INJURED_CUSTOM;
         ASSETS.skiLeftShoulder.src = SVG_SKI_LEFT_SHOULDER;
         ASSETS.skiRightShoulder.src = SVG_SKI_RIGHT_SHOULDER; 
         ASSETS.sled.src = SVG_SLED;
+        ASSETS.sign.src = SVG_SIGN; // Load sign
         ASSETS.linePreview.src = SVG_LINE_PREVIEW; ASSETS.arrowPreview.src = SVG_ARROW_PREVIEW; ASSETS.vPreview.src = SVG_V_PREVIEW;
         setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
@@ -307,6 +330,7 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
         } else if(tpl.type === 'text' || tpl.type === 'velocity') { 
             obj.text = tpl.text; obj.color = tpl.color; 
         } else {
+            // This handles 'rect', 'line', 'arrow', 'vshape', AND 'sign'
             obj.color = tpl.color;
         }
         return obj;
@@ -314,6 +338,8 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
 
     function getDockPreviewAsset(tpl) {
         if (tpl.type === 'sprite') return ASSETS[tpl.assetKey];
+        // SPECIAL CASE: Use the static SVG for the dock preview of the dynamic sign
+        if (tpl.type === 'sign') return ASSETS.sign;
         if (tpl.type === 'line') return ASSETS.linePreview;
         if (tpl.type === 'arrow') return ASSETS.arrowPreview;
         if (tpl.type === 'vshape') return ASSETS.vPreview;
@@ -420,14 +446,16 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
     function getLayer(p) {
         if (p.type === 'text' || p.type === 'velocity') return 3; 
         if (p.type === 'rect') return 1;
-        if (['tree', 'injured'].includes(p.assetKey)) return 1;
+        // UPDATED LAYER LOGIC
+        if (p.type === 'sign' || ['tree', 'injured'].includes(p.assetKey)) return 1;
         if (['skiBlue', 'skiGreen', 'skiLeftShoulder', 'skiRightShoulder', 'skiPlow', 'boarder', 'sled'].includes(p.assetKey)) return 2;
         return 0; 
     }
 
     function cycleColor(index) {
         const p = activeObjects[index];
-        if (p && ['rect', 'line', 'arrow', 'vshape', 'velocity'].includes(p.type)) {
+        // ADDED 'sign' to cycleColor
+        if (p && ['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign'].includes(p.type)) {
             let idx = COLOR_PALETTE.indexOf(p.color);
             if (idx === -1) idx = 0;
             p.color = COLOR_PALETTE[(idx + 1) % COLOR_PALETTE.length];
@@ -584,7 +612,7 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
     window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
 
     document.getElementById('saveBtn').addEventListener('click', () => { const link = document.createElement('a'); link.download = `ski-sim-${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click(); });
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V82', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V91', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
@@ -611,6 +639,18 @@ Hier ist Version 82. Ich habe die Asset-Liste bereinigt. Jetzt startet die App w
         else if (p.type === 'vshape') { ctx.beginPath(); ctx.moveTo(-p.width/2, -p.height/2); ctx.lineTo(0, p.height/2); ctx.lineTo(p.width/2, -p.height/2); ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/15); ctx.lineCap = 'round'; ctx.stroke(); }
         else if (p.type === 'arrow') { const headLen = p.width * 0.2; const bodyH = p.height * 0.2; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = bodyH; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -p.height/2); ctx.lineTo(p.width/2 - headLen, p.height/2); ctx.fill(); }
         else if (p.type === 'velocity') { const headLen = p.width * 0.15; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -8); ctx.lineTo(p.width/2 - headLen, 8); ctx.fill(); ctx.save(); ctx.translate(0, -15); ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); }
+        // NEW: Dynamic drawing for SIGN type
+        else if (p.type === 'sign') {
+            // Post (Static Grey)
+            const postW = p.width * 0.06; const postH = p.height * 0.25;
+            ctx.fillStyle = '#666666'; ctx.fillRect(-postW / 2, p.height / 2 - postH, postW, postH);
+            // Circle (Dynamic Color)
+            const radius = Math.min(p.width, p.height) * 0.30; const centerYOffset = -p.height * 0.05;
+            ctx.beginPath(); ctx.arc(0, centerYOffset, radius, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.fill();
+            // Text (Static White)
+            ctx.fillStyle = '#ffffff'; const fontSize = Math.round(p.height * 0.18); ctx.font = 'bold ' + fontSize + 'px Arial, sans-serif';
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Schild', 0, centerYOffset + (p.height * 0.07));
+        }
         ctx.restore(); 
     }
 
