@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="100"
+   height="80"
+   viewBox="0 0 100 80"
+   version="1.1"
+   id="svg6"
+   sodipodi:docname="verletzter3.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs6" />
+  <sodipodi:namedview
+     id="namedview6"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="15.6875"
+     inkscape:cx="49.976096"
+     inkscape:cy="40"
+     inkscape:window-width="2560"
+     inkscape:window-height="1511"
+     inkscape:window-x="2391"
+     inkscape:window-y="-9"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg6" />
+  <path
+     d="m40.735511 54.806041c8.206797 5.471199 25.312962-4.54638 30.78416-6.187739l2.046299-5.291968c-11.012148 3.90831-23.255862 1.90511-28.72706-0.830489z"
+     fill="#333"
+     stroke-width=".82068"
+     id="path1" />
+  <path
+     d="m 84.289277,40.081242 c -13.81601,-6.979052 -24.807079,-4.83746 -30.278278,-3.1961 l -1.297269,9.865321 c 6.565438,2.735599 24.111945,4.292601 30.789425,6.063173 z M 74.331066,37.236676 C 66.124269,31.765477 46.20671,34.088011 40.735511,38.729371 l 1.235924,6.18616 c 6.565438,2.735599 22.969407,0.633676 28.440605,3.369274 z"
+     fill="#333333"
+     stroke-width="0.82068"
+     id="path2"
+     sodipodi:nodetypes="cccccccccc" />
+  <path
+     d="m 21.881519,52.951822 c -9.555171,-3.644389 -11.483553,-6.240814 -0.963355,-20.500487 7.573133,-6.844318 17.488118,-4.874859 24.738,1.710197 l -0.81725,20.644509 c -4.988686,4.346693 -4.545949,3.131722 -12.528231,2.06364 z"
+     fill="#d9534f"
+     stroke="#c9302c"
+     stroke-width="1.64136"
+     stroke-linejoin="round"
+     id="path3"
+     sodipodi:nodetypes="cccccc" />
+  <path
+     d="m17.737427 49.062841c9.849907 7.303872 12.871062 6.468371 27.631431 6.889168"
+     stroke="#a32623"
+     stroke-width="4.1034"
+     stroke-linecap="round"
+     fill="none"
+     id="path4"
+     style="stroke-width:5.661;stroke-dasharray:none" />
+  <path
+     d="m28.803715 30.735441c10.721762-0.591309 14.018817-0.206639 21.347831 4.366013"
+     stroke="#a32623"
+     stroke-width="5.66052"
+     stroke-linecap="round"
+     fill="none"
+     id="path5"
+     style="stroke-width:5.661;stroke-dasharray:none" />
+  <circle
+     cx="-3.0194588"
+     cy="-34.085526"
+     fill="#808080"
+     stroke="#666"
+     stroke-width=".706311"
+     transform="rotate(160.2055)"
+     r="9.8883533"
+     id="circle5" />
+  <ellipse
+     cx="90.224808"
+     cy="16.983795"
+     rx="5.0062551"
+     ry="6.2333856"
+     transform="rotate(15.909211)"
+     fill="#6c5353"
+     stroke="#666"
+     stroke-width="1"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="ellipse5" />
+  <ellipse
+     cx="93.384911"
+     cy="21.549623"
+     rx="5.0062551"
+     ry="6.2333856"
+     transform="rotate(15.909211)"
+     fill="#6c5353"
+     stroke="#666"
+     stroke-width="1"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     id="ellipse6" />
+</svg>

@@ -1,0 +1,28 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path d="M26.49 4.49v80.9q0 10.11 6.89 10.11" stroke="#8b4513" stroke-width="5.86" fill="none" stroke-linecap="round"/>
+  <path d="M73.52 4.48v80.93q0 10.12-6.8 10.12" stroke="#8b4513" stroke-width="5.85" fill="none" stroke-linecap="round"/>
+  
+  <rect x="26.38" y="37.83" width="47.19" height="8" fill="#a0522d"/>
+  
+  <g transform="matrix(.945 0 0 1 2.75 0)" fill="#536c53">
+    <rect x="25" y="30" width="50.02" height="8"/>
+    <rect x="24.98" y="14.61" width="50" height="8"/>
+    <rect x="25" y="45" width="50" height="8"/>
+    <rect x="24.98" y="60" width="50.02" height="8"/>
+    <rect x="24.98" y="52.67" width="50" height="8"/>
+    <rect x="25" y="22.15" width="49.98" height="8"/>
+  </g>
+  
+  <rect x="34" y="55" width="14" height="30" rx="4" fill="#333"/>
+  <rect x="52" y="55" width="14" height="30" rx="4" fill="#333"/>
+  
+  <rect x="29.35" y="27.6" width="41.3" height="29.91" rx="10.33" fill="#e67e22" stroke="#d35400" stroke-width="1.88"/>
+  
+  <rect x="32" y="82" width="18" height="12" rx="4" fill="#4d4d4d"/>
+  <rect x="50" y="82" width="18" height="12" rx="4" fill="#4d4d4d"/>
+  
+  <circle cx="50" cy="33" r="13" fill="#808080" stroke="#555" stroke-width="1"/>
+  
+  <ellipse cx="62.12" cy="55.94" rx="5.01" ry="13.18" transform="matrix(.99 -.16 .15 .99 0 0)" fill="#e67e22"/>
+  <ellipse cx="-36.89" cy="39.43" rx="5.01" ry="13.18" transform="matrix(-.99 -.16 -.15 .99 0 0)" fill="#e67e22"/>
+</svg>
