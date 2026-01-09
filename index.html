@@ -1,5 +1,5 @@
-<!-- Skisim V92 -->
-<!-- Schild kann Farbe wechseln. 
+<!-- Skisim V92.1 -->
+<!-- Neues Objekt Zaun 
 
 Apache V2 License
 2026-01-09 
@@ -7,23 +7,30 @@ Christian Klingler, asolvo
 erstellt mit Google Gemini 3 Pro 
 
 
-Um das Schild farblich veränderbar zu machen, müssen wir es von einem statischen "Sprite" (einem festen Bild) in ein dynamisches Objekt umwandeln, das live auf dem Canvas gezeichnet wird – ähnlich wie die Rechtecke oder Pfeile.
+Ich habe das gewünschte Zaun-Objekt erstellt und eingebaut.
 
-Was wurde geändert?
-1. Neuer Objekttyp "sign": Das Schild ist kein sprite mehr, sondern hat jetzt seinen eigenen Typ sign.
+Die Umsetzung:
 
-2. Dynamisches Zeichnen: In der Funktion drawObject wird das Schild nun aus geometrischen Formen zusammengesetzt:
-  * Ein graues Rechteck für den Pfosten (Farbe fixiert auf #666666).
-  * Ein Kreis für das Schild (Farbe wird über p.color gesteuert).
-  * Weißer Text "Schild" darauf (Farbe fixiert auf #ffffff).
+1. SVG-Design: Ich habe ein neues SVG (SVG_FENCE) entworfen, das den Zaun aus der Vogelperspektive (Draufsicht) zeigt.
 
-3. Standardfarbe: Die Startfarbe im Template wurde von Rot auf das dunklere #aa0000 geändert.
+Pfosten: Drei rote Kreise repräsentieren die drei Pfosten von oben.
 
-4. Farbwechsel: Der Typ sign wurde in die Funktion cycleColor aufgenommen. Wenn du das Schild auswählst und 'c' drückst (oder den Farb-Button), ändert sich nur die Farbe des Kreises durch die Palette.
+Netz: Ein flaches Rechteck verbindet die Pfosten.
 
-5. Dock Vorschau: Das SVG_SIGN wird nur noch für das kleine Vorschaubild im Dock verwendet und wurde ebenfalls auf die neue dunkelrote Farbe angepasst, damit es zum Standardobjekt passt.
+Muster: Um das gelb-rote Netz zu simulieren, habe ich ein einfaches, kachelbares Muster (pattern) aus roten und gelben Linien erstellt, das die Netzstruktur in der Draufsicht andeutet.
+
+Vereinfachung: Es gibt keine Schatten oder perspektivischen Effekte.
+
+2. Integration:
+
+Der Zaun ist als neues Objekt im Dock verfügbar.
+
+Er hat das Label "Fangzaun".
+
+Er ist als "unendliche Ressource" eingestellt, d.h. er bleibt im Dock, auch wenn man einen herauszieht.
+
+Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (Layer 1).
 -->
-
 
 
 <!DOCTYPE html>
@@ -31,7 +38,7 @@ Was wurde geändert?
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V91 (Schild mit Farbwechsel)</title>
+    <title>Ski-Simulation V92 (Fangzaun hinzugefügt)</title>
     <style>
         body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
         canvas { display: block; background: #ffffff; touch-action: none; }
@@ -160,7 +167,7 @@ Was wurde geändert?
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
         </ul>
-        <div id="versionTrigger">v91 (Info)</div>
+        <div id="versionTrigger">v92 (Info)</div>
     </div>
 </div>
 
@@ -213,15 +220,19 @@ Was wurde geändert?
     // UPDATED SVG_INJURED (Custom Version 3 - Fixed Knee Sharpness & Aspect Ratio)
     const SVG_INJURED_CUSTOM = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="80" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="m40.74 54.8c8.2 5.48 25.31-4.54 30.78-6.18l2.05-5.3c-11.01 3.91-23.26 1.91-28.73-0.82z" fill="#333" stroke-width=".82"/><path d="m84.29 40.08c-13.82-6.98-24.8-4.84-30.28-3.2l-1.3 9.87c6.57 2.74 24.11 4.29 30.79 6.06zM74.33 37.24c-8.2-5.48-28.12-3.15-33.6 1.5l1.24 6.19c6.56 2.73 22.9 5.86 28.37 8.59z" fill="#333" stroke-width=".82"/><path d="m 21.88,52.95 c -6.525637,-2.488863 -8.215365,-4.892222 -4.418178,-16.039872 2.842028,-8.343425 9.634345,-9.996753 16.84184,-7.735162 5.880333,1.84517 10.22313,6.588845 10.567352,12.503482 l -0.03025,11.942052 c -4.99,4.35 -4.55,3.13 -12.53,2.06 z" fill="#d9534f" stroke="#c9302c" stroke-width="1.64" stroke-linejoin="round"/><path d="m17.74 49.06c9.85 7.3 12.87 6.47 27.63 6.89" stroke="#a32623" stroke-width="4.1" stroke-linecap="round" fill="none"/><path d="m28.8 30.74c10.72-0.59 14.02-0.21 21.35 4.36" stroke="#a32623" stroke-width="5.66" stroke-linecap="round" fill="none"/><circle cx="-3.02" cy="-34.09" fill="#808080" stroke="#666" stroke-width=".71" transform="rotate(160.2)" r="9.89"/><ellipse cx="90.22" cy="16.98" rx="5.01" ry="6.23" transform="rotate(15.91)" fill="#6c5353" stroke="#666" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/><ellipse cx="93.38" cy="21.55" rx="5.01" ry="6.23" transform="rotate(15.91)" fill="#6c5353" stroke="#666" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"/></svg>`);
 
-    // NEW: SVG_SIGN (Round red sign with text "Schild", short post) - UPDATED COLOR to #aa0000 for Dock Preview
+    // NEW: SVG_SIGN (Round red sign with text "Schild", short post)
     const SVG_SIGN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="47" y="75" width="6" height="25" fill="#666"/><circle cx="50" cy="45" r="30" fill="#aa0000"/><text x="50" y="52" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="18" text-anchor="middle">Schild</text></svg>`);
+
+    // NEW: SVG_FENCE (Top-down view, 3 posts, 2 segments, simple red/yellow pattern)
+    const SVG_FENCE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="200" height="20" viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="simpleNet" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="yellow" fill-opacity="0.5"/><path d="M 0 2 L 6 2 M 0 4 L 6 4" stroke="red" stroke-width="1"/><path d="M 2 0 L 2 6 M 4 0 L 4 6" stroke="yellow" stroke-width="1"/></pattern></defs><rect x="10" y="8" width="180" height="4" fill="url(#simpleNet)"/><circle cx="10" cy="10" r="3" fill="#aa0000" stroke="#660000" stroke-width="1"/><circle cx="100" cy="10" r="3" fill="#aa0000" stroke="#660000" stroke-width="1"/><circle cx="190" cy="10" r="3" fill="#aa0000" stroke="#660000" stroke-width="1"/></svg>`);
+
 
     // Cleaned up ASSETS
     const ASSETS = { 
         skiBlue: new Image(), skiGreen: new Image(), 
         skiLeftShoulder: new Image(), skiRightShoulder: new Image(),
         boarder: new Image(), tree: new Image(),
-        skiPlow: new Image(), injured: new Image(), sled: new Image(), sign: new Image(), // Added sign
+        skiPlow: new Image(), injured: new Image(), sled: new Image(), sign: new Image(), fence: new Image(), // Added fence
         linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image()
     };
     
@@ -238,8 +249,9 @@ Was wurde geändert?
         { type: 'sprite', assetKey: 'sled', width: 80, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 }, 
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
-        // CHANGED type to 'sign', added default color #aa0000
         { type: 'sign', color: '#aa0000', width: 80, height: 80, rotation: 0 },
+        // NEW: Fence Template
+        { type: 'sprite', assetKey: 'fence', width: 200, height: 20, rotation: 0 },
         { type: 'text', text: 'Text', color: '#000000', width: 80, height: 30, rotation: 0 },
         { type: 'velocity', text: '40 km/h (11 m/s)', color: '#d9534f', width: 150, height: 40, rotation: 0 },
         { type: 'line', color: '#808080', width: 200, height: 20, rotation: 0 },
@@ -264,8 +276,8 @@ Was wurde geändert?
 
     function isInfiniteResource(obj) {
         if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect'].includes(obj.type)) return true;
-        // UPDATED: check for type 'sign' instead of assetKey
-        if ((obj.type === 'sprite' && obj.assetKey === 'tree') || obj.type === 'sign') return true; 
+        // UPDATED: added fence to infinite resources
+        if ((obj.type === 'sprite' && (obj.assetKey === 'tree' || obj.assetKey === 'fence')) || obj.type === 'sign') return true; 
         return false;
     }
 
@@ -276,7 +288,6 @@ Was wurde geändert?
         if (tpl.type === 'arrow') return 'Pfeil';
         if (tpl.type === 'vshape') return 'V-Form';
         if (tpl.type === 'rect') return 'Box / Hindernis';
-        // NEW LABEL FOR SIGN
         if (tpl.type === 'sign') return 'Warnschild (Veränderbar)';
         if (tpl.type === 'sprite') {
             switch(tpl.assetKey) {
@@ -289,6 +300,8 @@ Was wurde geändert?
                 case 'sled': return 'Rodler';
                 case 'injured': return 'Verletzte Person';
                 case 'tree': return 'Baum';
+                // NEW LABEL FOR FENCE
+                case 'fence': return 'Fangzaun';
             }
         }
         return 'Objekt';
@@ -305,7 +318,8 @@ Was wurde geändert?
         ASSETS.skiLeftShoulder.src = SVG_SKI_LEFT_SHOULDER;
         ASSETS.skiRightShoulder.src = SVG_SKI_RIGHT_SHOULDER; 
         ASSETS.sled.src = SVG_SLED;
-        ASSETS.sign.src = SVG_SIGN; // Load sign
+        ASSETS.sign.src = SVG_SIGN; 
+        ASSETS.fence.src = SVG_FENCE; // Load fence
         ASSETS.linePreview.src = SVG_LINE_PREVIEW; ASSETS.arrowPreview.src = SVG_ARROW_PREVIEW; ASSETS.vPreview.src = SVG_V_PREVIEW;
         setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
@@ -330,7 +344,6 @@ Was wurde geändert?
         } else if(tpl.type === 'text' || tpl.type === 'velocity') { 
             obj.text = tpl.text; obj.color = tpl.color; 
         } else {
-            // This handles 'rect', 'line', 'arrow', 'vshape', AND 'sign'
             obj.color = tpl.color;
         }
         return obj;
@@ -338,7 +351,6 @@ Was wurde geändert?
 
     function getDockPreviewAsset(tpl) {
         if (tpl.type === 'sprite') return ASSETS[tpl.assetKey];
-        // SPECIAL CASE: Use the static SVG for the dock preview of the dynamic sign
         if (tpl.type === 'sign') return ASSETS.sign;
         if (tpl.type === 'line') return ASSETS.linePreview;
         if (tpl.type === 'arrow') return ASSETS.arrowPreview;
@@ -446,15 +458,14 @@ Was wurde geändert?
     function getLayer(p) {
         if (p.type === 'text' || p.type === 'velocity') return 3; 
         if (p.type === 'rect') return 1;
-        // UPDATED LAYER LOGIC
-        if (p.type === 'sign' || ['tree', 'injured'].includes(p.assetKey)) return 1;
+        // UPDATED LAYER LOGIC: Fence is on layer 1
+        if (p.type === 'sign' || ['tree', 'injured', 'fence'].includes(p.assetKey)) return 1;
         if (['skiBlue', 'skiGreen', 'skiLeftShoulder', 'skiRightShoulder', 'skiPlow', 'boarder', 'sled'].includes(p.assetKey)) return 2;
         return 0; 
     }
 
     function cycleColor(index) {
         const p = activeObjects[index];
-        // ADDED 'sign' to cycleColor
         if (p && ['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign'].includes(p.type)) {
             let idx = COLOR_PALETTE.indexOf(p.color);
             if (idx === -1) idx = 0;
@@ -612,7 +623,7 @@ Was wurde geändert?
     window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
 
     document.getElementById('saveBtn').addEventListener('click', () => { const link = document.createElement('a'); link.download = `ski-sim-${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click(); });
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V91', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V92', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
@@ -639,15 +650,11 @@ Was wurde geändert?
         else if (p.type === 'vshape') { ctx.beginPath(); ctx.moveTo(-p.width/2, -p.height/2); ctx.lineTo(0, p.height/2); ctx.lineTo(p.width/2, -p.height/2); ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/15); ctx.lineCap = 'round'; ctx.stroke(); }
         else if (p.type === 'arrow') { const headLen = p.width * 0.2; const bodyH = p.height * 0.2; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = bodyH; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -p.height/2); ctx.lineTo(p.width/2 - headLen, p.height/2); ctx.fill(); }
         else if (p.type === 'velocity') { const headLen = p.width * 0.15; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -8); ctx.lineTo(p.width/2 - headLen, 8); ctx.fill(); ctx.save(); ctx.translate(0, -15); ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); }
-        // NEW: Dynamic drawing for SIGN type
         else if (p.type === 'sign') {
-            // Post (Static Grey)
             const postW = p.width * 0.06; const postH = p.height * 0.25;
             ctx.fillStyle = '#666666'; ctx.fillRect(-postW / 2, p.height / 2 - postH, postW, postH);
-            // Circle (Dynamic Color)
             const radius = Math.min(p.width, p.height) * 0.30; const centerYOffset = -p.height * 0.05;
             ctx.beginPath(); ctx.arc(0, centerYOffset, radius, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.fill();
-            // Text (Static White)
             ctx.fillStyle = '#ffffff'; const fontSize = Math.round(p.height * 0.18); ctx.font = 'bold ' + fontSize + 'px Arial, sans-serif';
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Schild', 0, centerYOffset + (p.height * 0.07));
         }
@@ -673,3 +680,6 @@ Was wurde geändert?
 </script>
 </body>
 </html>
+
+
+
