@@ -1,46 +1,56 @@
-<!-- Skisim V92.1 -->
-<!-- Neues Objekt Zaun 
+<!-- Skisim V98 -->
+<!-- Benutzerdaten aus Google Tabelle auslesen und simulierte Benutzerverwaltung 
+
 
 Apache V2 License
-2026-01-09 
+2026-02-11
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
 
-Ich habe das gewünschte Zaun-Objekt erstellt und eingebaut.
+Die Neuerungen:
 
-Die Umsetzung:
+Integrierte Benutzerdatenbank: Die User aus deinem Spreadsheet (Christian Klingler, Werner Senn, Peter Wirnsberger, Test User) sind nun fest im Code hinterlegt.
+https://docs.google.com/spreadsheets/d/1sQcJ1AKofuIMJVE-l2zFxA4-Lp0gGDp1iUtpp9rkFMk/edit?usp=sharing
 
-1. SVG-Design: Ich habe ein neues SVG (SVG_FENCE) entworfen, das den Zaun aus der Vogelperspektive (Draufsicht) zeigt.
+User-Session: Beim Start wird die Anwendung automatisch mit dem Benutzer "Test User" initialisiert, wie gewünscht.
 
-Pfosten: Drei rote Kreise repräsentieren die drei Pfosten von oben.
+Impressum-Update:
+* Das Impressum zeigt nun dynamisch an, wer gerade angemeldet ist.
+* neue Zeile: "Lizenziert für: Test User".
+* Die statischen Verantwortlichen bleiben bestehen.
 
-Netz: Ein flaches Rechteck verbindet die Pfosten.
-
-Muster: Um das gelb-rote Netz zu simulieren, habe ich ein einfaches, kachelbares Muster (pattern) aus roten und gelben Linien erstellt, das die Netzstruktur in der Draufsicht andeutet.
-
-Vereinfachung: Es gibt keine Schatten oder perspektivischen Effekte.
-
-2. Integration:
-
-Der Zaun ist als neues Objekt im Dock verfügbar.
-
-Er hat das Label "Fangzaun".
-
-Er ist als "unendliche Ressource" eingestellt, d.h. er bleibt im Dock, auch wenn man einen herauszieht.
-
-Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (Layer 1).
 -->
-
 
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V92 (Fangzaun hinzugefügt)</title>
+    <title>Ski-Simulation V98 (User Management)</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
     <style>
-        body { margin: 0; overflow: hidden; background: #e0e0e0; font-family: 'Segoe UI', sans-serif; touch-action: none; }
+        /* GLOBAL STYLES & FONTS */
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background: #e0e0e0; 
+            font-family: 'Roboto', sans-serif; 
+            font-weight: 400;
+            color: #1A1B1F; 
+            touch-action: none; 
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Open Sans', sans-serif; 
+            color: #1A1B1F;
+            font-weight: 600;
+        }
+
         canvas { display: block; background: #ffffff; touch-action: none; }
         
         /* UI */
@@ -52,17 +62,26 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
         }
         .ui-header { padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border-bottom: 1px solid #eee; user-select: none; }
         .ui-header:hover { background: #f1f3f5; }
-        .ui-header h2 { margin: 0; font-size: 18px; color: #333; }
-        .toggle-icon { font-size: 14px; color: #666; transition: transform 0.3s; }
+        
+        .ui-header h2 { margin: 0; font-size: 18px; } 
+        
+        .toggle-icon { font-size: 14px; color: #747579; transition: transform 0.3s; } 
         .ui.collapsed .toggle-icon { transform: rotate(-90deg); }
         .ui.collapsed .ui-content { display: none; }
         .ui-content { padding: 15px; }
-        .key-badge { background: #eee; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-family: monospace; }
-        li { margin-bottom: 8px; font-size: 14px; color: #555; line-height: 1.4; }
+        
+        .key-badge { background: #eee; padding: 2px 6px; border-radius: 4px; border: 1px solid #ccc; font-weight: bold; font-family: monospace; color: #1A1B1F; }
+        
+        li { margin-bottom: 8px; font-size: 14px; color: #1A1B1F; line-height: 1.4; } 
 
         /* VERSION INFO LINK */
-        #versionTrigger { margin-top: 12px; font-size: 12px; color: #888; text-align: right; cursor: pointer; text-decoration: underline; }
-        #versionTrigger:hover { color: #333; }
+        #versionTrigger { 
+            margin-top: 12px; font-size: 12px; 
+            color: #007C89; 
+            text-align: right; cursor: pointer; text-decoration: underline; 
+            font-weight: 400;
+        }
+        #versionTrigger:hover { color: #005a63; }
 
         /* HEADER BUTTONS */
         .header-btn { 
@@ -71,18 +90,22 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
             border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 20;
             font-size: 24px; display: flex; justify-content: center; align-items: center;
             transition: transform 0.1s, background 0.2s;
+            color: #1A1B1F;
         }
         .header-btn:hover { background: #f8f9fa; transform: scale(1.05); }
         .header-btn:active { transform: scale(0.95); background: #e9ecef; }
         
-        #saveBtn { right: 125px; }
-        #shareBtn { right: 185px; }
+        /* Button Positioning */
+        #importBtn { right: 125px; }  
+        #saveBtn { right: 185px; }    
+        #exportBtn { right: 245px; }  
+        #shareBtn { right: 305px; }   
 
         /* Loader */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; z-index: 9999; display: flex; justify-content: center; align-items: center;
-            font-size: 24px; color: #333; font-weight: bold;
+            font-size: 24px; color: #1A1B1F; font-weight: bold; font-family: 'Open Sans', sans-serif;
         }
 
         /* Dock */
@@ -95,39 +118,61 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
             max-height: 80vh; overflow-y: auto;
         }
         #dock:hover { background: rgba(255,255,255,1); transform: scale(1.02); }
-        .dock-title { font-size: 13px; font-weight: bold; color: #555; text-align: center; margin-bottom: 5px; }
+        
+        .dock-title { 
+            font-size: 13px; font-weight: 600; 
+            color: #747579; 
+            text-align: center; margin-bottom: 5px; 
+            font-family: 'Open Sans', sans-serif;
+        }
+        
         .dock-item {
             width: 70px; height: 70px; border: 2px dashed #ccc; border-radius: 10px;
             cursor: grab; display: flex; justify-content: center; align-items: center;
             background: #f9f9f9; touch-action: none; position: relative; flex-shrink: 0;
         }
-        .dock-item:active { cursor: grabbing; border-color: #00bfff; background: #eef; }
+        .dock-item:active { cursor: grabbing; border-color: #007C89; background: #eef; }
         .dock-item img { pointer-events: none; width: 100%; height: 100%; object-fit: contain; }
         .color-box { width: 40px !important; height: 50px !important; display: block; margin: auto; border: 1px solid #999; }
-        .text-preview { font-family: Arial, sans-serif; font-weight: bold; font-size: 20px; color: #333; pointer-events: none; }
-        .vector-preview { font-family: Arial, sans-serif; font-weight: bold; font-size: 12px; color: #d9534f; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+        .text-preview { font-family: 'Roboto', sans-serif; font-weight: bold; font-size: 20px; color: #1A1B1F; pointer-events: none; }
+        .vector-preview { font-family: 'Roboto', sans-serif; font-weight: bold; font-size: 12px; color: #d9534f; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
 
         #ghost-drag { position: absolute; pointer-events: none; opacity: 0.8; z-index: 100; display: none; width: 80px; height: 80px; object-fit: contain; }
         
         #gamepad { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 40px; pointer-events: none; align-items: flex-end; z-index: 20; }
         .control-group { background: rgba(255,255,255,0.8); padding: 10px; border-radius: 15px; pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .btn-row { display: flex; gap: 5px; }
-        button.touch-btn { width: 45px; height: 45px; border: 1px solid #ccc; background: white; border-radius: 8px; font-size: 20px; font-weight: bold; color: #333; cursor: pointer; touch-action: manipulation; user-select: none; display: flex; justify-content: center; align-items: center; }
-        button.touch-btn:active { background: #00bfff; color: white; border-color: #0099cc; }
+        
+        button.touch-btn { width: 45px; height: 45px; border: 1px solid #ccc; background: white; border-radius: 8px; font-size: 20px; font-weight: bold; color: #1A1B1F; cursor: pointer; touch-action: manipulation; user-select: none; display: flex; justify-content: center; align-items: center; }
+        button.touch-btn:active { background: #007C89; color: white; border-color: #005a63; }
         
         #btnColor { width: 60px; font-size: 24px; }
 
         /* IMPRESSUM MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
-        .modal-content { background-color: #fefefe; margin: 15vh auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 400px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); font-family: 'Segoe UI', sans-serif; position: relative; animation: slideIn 0.3s ease-out; }
+        .modal-content { background-color: #fefefe; margin: 15vh auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 400px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); font-family: 'Roboto', sans-serif; position: relative; animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; position: absolute; right: 15px; top: 10px; }
-        .close-btn:hover { color: #000; }
-        .modal h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #333; }
-        .modal-body { font-size: 14px; line-height: 1.6; color: #444; }
-        .modal-body strong { display: block; margin-top: 10px; color: #222; }
-        .modal-link { display: block; margin-top: 20px; text-align: center; color: #007bff; text-decoration: none; font-weight: bold; border-top: 1px solid #eee; padding-top: 15px; }
-        .modal-link:hover { text-decoration: underline; }
+        .close-btn:hover { color: #1A1B1F; }
+        .modal h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #1A1B1F; font-family: 'Open Sans', sans-serif; }
+        .modal-body { font-size: 14px; line-height: 1.6; color: #1A1B1F; }
+        .modal-body strong { display: block; margin-top: 10px; color: #1A1B1F; }
+        
+        /* New User Display in Modal */
+        #user-info-display {
+            background-color: #f1f3f5;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #007C89;
+        }
+
+        .modal-link { 
+            display: block; margin-top: 20px; text-align: center; 
+            color: #007C89; 
+            text-decoration: none; font-weight: bold; border-top: 1px solid #eee; padding-top: 15px; 
+        }
+        .modal-link:hover { text-decoration: underline; color: #005a63; }
 
         @media (max-height: 500px) { .ui { display: none; } }
     </style>
@@ -136,11 +181,17 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
 
 <div id="loader">Lade Simulation...</div>
 
+<input type="file" id="fileInput" accept=".json" style="display: none;">
+
 <div id="impressumModal" class="modal">
     <div class="modal-content">
         <span class="close-btn">&times;</span>
         <h3>ASI-Tirol Skisimulation</h3>
         <div class="modal-body">
+            <div id="user-info-display">
+                Lizenziert für: <strong id="activeUserName">Lädt...</strong>
+            </div>
+
             Verantwortlich für die Skisimulation (App):
             <br><br>
             <strong>Werner Senn</strong>
@@ -166,8 +217,11 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
             <li><strong>Text/Vektor:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
+            <li><strong>Bewegen:</strong> Pfeiltasten.</li>
+            <li><strong>Speichern:</strong> Taste <span class="key-badge">s</span> (JSON) / <span class="key-badge">e</span> (Bild).</li>
+            <li><strong>Import:</strong> Taste <span class="key-badge">o</span> (Öffnen).</li>
         </ul>
-        <div id="versionTrigger">v92 (Info)</div>
+        <div id="versionTrigger">v98 (Info)</div>
     </div>
 </div>
 
@@ -177,7 +231,10 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
         <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
     </svg>
 </button>
-<button id="saveBtn" class="header-btn" title="Download">📥</button>
+
+<button id="exportBtn" class="header-btn" title="Bild exportieren (PNG)">📷</button>
+<button id="saveBtn" class="header-btn" title="Projekt speichern (JSON)">💾</button>
+<button id="importBtn" class="header-btn" title="Projekt laden (JSON)">📂</button>
 
 <div id="dock">
     <div class="dock-title">Objekte</div>
@@ -187,13 +244,8 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
 
 <div id="gamepad">
     <div class="control-group">
-        <span style="font-size:10px; color:#777;">Farbe</span>
+        <span style="font-size:10px; color:#747579;">Farbe</span>
         <button class="touch-btn" id="btnColor" title="Farbe ändern">🎨</button>
-    </div>
-
-    <div class="control-group">
-        <button class="touch-btn" id="btnUp">▲</button>
-        <div class="btn-row"><button class="touch-btn" id="btnLeft">◀</button><button class="touch-btn" id="btnDown">▼</button><button class="touch-btn" id="btnRight">▶</button></div>
     </div>
 </div>
 
@@ -201,6 +253,31 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
 
 <script>
     function toggleUI() { document.getElementById('instructionBox').classList.toggle('collapsed'); }
+
+    // --- USER MANAGEMENT (Simulated Backend) ---
+    // Datenquelle: "Benutzerverwaltung Skisim" Google Sheet
+    const USER_DB = [
+        { name: "Christian Klingler", email: "cklingler@gmail.com", role: "Administrator" },
+        { name: "Werner Senn", email: "werner.senn@alpinesicherheit.com", role: "Projektsponsor" },
+        { name: "Peter Wirnsberger", email: "peterwirnsberger@outlook.com", role: "Tester" },
+        { name: "Test User", email: "public test", role: "Anonymer Test User" }
+    ];
+
+    // Current Session User
+    let currentUser = null;
+
+    function initUserSession() {
+        // Set Default User as requested
+        const defaultUser = USER_DB.find(u => u.name === "Test User");
+        if (defaultUser) {
+            currentUser = defaultUser;
+            console.log("Angemeldet als:", currentUser.name);
+            document.getElementById('activeUserName').innerText = currentUser.name + " (" + currentUser.role + ")";
+        } else {
+            console.warn("Standard-Benutzer 'Test User' nicht gefunden.");
+            document.getElementById('activeUserName').innerText = "Gast";
+        }
+    }
 
     // --- ASSETS ---
     const SVG_SKI_BLUE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="35" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72" cy="50" r="7" fill="#3399ff"/></svg>`);
@@ -330,6 +407,10 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
     function startGame() {
         loader.style.display = 'none';
         resize();
+        
+        // --- INIT USER ---
+        initUserSession();
+
         activeObjects.push(createObject(TEMPLATES[0], canvas.width/2 - 50, canvas.height/2 - 50));
         activePlayerIndex = 0; 
         dockedObjects = TEMPLATES.slice(1);
@@ -574,21 +655,94 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
     canvas.addEventListener('touchend', e => { if(e.touches.length < 2) handleEnd(e); });
 
     const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, RotateLeft: false, RotateRight: false, ZoomIn: false, ZoomOut: false };
-    function bindBtn(id, k) {
-        const b = document.getElementById(id);
-        const s = (e) => { e.preventDefault(); keys[k] = true; };
-        const n = (e) => { e.preventDefault(); keys[k] = false; if (k === 'RotateLeft' || k === 'RotateRight') triggerSnap(activePlayerIndex); };
-        b.addEventListener('mousedown', s); b.addEventListener('mouseup', n); b.addEventListener('mouseleave', n);
-        b.addEventListener('touchstart', s, {passive:false}); b.addEventListener('touchend', n, {passive:false});
-    }
-    bindBtn('btnUp', 'ArrowUp'); bindBtn('btnDown', 'ArrowDown'); bindBtn('btnLeft', 'ArrowLeft'); bindBtn('btnRight', 'ArrowRight');
-
+    
     const btnColor = document.getElementById('btnColor');
     const colorAction = (e) => { e.preventDefault(); if (activePlayerIndex !== -1) cycleColor(activePlayerIndex); };
     btnColor.addEventListener('click', colorAction); btnColor.addEventListener('touchstart', colorAction, {passive: false});
 
+    // --- EXPORT FUNCTIONALITY (PNG) ---
+    function exportImage() {
+        const link = document.createElement('a'); 
+        link.download = `ski-sim-${Date.now()}.png`; 
+        link.href = canvas.toDataURL("image/png"); 
+        link.click();
+    }
+    
+    // --- SAVE FUNCTIONALITY (JSON) ---
+    function saveProject() {
+        // --- NEW FILENAME LOGIC (V97) ---
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}${mm}${dd}`;
+        
+        // Random 6-char key
+        const key = Math.random().toString(36).substring(2, 8);
+
+        const state = {
+            metadata: {
+                version: "98",
+                timestamp: now.toISOString(),
+                dateLocal: now.toLocaleString('de-AT'),
+                userAgent: navigator.userAgent,
+                creator: currentUser ? currentUser.name : "Unknown" // Save who created this
+            },
+            objects: activeObjects
+        };
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
+        const link = document.createElement('a');
+        link.href = dataStr;
+        // Apply filename pattern: skisim-projekt-<KEY>-YYYYMMDD.json
+        link.download = `skisim-projekt-${key}-${dateStr}.json`;
+        link.click();
+    }
+
+    // --- IMPORT FUNCTIONALITY (JSON) ---
+    function importProject() {
+        document.getElementById('fileInput').click();
+    }
+
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (data && data.objects && Array.isArray(data.objects)) {
+                    // Restore objects
+                    activeObjects = data.objects;
+                    // Reset State
+                    activePlayerIndex = -1;
+                    draggingPlayerIndex = -1;
+                    rotatingPlayerIndex = -1;
+                    console.log("Import erfolgreich. Objekte: " + activeObjects.length);
+                } else {
+                    alert("Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Fehler beim Lesen der Datei.");
+            }
+            // Reset input so same file can be selected again if needed
+            event.target.value = '';
+        };
+        reader.readAsText(file);
+    }
+
+    // Event Listeners for Buttons
+    document.getElementById('exportBtn').addEventListener('click', exportImage);
+    document.getElementById('saveBtn').addEventListener('click', saveProject);
+    document.getElementById('importBtn').addEventListener('click', importProject);
+    document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+
     window.addEventListener('keydown', e => {
-        if (e.key==='s'||e.key==='S') { document.getElementById('saveBtn').click(); return; }
+        if (e.key==='s'||e.key==='S') { saveProject(); return; } 
+        if (e.key==='e'||e.key==='E') { exportImage(); return; } 
+        if (e.key==='o'||e.key==='O') { importProject(); return; } 
+        
         if (e.code==='Tab') { 
             e.preventDefault(); 
             if(activeObjects.length > 0) {
@@ -622,8 +776,7 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
     span.onclick = function() { modal.style.display = "none"; }
     window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
 
-    document.getElementById('saveBtn').addEventListener('click', () => { const link = document.createElement('a'); link.download = `ski-sim-${Date.now()}.png`; link.href = canvas.toDataURL("image/png"); link.click(); });
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V92', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V98', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
@@ -680,6 +833,3 @@ Von der Ebene her liegt er auf der gleichen Höhe wie Bäume und Hindernisse (La
 </script>
 </body>
 </html>
-
-
-
