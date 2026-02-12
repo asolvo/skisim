@@ -1,33 +1,30 @@
-<!-- Skisim V98 -->
-<!-- Benutzerdaten aus Google Tabelle auslesen und simulierte Benutzerverwaltung 
-
+<!-- Skisim v105 -->
+<!-- Bugfix: immer noch keine Datenbankverbindung
 
 Apache V2 License
 2026-02-11
 Christian Klingler, asolvo 
 erstellt mit Google Gemini 3 Pro 
 
+Der neue Code (V105)
+Ich habe die URL im Code auf die stabile ID (1sQcJ...) umgestellt, die du mir ganz am Anfang gegeben hast.
 
-Die Neuerungen:
+Änderungen:
 
-Integrierte Benutzerdatenbank: Die User aus deinem Spreadsheet (Christian Klingler, Werner Senn, Peter Wirnsberger, Test User) sind nun fest im Code hinterlegt.
-https://docs.google.com/spreadsheets/d/1sQcJ1AKofuIMJVE-l2zFxA4-Lp0gGDp1iUtpp9rkFMk/edit?usp=sharing
+Stabile URL: Nutzt docs.google.com/spreadsheets/d/[ID]/export?format=csv. Das vermeidet Redirect-Fehler.
 
-User-Session: Beim Start wird die Anwendung automatisch mit dem Benutzer "Test User" initialisiert, wie gewünscht.
+Fallback: Wenn der Haupt-Proxy klemmt, probiert er automatisch einen zweiten Weg.
 
-Impressum-Update:
-* Das Impressum zeigt nun dynamisch an, wer gerade angemeldet ist.
-* neue Zeile: "Lizenziert für: Test User".
-* Die statischen Verantwortlichen bleiben bestehen.
-
+Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, ob es am Netzwerk liegt oder ob die Spaltennamen in der Tabelle nicht stimmen (z.B. wenn "Hash" nicht gefunden wird).
 -->
+
 
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V98 (User Management)</title>
+    <title>Ski-Simulation V105 (Stable DB)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -74,14 +71,32 @@ Impressum-Update:
         
         li { margin-bottom: 8px; font-size: 14px; color: #1A1B1F; line-height: 1.4; } 
 
-        /* VERSION INFO LINK */
+        /* FOOTER ROW IN UI (Version & Login) */
+        .ui-footer {
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            border-top: 1px solid #eee;
+            padding-top: 10px;
+        }
+
         #versionTrigger { 
-            margin-top: 12px; font-size: 12px; 
-            color: #007C89; 
+            color: #747579; 
             text-align: right; cursor: pointer; text-decoration: underline; 
             font-weight: 400;
         }
-        #versionTrigger:hover { color: #005a63; }
+        #versionTrigger:hover { color: #1A1B1F; }
+
+        #loginTrigger {
+            color: #007C89; 
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+        }
+        #loginTrigger:hover { text-decoration: underline; color: #005a63; }
+
 
         /* HEADER BUTTONS */
         .header-btn { 
@@ -148,12 +163,14 @@ Impressum-Update:
         
         #btnColor { width: 60px; font-size: 24px; }
 
-        /* IMPRESSUM MODAL */
+        /* IMPRESSUM & LOGIN MODALS */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
         .modal-content { background-color: #fefefe; margin: 15vh auto; padding: 20px; border: 1px solid #888; width: 85%; max-width: 400px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); font-family: 'Roboto', sans-serif; position: relative; animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from {transform: translateY(-20px); opacity: 0;} to {transform: translateY(0); opacity: 1;} }
+        
         .close-btn { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; position: absolute; right: 15px; top: 10px; }
         .close-btn:hover { color: #1A1B1F; }
+        
         .modal h3 { margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; color: #1A1B1F; font-family: 'Open Sans', sans-serif; }
         .modal-body { font-size: 14px; line-height: 1.6; color: #1A1B1F; }
         .modal-body strong { display: block; margin-top: 10px; color: #1A1B1F; }
@@ -166,6 +183,22 @@ Impressum-Update:
             margin-bottom: 15px;
             border-left: 4px solid #007C89;
         }
+        
+        .license-date {
+            font-size: 12px;
+            color: #747579;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .logout-link {
+            font-size: 12px;
+            color: #d9534f;
+            cursor: pointer;
+            margin-left: 10px;
+            text-decoration: underline;
+        }
+        .logout-link:hover { color: #c9302c; }
 
         .modal-link { 
             display: block; margin-top: 20px; text-align: center; 
@@ -173,6 +206,33 @@ Impressum-Update:
             text-decoration: none; font-weight: bold; border-top: 1px solid #eee; padding-top: 15px; 
         }
         .modal-link:hover { text-decoration: underline; color: #005a63; }
+
+        /* LOGIN FORM STYLES */
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; color: #1A1B1F; }
+        .form-group input { 
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; 
+            font-family: 'Roboto', sans-serif; font-size: 16px; box-sizing: border-box; 
+        }
+        .form-group input:focus { border-color: #007C89; outline: none; }
+        
+        .login-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
+        
+        .btn-primary { 
+            background-color: #007C89; color: white; border: none; padding: 10px 20px; 
+            border-radius: 6px; cursor: pointer; font-weight: bold; font-family: 'Roboto', sans-serif; 
+            min-width: 100px;
+        }
+        .btn-primary:hover { background-color: #005a63; }
+        .btn-primary:disabled { background-color: #ccc; cursor: not-allowed; }
+        
+        .btn-secondary { 
+            background-color: #eee; color: #333; border: none; padding: 10px 20px; 
+            border-radius: 6px; cursor: pointer; font-family: 'Roboto', sans-serif; 
+        }
+        .btn-secondary:hover { background-color: #ddd; }
+
+        .error-msg { color: #d9534f; font-size: 13px; margin-top: 5px; display: none; }
 
         @media (max-height: 500px) { .ui { display: none; } }
     </style>
@@ -185,11 +245,13 @@ Impressum-Update:
 
 <div id="impressumModal" class="modal">
     <div class="modal-content">
-        <span class="close-btn">&times;</span>
+        <span class="close-btn" onclick="closeModal('impressumModal')">&times;</span>
         <h3>ASI-Tirol Skisimulation</h3>
         <div class="modal-body">
             <div id="user-info-display">
-                Lizenziert für: <strong id="activeUserName">Lädt...</strong>
+                Lizenziert für: <strong id="activeUserName">Gast</strong>
+                <span class="license-date">Gültig bis: <span id="licenseExpiry">-</span></span>
+                <span id="logoutBtn" class="logout-link" style="display:none;" onclick="handleLogout()">(Abmelden)</span>
             </div>
 
             Verantwortlich für die Skisimulation (App):
@@ -201,6 +263,24 @@ Impressum-Update:
             6511 Zams, Austria
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
+    </div>
+</div>
+
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
+        <h3>Anmelden</h3>
+        <div class="modal-body">
+            <div class="form-group">
+                <label for="loginKey">Gib deinen Key (Passwort) ein:</label>
+                <input type="password" id="loginKey" placeholder="z.B. public">
+                <div id="loginError" class="error-msg">Key ungültig oder Verbindungsfehler.</div>
+            </div>
+            <div class="login-actions">
+                <button class="btn-secondary" onclick="closeModal('loginModal')">Abbrechen</button>
+                <button class="btn-primary" id="performLoginBtn">Anmelden</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -221,7 +301,10 @@ Impressum-Update:
             <li><strong>Speichern:</strong> Taste <span class="key-badge">s</span> (JSON) / <span class="key-badge">e</span> (Bild).</li>
             <li><strong>Import:</strong> Taste <span class="key-badge">o</span> (Öffnen).</li>
         </ul>
-        <div id="versionTrigger">v98 (Info)</div>
+        <div class="ui-footer">
+            <span id="loginTrigger">Anmelden</span>
+            <div id="versionTrigger">v105 (Info)</div>
+        </div>
     </div>
 </div>
 
@@ -254,32 +337,241 @@ Impressum-Update:
 <script>
     function toggleUI() { document.getElementById('instructionBox').classList.toggle('collapsed'); }
 
-    // --- USER MANAGEMENT (Simulated Backend) ---
-    // Datenquelle: "Benutzerverwaltung Skisim" Google Sheet
-    const USER_DB = [
-        { name: "Christian Klingler", email: "cklingler@gmail.com", role: "Administrator" },
-        { name: "Werner Senn", email: "werner.senn@alpinesicherheit.com", role: "Projektsponsor" },
-        { name: "Peter Wirnsberger", email: "peterwirnsberger@outlook.com", role: "Tester" },
-        { name: "Test User", email: "public test", role: "Anonymer Test User" }
-    ];
+    // --- GOOGLE SHEETS CONFIG (DIRECT ID) ---
+    // Dies ist die ID aus dem originalen Edit-Link. Funktioniert besser als 2PACX...
+    const SHEET_ID = "1sQcJ1AKofuIMJVE-l2zFxA4-Lp0gGDp1iUtpp9rkFMk";
+    
+    // Wir bauen die Export-URL direkt auf
+    const EXPORT_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
+    
+    // Proxy Options (Mit Fallback)
+    const PROXY_1 = "https://api.allorigins.win/raw?url=" + encodeURIComponent(EXPORT_URL);
+    const PROXY_2 = "https://corsproxy.io/?" + encodeURIComponent(EXPORT_URL);
 
-    // Current Session User
     let currentUser = null;
 
-    function initUserSession() {
-        // Set Default User as requested
-        const defaultUser = USER_DB.find(u => u.name === "Test User");
-        if (defaultUser) {
-            currentUser = defaultUser;
-            console.log("Angemeldet als:", currentUser.name);
-            document.getElementById('activeUserName').innerText = currentUser.name + " (" + currentUser.role + ")";
-        } else {
-            console.warn("Standard-Benutzer 'Test User' nicht gefunden.");
-            document.getElementById('activeUserName').innerText = "Gast";
+    // --- CRYPTO FUNCTIONS ---
+    async function sha256(message) {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        return hashHex;
+    }
+
+    // --- CSV PARSING ---
+    function parseCSV(text) {
+        const lines = text.trim().split(/\r?\n/);
+        if (lines.length < 2) return []; 
+        
+        // Remove potential BOM and quotes from header
+        const cleanHeader = lines[0].replace(/"/g, '');
+        const headers = cleanHeader.split(',').map(h => h.trim().toLowerCase());
+        
+        console.log("Gefundene Spalten:", headers); // Debug info
+
+        const users = [];
+
+        for (let i = 1; i < lines.length; i++) {
+            // Handle simple CSV splitting (assuming no commas in content for now)
+            // Advanced: Would need a proper CSV parser for quoted fields with commas
+            const line = lines[i];
+            if(!line.trim()) continue;
+
+            const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, '')); // Strip quotes
+            const user = {};
+            
+            headers.forEach((header, index) => {
+                if(values[index]) {
+                    if(header.includes('name')) user.name = values[index];
+                    else if(header.includes('role') || header.includes('rolle')) user.role = values[index];
+                    else if(header.includes('hash')) user.hash = values[index];
+                    else if(header.includes('valid') || header.includes('gültig')) user.validUntil = values[index];
+                }
+            });
+            if(user.hash) users.push(user);
+        }
+        return users;
+    }
+
+    // --- ROBUST FETCH HELPER ---
+    async function fetchWithFallback() {
+        // Time param to prevent caching
+        const t = "&t=" + Date.now();
+
+        try {
+            console.log("Versuche Proxy 1 (AllOrigins)...");
+            const r1 = await fetch(PROXY_1 + t);
+            if(r1.ok) return await r1.text();
+            throw new Error("Proxy 1 failed (" + r1.status + ")");
+        } catch(e) {
+            console.warn("Proxy 1 Fehler, versuche Proxy 2 (CorsProxy)...", e);
+            try {
+                const r2 = await fetch(PROXY_2 + t);
+                if(r2.ok) return await r2.text();
+                throw new Error("Proxy 2 failed (" + r2.status + ")");
+            } catch(e2) {
+                console.error("Alle Proxies fehlgeschlagen", e2);
+                throw new Error("Keine Verbindung zur Datenbank möglich. Prüfe Internet & Sheet-Freigabe.");
+            }
         }
     }
 
-    // --- ASSETS ---
+    // --- LOGIN HANDLER ---
+    async function handleLogin() {
+        const inputKey = document.getElementById('loginKey').value.trim();
+        const errorMsg = document.getElementById('loginError');
+        const loginBtn = document.getElementById('performLoginBtn');
+        
+        if (!inputKey) return;
+
+        loginBtn.innerText = "Prüfe...";
+        loginBtn.disabled = true;
+        errorMsg.style.display = 'none';
+
+        try {
+            // 1. Hash Input
+            const inputHash = await sha256(inputKey);
+            console.log("Suche Hash:", inputHash); 
+
+            // 2. Fetch DB via Multi-Proxy
+            const csvText = await fetchWithFallback();
+            
+            // 3. Parse DB
+            const users = parseCSV(csvText);
+            
+            if(users.length === 0) {
+                throw new Error("Tabelle scheint leer zu sein oder falsches Format.");
+            }
+
+            // Check if 'hash' column was actually found
+            if(!users[0].hasOwnProperty('hash')) {
+                throw new Error("Spalte 'Hash' in Tabelle nicht gefunden.");
+            }
+            
+            // 4. Find User
+            const foundUser = users.find(u => u.hash === inputHash);
+
+            if (foundUser) {
+                currentUser = foundUser;
+                console.log("Login erfolgreich:", currentUser.name);
+                updateUserDisplay();
+                
+                const loginTrigger = document.getElementById('loginTrigger');
+                loginTrigger.innerText = "Angemeldet: " + currentUser.name.split(' ')[0];
+                loginTrigger.style.color = "#28a745"; 
+                loginTrigger.onclick = null; 
+                
+                closeModal('loginModal');
+                document.getElementById('loginKey').value = ''; 
+            } else {
+                errorMsg.innerText = "Key ungültig (Passwort falsch).";
+                errorMsg.style.display = 'block';
+            }
+
+        } catch (e) {
+            console.error(e);
+            errorMsg.innerText = e.message;
+            errorMsg.style.display = 'block';
+        } finally {
+            loginBtn.innerText = "Anmelden";
+            loginBtn.disabled = false;
+        }
+    }
+
+    function handleLogout() {
+        console.log("Benutzer abgemeldet.");
+        currentUser = null;
+        updateUserDisplay();
+
+        const loginTrigger = document.getElementById('loginTrigger');
+        loginTrigger.innerText = "Anmelden";
+        loginTrigger.style.color = "#007C89";
+        loginTrigger.onclick = function() { 
+            if(!currentUser) {
+                openModal("loginModal"); 
+                document.getElementById('loginKey').focus();
+            }
+        };
+    }
+
+    function updateUserDisplay() {
+        const logoutBtn = document.getElementById('logoutBtn');
+        if(currentUser) {
+            document.getElementById('activeUserName').innerText = (currentUser.name || "User") + " (" + (currentUser.role || "User") + ")";
+            document.getElementById('licenseExpiry').innerText = currentUser.validUntil || "Unbekannt";
+            logoutBtn.style.display = 'inline';
+        } else {
+            document.getElementById('activeUserName').innerText = "Gast (Nicht angemeldet)";
+            document.getElementById('licenseExpiry').innerText = "-";
+            logoutBtn.style.display = 'none';
+        }
+    }
+
+    // --- MODAL LOGIC ---
+    const impressumModal = document.getElementById("impressumModal");
+    const loginModal = document.getElementById("loginModal");
+
+    function openModal(id) { document.getElementById(id).style.display = "block"; }
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
+
+    document.getElementById("versionTrigger").onclick = function() { openModal("impressumModal"); }
+    
+    document.getElementById("loginTrigger").onclick = function() { 
+        if(!currentUser) {
+            openModal("loginModal"); 
+            document.getElementById('loginKey').focus();
+        }
+    }
+
+    document.getElementById('performLoginBtn').addEventListener('click', handleLogin);
+    
+    document.getElementById('loginKey').addEventListener('keyup', function(event) {
+        if (event.key === "Enter") { handleLogin(); }
+    });
+
+    window.onclick = function(event) {
+        if (event.target == impressumModal) closeModal("impressumModal");
+        if (event.target == loginModal) closeModal("loginModal");
+    }
+
+    // --- SHORTCUTS & BUGFIX ---
+    window.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        if (e.key==='s'||e.key==='S') { saveProject(); return; } 
+        if (e.key==='e'||e.key==='E') { exportImage(); return; } 
+        if (e.key==='o'||e.key==='O') { importProject(); return; } 
+        
+        if (e.code==='Tab') { 
+            e.preventDefault(); 
+            if(activeObjects.length > 0) {
+                if (activePlayerIndex === -1) activePlayerIndex = 0; 
+                else { activePlayerIndex++; if(activePlayerIndex >= activeObjects.length) activePlayerIndex = -1; }
+            }
+            return; 
+        }
+        if (activePlayerIndex === -1) return;
+        if (e.key==='Enter') { openTextEditor(activeObjects[activePlayerIndex]); return; }
+        if (e.key === 'c' || e.key === 'C') { cycleColor(activePlayerIndex); return; }
+        if (e.key === 'Delete' || e.key === 'Del') { returnToDock(activePlayerIndex); return; }
+        if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
+        if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=true;
+        if(e.key==='+') keys['ZoomIn']=true; if(e.key==='-') keys['ZoomOut']=true;
+    });
+    
+    window.addEventListener('keyup', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        if (activePlayerIndex === -1) return;
+        if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä')) triggerSnap(activePlayerIndex);
+        if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
+        if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=false; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=false;
+        if(e.key==='+') keys['ZoomIn']=false; if(e.key==='-') keys['ZoomOut']=false;
+    });
+
+    // --- ASSETS & GAME LOOP (unchanged) ---
+    // (Assets and Loop same as before)
     const SVG_SKI_BLUE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="35" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="30" y="33" width="40" height="34" rx="12" fill="#3399ff" stroke="#0056b3" stroke-width="2"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="50" r="7" fill="#3399ff"/><circle cx="72" cy="50" r="7" fill="#3399ff"/></svg>`);
     const SVG_SKI_GREEN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect x="35" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="5" width="12" height="90" rx="5" fill="#333"/><rect x="29.96" y="34.32" width="40.08" height="31.37" rx="12.02" fill="#669966" stroke="#5c895c" stroke-width="1.92"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="39.67" y="42" width="20.65" height="10" rx="2.58" fill="#333"/><rect x="41.12" y="44" width="17.77" height="6" rx="1.78" fill="#87ceeb"/><line x1="28" y1="50" x2="25" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="50" x2="75" y2="70" stroke="black" stroke-width="2" stroke-linecap="round"/><circle cx="29.27" cy="50" r="7" fill="#669966"/><circle cx="70.88" cy="50.16" r="7" fill="#669966"/></svg>`);
     const SVG_SKI_LEFT_SHOULDER = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g transform="matrix(-1,0,0,1,100,0)"><rect x="35" y="7" width="12" height="90" rx="5" fill="#333"/><rect x="53" y="3" width="12" height="90" rx="5" fill="#333"/><rect x="20.98" y="40.87" width="40" height="31.6" rx="12" fill="#669966" stroke="#228B22" stroke-width="1.93" transform="matrix(0.99,-0.14,0.17,0.99,0,0)"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="34.63" y="48.42" width="20.14" height="9.98" rx="2.52" fill="#333" transform="matrix(0.99,-0.15,0.10,0.99,0,0)"/><rect x="36.09" y="50.31" width="17.04" height="5.99" rx="1.70" fill="#87ceeb" transform="matrix(0.99,-0.15,0.11,0.99,0,0)"/><line x1="28" y1="54" x2="25" y2="74" stroke="#000" stroke-width="2" stroke-linecap="round"/><line x1="72" y1="44" x2="75" y2="64" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="28" cy="54" r="7" fill="#669966"/><circle cx="72" cy="44" r="7" fill="#669966"/></g></svg>`);
@@ -408,8 +700,8 @@ Impressum-Update:
         loader.style.display = 'none';
         resize();
         
-        // --- INIT USER ---
-        initUserSession();
+        // Init as Guest
+        updateUserDisplay();
 
         activeObjects.push(createObject(TEMPLATES[0], canvas.width/2 - 50, canvas.height/2 - 50));
         activePlayerIndex = 0; 
@@ -670,30 +962,27 @@ Impressum-Update:
     
     // --- SAVE FUNCTIONALITY (JSON) ---
     function saveProject() {
-        // --- NEW FILENAME LOGIC (V97) ---
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
         const dd = String(now.getDate()).padStart(2, '0');
         const dateStr = `${yyyy}${mm}${dd}`;
         
-        // Random 6-char key
         const key = Math.random().toString(36).substring(2, 8);
 
         const state = {
             metadata: {
-                version: "98",
+                version: "105",
                 timestamp: now.toISOString(),
                 dateLocal: now.toLocaleString('de-AT'),
                 userAgent: navigator.userAgent,
-                creator: currentUser ? currentUser.name : "Unknown" // Save who created this
+                creator: currentUser ? currentUser.name : "Unknown" 
             },
             objects: activeObjects
         };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
         const link = document.createElement('a');
         link.href = dataStr;
-        // Apply filename pattern: skisim-projekt-<KEY>-YYYYMMDD.json
         link.download = `skisim-projekt-${key}-${dateStr}.json`;
         link.click();
     }
@@ -739,6 +1028,9 @@ Impressum-Update:
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
     window.addEventListener('keydown', e => {
+        // --- BUGFIX V101: BLOCK SHORTCUTS WHEN TYPING ---
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
         if (e.key==='s'||e.key==='S') { saveProject(); return; } 
         if (e.key==='e'||e.key==='E') { exportImage(); return; } 
         if (e.key==='o'||e.key==='O') { importProject(); return; } 
@@ -761,6 +1053,9 @@ Impressum-Update:
     });
     
     window.addEventListener('keyup', e => {
+        // Same check here to avoid getting stuck keys
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
         if (activePlayerIndex === -1) return;
         if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä')) triggerSnap(activePlayerIndex);
         if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
@@ -776,7 +1071,7 @@ Impressum-Update:
     span.onclick = function() { modal.style.display = "none"; }
     window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V98', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V105', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
