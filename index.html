@@ -1,19 +1,20 @@
-<!-- Skisim v110 -->
-<!-- Änderung: Gast-Limit – ohne Lizenz nur 1 Personen-Figur auf dem Canvas
+<!-- Skisim v111 -->
+<!-- Bugfix: Text-/Vektor-Bearbeitung über eigenen Dialog (statt prompt)
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Änderung gegenüber v109:
-- Gäste (ohne Lizenz) können nur 1 Personen-Figur gleichzeitig setzen
-  (Skifahrer, Pflugfahrer, Snowboarder, Rodler, Verletzte zusammen max. 1).
-  Ist das Limit erreicht, werden die betroffenen Dock-Objekte ausgegraut und
-  sind nicht mehr ziehbar. Mit aktiver Lizenz: unbegrenzt.
-  (Client: PERSON_ASSETS + guestPersonLimitReached(); renderDock() sperrt Items.)
+Änderung gegenüber v110:
+- Text-Objekte und Geschwindigkeits-Vektoren werden jetzt über einen eingebauten
+  Dialog (Eingabefeld + OK/Abbrechen) bearbeitet, nicht mehr über das native
+  prompt(). prompt() wird von modernen Browsern (v.a. Tablets/eingebettet) oft
+  blockiert – dadurch ließ sich Text/Geschwindigkeit nicht mehr ändern.
+- Bestätigt: Beim App-Start wird weiterhin 1 Skifahrer (blau) aktiv gesetzt,
+  sodass Gäste trotz gesperrtem Dock sofort eine Figur haben.
 
-Verlauf: v106 = alter Login entfernt, v107 = Token-Lizenzierung,
-         v108 = "Gültig bis" = Lizenz-Enddatum, v109 = gesperrte Funktionen ausgegraut.
+Verlauf: v107 = Token-Lizenzierung, v108 = Lizenz-Enddatum,
+         v109 = gesperrte Funktionen ausgegraut, v110 = Gast-Limit (1 Person).
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -23,7 +24,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V110</title>
+    <title>Ski-Simulation V111</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -287,6 +288,23 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     </div>
 </div>
 
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeEdit()">&times;</span>
+        <h3>Bearbeiten</h3>
+        <div class="modal-body">
+            <div class="form-group">
+                <label id="editLabel" for="editInput">Text ändern:</label>
+                <input type="text" id="editInput" autocomplete="off">
+            </div>
+            <div class="login-actions">
+                <button class="btn-secondary" onclick="closeEdit()">Abbrechen</button>
+                <button class="btn-primary" id="editOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="ui" id="instructionBox">
     <div class="ui-header" onclick="toggleUI()">
         <h2>Ski-Simulation</h2>
@@ -306,7 +324,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         </ul>
         <div class="ui-footer">
             <span id="licenseTrigger">Lizenz aktivieren</span>
-            <div id="versionTrigger">v110 (Info)</div>
+            <div id="versionTrigger">v111 (Info)</div>
         </div>
     </div>
 </div>
@@ -513,6 +531,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     window.onclick = function (event) {
         if (event.target == impressumModal) closeModal("impressumModal");
         if (event.target == document.getElementById("licenseModal")) closeModal("licenseModal");
+        if (event.target == document.getElementById("editModal")) closeEdit();
     };
 
     // --- SHORTCUTS & BUGFIX ---
@@ -837,25 +856,42 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         }
     }
 
+    // v111: Bearbeitung über eigenen Dialog statt prompt() (prompt wird oft blockiert)
+    let editTarget = null, editMode = null;
     function openTextEditor(p) {
-        if (!p) return;
+        if (!p || (p.type !== 'text' && p.type !== 'velocity')) return;
+        editTarget = p; editMode = p.type;
+        const label = document.getElementById('editLabel');
+        const input = document.getElementById('editInput');
         if (p.type === 'text') {
-            const nt = prompt("Text ändern:", p.text);
-            if(nt !== null) { 
-                p.text = nt; 
-                ctx.font = 'bold ' + p.height + 'px Arial';
-                const m = ctx.measureText(nt);
-                p.width = m.width + 20; 
-            }
-        } else if (p.type === 'velocity') {
-            const nt = prompt("Geschwindigkeit in km/h:", "");
-            if (nt !== null && !isNaN(parseFloat(nt))) {
-                const kmh = parseFloat(nt);
+            label.innerText = 'Text ändern:';
+            input.type = 'text'; input.value = p.text || '';
+        } else {
+            label.innerText = 'Geschwindigkeit in km/h:';
+            input.type = 'number'; input.value = '';
+        }
+        openModal('editModal');
+        setTimeout(function () { input.focus(); input.select(); }, 30);
+    }
+    function applyEdit() {
+        const input = document.getElementById('editInput');
+        const val = input.value;
+        if (editTarget && editMode === 'text') {
+            editTarget.text = val;
+            ctx.font = 'bold ' + editTarget.height + 'px Arial';
+            editTarget.width = ctx.measureText(val).width + 20;
+        } else if (editTarget && editMode === 'velocity') {
+            if (val !== '' && !isNaN(parseFloat(val))) {
+                const kmh = parseFloat(val);
                 const ms = (kmh / 3.6).toFixed(1).replace('.', ',');
-                p.text = kmh + " km/h (" + ms + " m/s)";
+                editTarget.text = kmh + " km/h (" + ms + " m/s)";
             }
         }
+        closeEdit();
     }
+    function closeEdit() { closeModal('editModal'); editTarget = null; editMode = null; }
+    document.getElementById('editOkBtn').addEventListener('click', applyEdit);
+    document.getElementById('editInput').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); applyEdit(); } });
 
     function getTouchDist(t1, t2) { return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY); }
     function getTouchAngle(t1, t2) { return Math.atan2(t1.clientY - t2.clientY, t1.clientX - t2.clientX); }
@@ -1021,7 +1057,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V110', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V111', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
