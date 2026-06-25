@@ -1,19 +1,20 @@
-<!-- Skisim v112 -->
-<!-- Neu: Objekt "Bemaßung" (Maßlinie mit Beschriftung)
+<!-- Skisim v113 -->
+<!-- Responsive & Touch: mobile Bedienbarkeit (3 kritische Punkte)
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Neu in v112:
-- Neuer Objekttyp "Bemaßung": Maßlinie mit Maßhilfslinien, Pfeilen und Maßzahl.
-  Beschriftung als Freitext editierbar (Doppelklick/Enter), Farbe umschaltbar (c).
-- Sonderverhalten beim Skalieren: nur die Länge ändert sich, die Höhe (Pfeile,
-  Maßhilfslinien, Text) bleibt fix – greift bei Mausrad, +/- und 2-Finger-Geste.
-- Prozedural gezeichnet (wie Vektor); Dock-Vorschau als SVG.
+Behoben in v113 (Mobil/Touch):
+- Layout responsiv (Media-Query <=760px): kompaktes Panel oben links
+  (eingeklappt), kleinere Toolbar-Buttons rechts ohne Überlappung.
+- Objekt-Dock auf Mobil als untere, horizontal scrollbare Leiste; alle
+  Objekte erreichbar.
+- Dock per Touch nutzbar: Scrollen funktioniert, Objekt per Tap hinzufügen
+  (touch-action der Items gelöst, kein Drag-Blocker mehr). Maus-Drag bleibt.
 
-Verlauf: v108 = Lizenz-Enddatum, v109 = gesperrte Funktionen ausgegraut,
-         v110 = Gast-Limit (1 Person), v111 = Bearbeiten via Dialog.
+Verlauf: v109 = Funktionen ausgegraut, v110 = Gast-Limit, v111 = Edit-Dialog,
+         v112 = Bemaßung.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -23,7 +24,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V112</title>
+    <title>Ski-Simulation V113</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -131,7 +132,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             display: flex; flex-direction: column; gap: 20px; align-items: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.15); z-index: 20;
             transition: background 0.2s, transform 0.2s;
-            max-height: 80vh; overflow-y: auto;
+            max-height: 80vh; overflow-y: auto; touch-action: pan-y;
         }
         #dock:hover { background: rgba(255,255,255,1); transform: scale(1.02); }
         
@@ -145,7 +146,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         .dock-item {
             width: 70px; height: 70px; border: 2px dashed #ccc; border-radius: 10px;
             cursor: grab; display: flex; justify-content: center; align-items: center;
-            background: #f9f9f9; touch-action: none; position: relative; flex-shrink: 0;
+            background: #f9f9f9; touch-action: auto; position: relative; flex-shrink: 0;
         }
         .dock-item:active { cursor: grabbing; border-color: #007C89; background: #eef; }
         .dock-item.locked { opacity: 0.35; cursor: not-allowed; }
@@ -238,6 +239,36 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         .error-msg { color: #d9534f; font-size: 13px; margin-top: 5px; display: none; }
 
         @media (max-height: 500px) { .ui { display: none; } }
+
+        /* v113: Mobiles Layout (Smartphone) */
+        @media (max-width: 760px) {
+            /* Panel kompakt oben links (eingeklappt: nur Kopf) */
+            .ui { width: auto; max-width: 72vw; }
+            .ui:not(.collapsed) { max-width: 88vw; }
+            .ui-header { padding: 12px 14px; gap: 10px; }
+            .ui-header h2 { display: none; }
+            .ui-header::before { content: 'ℹ Hilfe'; font-family: 'Open Sans', sans-serif; font-weight: 600; font-size: 15px; color: #1A1B1F; }
+
+            /* Toolbar-Buttons: kleiner, rechtsbündig, ohne Panel-Überlappung */
+            .header-btn { width: 42px; height: 42px; font-size: 20px; }
+            #importBtn { right: 12px; }
+            #saveBtn   { right: 60px; }
+            #exportBtn { right: 108px; }
+            #shareBtn  { right: 156px; }
+
+            /* Dock: untere, horizontal scrollbare Leiste */
+            #dock {
+                top: auto; bottom: 0; left: 0; right: 0; width: auto;
+                flex-direction: row; gap: 12px; padding: 8px 10px; align-items: center;
+                max-height: none; height: 88px; border-radius: 0;
+                overflow-x: auto; overflow-y: hidden; touch-action: pan-x;
+            }
+            #dock:hover { transform: none; }
+            .dock-title { display: none; }
+
+            /* Farb-Button über das Dock heben */
+            #gamepad { bottom: 120px; }
+        }
     </style>
 </head>
 <body>
@@ -323,7 +354,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         </ul>
         <div class="ui-footer">
             <span id="licenseTrigger">Lizenz aktivieren</span>
-            <div id="versionTrigger">v112 (Info)</div>
+            <div id="versionTrigger">v113 (Info)</div>
         </div>
     </div>
 </div>
@@ -709,6 +740,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         activePlayerIndex = 0; 
         dockedObjects = TEMPLATES.slice(1);
         renderDock();
+        if (window.innerWidth <= 760) document.getElementById('instructionBox').classList.add('collapsed'); // v113: Panel auf Mobil eingeklappt starten
         requestAnimationFrame(drawLoop);
     }
 
@@ -760,11 +792,31 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                 el.classList.add('locked');
                 el.title = 'Als Gast nur 1 Figur möglich – Lizenz aktivieren für mehr';
             } else {
-                const startHandler = (e) => handleDockDragStart(e, tpl, index);
-                el.addEventListener('mousedown', startHandler); el.addEventListener('touchstart', startHandler, {passive: false});
+                // Maus: Drag-and-Drop wie bisher
+                el.addEventListener('mousedown', (e) => handleDockDragStart(e, tpl, index));
+                // Touch (v113): Tap fügt hinzu, Wischen scrollt das Dock (kein Drag-Blocker)
+                let tStart = null;
+                el.addEventListener('touchstart', (e) => { const t = e.touches[0]; tStart = { x: t.clientX, y: t.clientY, time: Date.now() }; }, { passive: true });
+                el.addEventListener('touchend', (e) => {
+                    if (!tStart) return;
+                    const t = e.changedTouches[0];
+                    const moved = Math.hypot(t.clientX - tStart.x, t.clientY - tStart.y);
+                    const quick = (Date.now() - tStart.time) < 600;
+                    tStart = null;
+                    if (moved < 12 && quick) { e.preventDefault(); addObjectFromDock(tpl, index); }
+                }, { passive: false });
             }
             dockContainer.appendChild(el);
         });
+    }
+
+    // v113: Objekt per Tap aus dem Dock in die Canvas-Mitte hinzufügen (Touch)
+    function addObjectFromDock(tpl, index) {
+        const x = canvas.width / 2 - tpl.width / 2, y = canvas.height / 2 - tpl.height / 2;
+        activeObjects.push(createObject(tpl, x, y));
+        if (!isInfiniteResource(tpl)) dockedObjects.splice(index, 1);
+        renderDock();
+        activePlayerIndex = activeObjects.length - 1;
     }
 
     function handleDockDragStart(e, tpl, index) {
@@ -1068,7 +1120,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V112', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V113', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
