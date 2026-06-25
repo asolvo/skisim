@@ -1,18 +1,18 @@
-<!-- Skisim v108 -->
-<!-- Bugfix: "Gültig bis" zeigt jetzt das Lizenz-Enddatum statt der Token-Frist
+<!-- Skisim v109 -->
+<!-- Änderung: Nicht lizenzierte Funktionen sind ausgegraut und nicht klickbar
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Änderung gegenüber v107:
-- Das Token enthält jetzt das Lizenz-Enddatum (Feld "vu" = validUntil).
-  Die Anzeige "Gültig bis" im Impressum zeigt dieses Datum (z.B. 25.06.2028)
-  statt des technischen 30-Tage-Token-Ablaufs.
-  (Worker: "vu" im Token-Payload; Client: Anzeige nutzt license.vu.)
+Änderung gegenüber v108:
+- Die Buttons für Export (PNG), Speichern (JSON) und Teilen werden deaktiviert
+  und ausgegraut, wenn die jeweilige Funktion nicht in der Lizenz enthalten ist.
+  So sieht der Nutzer sofort, welche Funktionen seine Lizenz freischaltet.
+  (Client: setGate() in updateLicenseUI setzt button.disabled je nach hasFeature.)
 
-Verlauf: v106 = alter Google-Sheet-/Proxy-Login entfernt,
-         v107 = neue Token-Lizenzierung (signierte ES256-Tokens via Cloudflare Worker).
+Verlauf: v106 = alter Login entfernt, v107 = Token-Lizenzierung,
+         v108 = "Gültig bis" zeigt Lizenz-Enddatum.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -22,7 +22,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V108</title>
+    <title>Ski-Simulation V109</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -107,6 +107,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         }
         .header-btn:hover { background: #f8f9fa; transform: scale(1.05); }
         .header-btn:active { transform: scale(0.95); background: #e9ecef; }
+        .header-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .header-btn:disabled:hover { background: white; transform: none; }
         
         /* Button Positioning */
         #importBtn { right: 125px; }  
@@ -301,7 +303,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         </ul>
         <div class="ui-footer">
             <span id="licenseTrigger">Lizenz aktivieren</span>
-            <div id="versionTrigger">v108 (Info)</div>
+            <div id="versionTrigger">v109 (Info)</div>
         </div>
     </div>
 </div>
@@ -435,6 +437,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // ----- UI -----
     function fmtDate(epoch) { try { return new Date(epoch * 1000).toLocaleDateString("de-AT"); } catch (e) { return "-"; } }
     function fmtIsoDate(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s)); return m ? m[3] + "." + m[2] + "." + m[1] : String(s); }
+    function setGate(btnId, ok, labelOn, labelOff) {
+        const b = document.getElementById(btnId);
+        if (!b) return;
+        b.disabled = !ok;
+        b.title = ok ? labelOn : labelOff;
+    }
     function updateLicenseUI() {
         const trig = document.getElementById("licenseTrigger");
         const nameEl = document.getElementById("activeUserName");
@@ -453,6 +461,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             expEl.innerText = "-";
             logoutBtn.style.display = "none";
         }
+        // v109: nicht lizenzierte Funktionen ausgrauen + nicht klickbar
+        setGate("exportBtn", hasFeature("export"), "Bild exportieren (PNG)", "Export – mit deiner Lizenz nicht aktiv");
+        setGate("saveBtn",   hasFeature("save"),   "Projekt speichern (JSON)", "Speichern – mit deiner Lizenz nicht aktiv");
+        setGate("shareBtn",  hasFeature("share"),  "Teilen", "Teilen – mit deiner Lizenz nicht aktiv");
     }
     async function initLicense() {
         const token = localStorage.getItem(LS_TOKEN);
@@ -993,7 +1005,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V108', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V109', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
