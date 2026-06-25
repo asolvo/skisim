@@ -1,0 +1,6 @@
+node_modules/
+.wrangler/
+# NIEMALS committen: privater Signaturschluessel
+signing_key.pkcs8.b64
+# Lizenzschluessel (sensibel) – Liste der ausgegebenen Keys
+lizenzschluessel.csv

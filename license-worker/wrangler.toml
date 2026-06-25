@@ -1,0 +1,9 @@
+name = "skisim-license"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+account_id = "883b680a948752c5f090389ec87f5c43"
+
+# KV-Namespace fuer Lizenz-Datensaetze (ID wird nach dem Erstellen eingetragen)
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "6a82821eea0b419aaee67558fb1b1063"

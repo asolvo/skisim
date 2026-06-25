@@ -1,0 +1,11 @@
+{
+  "name": "skisim-license-worker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Signed ES256 license-token issuer for the Ski-Simulation app",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "keygen": "node gen-keys.cjs"
+  }
+}
