@@ -1,18 +1,19 @@
-<!-- Skisim v109 -->
-<!-- Änderung: Nicht lizenzierte Funktionen sind ausgegraut und nicht klickbar
+<!-- Skisim v110 -->
+<!-- Änderung: Gast-Limit – ohne Lizenz nur 1 Personen-Figur auf dem Canvas
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Änderung gegenüber v108:
-- Die Buttons für Export (PNG), Speichern (JSON) und Teilen werden deaktiviert
-  und ausgegraut, wenn die jeweilige Funktion nicht in der Lizenz enthalten ist.
-  So sieht der Nutzer sofort, welche Funktionen seine Lizenz freischaltet.
-  (Client: setGate() in updateLicenseUI setzt button.disabled je nach hasFeature.)
+Änderung gegenüber v109:
+- Gäste (ohne Lizenz) können nur 1 Personen-Figur gleichzeitig setzen
+  (Skifahrer, Pflugfahrer, Snowboarder, Rodler, Verletzte zusammen max. 1).
+  Ist das Limit erreicht, werden die betroffenen Dock-Objekte ausgegraut und
+  sind nicht mehr ziehbar. Mit aktiver Lizenz: unbegrenzt.
+  (Client: PERSON_ASSETS + guestPersonLimitReached(); renderDock() sperrt Items.)
 
 Verlauf: v106 = alter Login entfernt, v107 = Token-Lizenzierung,
-         v108 = "Gültig bis" zeigt Lizenz-Enddatum.
+         v108 = "Gültig bis" = Lizenz-Enddatum, v109 = gesperrte Funktionen ausgegraut.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -22,7 +23,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V109</title>
+    <title>Ski-Simulation V110</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -147,6 +148,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             background: #f9f9f9; touch-action: none; position: relative; flex-shrink: 0;
         }
         .dock-item:active { cursor: grabbing; border-color: #007C89; background: #eef; }
+        .dock-item.locked { opacity: 0.35; cursor: not-allowed; }
+        .dock-item.locked:active { cursor: not-allowed; border-color: #ccc; background: #f9f9f9; }
         .dock-item img { pointer-events: none; width: 100%; height: 100%; object-fit: contain; }
         .color-box { width: 40px !important; height: 50px !important; display: block; margin: auto; border: 1px solid #999; }
         .text-preview { font-family: 'Roboto', sans-serif; font-weight: bold; font-size: 20px; color: #1A1B1F; pointer-events: none; }
@@ -303,7 +306,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         </ul>
         <div class="ui-footer">
             <span id="licenseTrigger">Lizenz aktivieren</span>
-            <div id="versionTrigger">v109 (Info)</div>
+            <div id="versionTrigger">v110 (Info)</div>
         </div>
     </div>
 </div>
@@ -465,6 +468,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setGate("exportBtn", hasFeature("export"), "Bild exportieren (PNG)", "Export – mit deiner Lizenz nicht aktiv");
         setGate("saveBtn",   hasFeature("save"),   "Projekt speichern (JSON)", "Speichern – mit deiner Lizenz nicht aktiv");
         setGate("shareBtn",  hasFeature("share"),  "Teilen", "Teilen – mit deiner Lizenz nicht aktiv");
+        renderDock(); // v110: Dock-Limit (Gast = 1 Personen-Figur) aktualisieren
     }
     async function initLicense() {
         const token = localStorage.getItem(LS_TOKEN);
@@ -707,6 +711,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         return null;
     }
 
+    // v110: Gast (ohne Lizenz) darf nur 1 Personen-Figur gleichzeitig setzen
+    const PERSON_ASSETS = ['skiBlue','skiGreen','skiLeftShoulder','skiRightShoulder','skiPlow','boarder','sled','injured'];
+    function isPersonTpl(tpl) { return tpl && tpl.type === 'sprite' && PERSON_ASSETS.includes(tpl.assetKey); }
+    function personCount() { return activeObjects.filter(o => isPersonTpl(o)).length; }
+    function guestPersonLimitReached() { return !license && personCount() >= 1; }
+
     function renderDock() {
         dockContainer.innerHTML = '<div class="dock-title">Objekte</div>';
         dockedObjects.forEach((tpl, index) => {
@@ -723,8 +733,13 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             } else if (tpl.type === 'rect') {
                 const box = document.createElement('div'); box.className = 'color-box'; box.style.background = tpl.color; el.appendChild(box); 
             }
-            const startHandler = (e) => handleDockDragStart(e, tpl, index);
-            el.addEventListener('mousedown', startHandler); el.addEventListener('touchstart', startHandler, {passive: false});
+            if (isPersonTpl(tpl) && guestPersonLimitReached()) {
+                el.classList.add('locked');
+                el.title = 'Als Gast nur 1 Figur möglich – Lizenz aktivieren für mehr';
+            } else {
+                const startHandler = (e) => handleDockDragStart(e, tpl, index);
+                el.addEventListener('mousedown', startHandler); el.addEventListener('touchstart', startHandler, {passive: false});
+            }
             dockContainer.appendChild(el);
         });
     }
@@ -986,6 +1001,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                     draggingPlayerIndex = -1;
                     rotatingPlayerIndex = -1;
                     console.log("Import erfolgreich. Objekte: " + activeObjects.length);
+                    renderDock(); // v110: Dock-Limit nach Import aktualisieren
                 } else {
                     alert("Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.");
                 }
@@ -1005,7 +1021,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V109', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V110', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
