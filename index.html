@@ -1,21 +1,20 @@
-<!-- Skisim v105 -->
-<!-- Bugfix: immer noch keine Datenbankverbindung
+<!-- Skisim v107 -->
+<!-- Änderung: Neues Lizenzverfahren (signierte Tokens via Cloudflare Worker)
 
 Apache V2 License
-2026-02-11
-Christian Klingler, asolvo 
-erstellt mit Google Gemini 3 Pro 
+2026-06-24
+Christian Klingler, asolvo
 
-Der neue Code (V105)
-Ich habe die URL im Code auf die stabile ID (1sQcJ...) umgestellt, die du mir ganz am Anfang gegeben hast.
+Neu in v107 (Teil B):
+- Aktivierung über Lizenzschlüssel gegen Cloudflare Worker (/activate), Token im localStorage
+- Lokale Verifikation der ES256-Signatur mit eingebettetem Public Key (kein Fremd-Proxy mehr)
+- 30-Tage-Token, Offline-Nutzung bis Ablauf; stiller Refresh (/refresh) ab 7 Tagen, fängt Widerruf ab
+- Granulares Feature-Gating: Export (PNG), Speichern (JSON) und Teilen nur mit passender Lizenz
+- Lizenz-Dialog + Statusanzeige/Abmeldung im Impressum
+- Aufräumen: doppelte keydown-Listener und doppelte Impressum-Logik entfernt
 
-Änderungen:
-
-Stabile URL: Nutzt docs.google.com/spreadsheets/d/[ID]/export?format=csv. Das vermeidet Redirect-Fehler.
-
-Fallback: Wenn der Haupt-Proxy klemmt, probiert er automatisch einen zweiten Weg.
-
-Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, ob es am Netzwerk liegt oder ob die Spaltennamen in der Tabelle nicht stimmen (z.B. wenn "Hash" nicht gefunden wird).
+In v106 wurde der alte Google-Sheet-/Proxy-Login entfernt.
+Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
 
@@ -24,7 +23,7 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V105 (Stable DB)</title>
+    <title>Ski-Simulation V107</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -251,7 +250,7 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
             <div id="user-info-display">
                 Lizenziert für: <strong id="activeUserName">Gast</strong>
                 <span class="license-date">Gültig bis: <span id="licenseExpiry">-</span></span>
-                <span id="logoutBtn" class="logout-link" style="display:none;" onclick="handleLogout()">(Abmelden)</span>
+                <span id="logoutBtn" class="logout-link" style="display:none;" onclick="deactivateLicense()">(Lizenz entfernen)</span>
             </div>
 
             Verantwortlich für die Skisimulation (App):
@@ -266,19 +265,19 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
     </div>
 </div>
 
-<div id="loginModal" class="modal">
+<div id="licenseModal" class="modal">
     <div class="modal-content">
-        <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
-        <h3>Anmelden</h3>
+        <span class="close-btn" onclick="closeModal('licenseModal')">&times;</span>
+        <h3>Lizenz aktivieren</h3>
         <div class="modal-body">
             <div class="form-group">
-                <label for="loginKey">Gib deinen Key (Passwort) ein:</label>
-                <input type="password" id="loginKey" placeholder="z.B. public">
-                <div id="loginError" class="error-msg">Key ungültig oder Verbindungsfehler.</div>
+                <label for="licenseKey">Lizenzschlüssel eingeben:</label>
+                <input type="text" id="licenseKey" placeholder="z.B. ASI-XXXX-XXXX" autocomplete="off">
+                <div id="licenseError" class="error-msg">Schlüssel ungültig.</div>
             </div>
             <div class="login-actions">
-                <button class="btn-secondary" onclick="closeModal('loginModal')">Abbrechen</button>
-                <button class="btn-primary" id="performLoginBtn">Anmelden</button>
+                <button class="btn-secondary" onclick="closeModal('licenseModal')">Abbrechen</button>
+                <button class="btn-primary" id="activateBtn">Aktivieren</button>
             </div>
         </div>
     </div>
@@ -302,8 +301,8 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
             <li><strong>Import:</strong> Taste <span class="key-badge">o</span> (Öffnen).</li>
         </ul>
         <div class="ui-footer">
-            <span id="loginTrigger">Anmelden</span>
-            <div id="versionTrigger">v105 (Info)</div>
+            <span id="licenseTrigger">Lizenz aktivieren</span>
+            <div id="versionTrigger">v107 (Info)</div>
         </div>
     </div>
 </div>
@@ -337,203 +336,168 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
 <script>
     function toggleUI() { document.getElementById('instructionBox').classList.toggle('collapsed'); }
 
-    // --- GOOGLE SHEETS CONFIG (DIRECT ID) ---
-    // Dies ist die ID aus dem originalen Edit-Link. Funktioniert besser als 2PACX...
-    const SHEET_ID = "1sQcJ1AKofuIMJVE-l2zFxA4-Lp0gGDp1iUtpp9rkFMk";
-    
-    // Wir bauen die Export-URL direkt auf
-    const EXPORT_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
-    
-    // Proxy Options (Mit Fallback)
-    const PROXY_1 = "https://api.allorigins.win/raw?url=" + encodeURIComponent(EXPORT_URL);
-    const PROXY_2 = "https://corsproxy.io/?" + encodeURIComponent(EXPORT_URL);
+    // --- LIZENZIERUNG (v107): signierte Tokens, lokal verifiziert ---
+    // Der Cloudflare Worker stellt ES256-Tokens aus; hier wird nur die Signatur
+    // mit dem eingebetteten Public Key geprueft. Server: siehe license-worker/.
+    const LICENSE_API = "https://skisim-license.cklingler.workers.dev";
+    const LS_TOKEN = "skisim_license_token";
+    const REFRESH_AFTER_DAYS = 7; // stiller Online-Refresh, wenn Token aelter ist
 
-    let currentUser = null;
+    // Public Key (passend zum Worker-Secret SIGNING_KEY) – oeffentlich, unkritisch.
+    const PUBLIC_JWK = { kty: "EC", crv: "P-256", x: "nsu4Z_DGOkiKxFTWb8KB_1FGR5vQbP8fMHvh_Kzke2I", y: "am4U3mkL6zzD_inls9DpoCkA7ritxp6Y36iX8HNM3qo", key_ops: ["verify"], ext: true };
 
-    // --- CRYPTO FUNCTIONS ---
-    async function sha256(message) {
-        const msgBuffer = new TextEncoder().encode(message);
-        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        return hashHex;
-    }
+    let license = null; // verifizierte Payload {sub,name,tier,feat,iat,exp} oder null
 
-    // --- CSV PARSING ---
-    function parseCSV(text) {
-        const lines = text.trim().split(/\r?\n/);
-        if (lines.length < 2) return []; 
-        
-        // Remove potential BOM and quotes from header
-        const cleanHeader = lines[0].replace(/"/g, '');
-        const headers = cleanHeader.split(',').map(h => h.trim().toLowerCase());
-        
-        console.log("Gefundene Spalten:", headers); // Debug info
-
-        const users = [];
-
-        for (let i = 1; i < lines.length; i++) {
-            // Handle simple CSV splitting (assuming no commas in content for now)
-            // Advanced: Would need a proper CSV parser for quoted fields with commas
-            const line = lines[i];
-            if(!line.trim()) continue;
-
-            const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, '')); // Strip quotes
-            const user = {};
-            
-            headers.forEach((header, index) => {
-                if(values[index]) {
-                    if(header.includes('name')) user.name = values[index];
-                    else if(header.includes('role') || header.includes('rolle')) user.role = values[index];
-                    else if(header.includes('hash')) user.hash = values[index];
-                    else if(header.includes('valid') || header.includes('gültig')) user.validUntil = values[index];
-                }
-            });
-            if(user.hash) users.push(user);
-        }
-        return users;
-    }
-
-    // --- ROBUST FETCH HELPER ---
-    async function fetchWithFallback() {
-        // Time param to prevent caching
-        const t = "&t=" + Date.now();
-
-        try {
-            console.log("Versuche Proxy 1 (AllOrigins)...");
-            const r1 = await fetch(PROXY_1 + t);
-            if(r1.ok) return await r1.text();
-            throw new Error("Proxy 1 failed (" + r1.status + ")");
-        } catch(e) {
-            console.warn("Proxy 1 Fehler, versuche Proxy 2 (CorsProxy)...", e);
-            try {
-                const r2 = await fetch(PROXY_2 + t);
-                if(r2.ok) return await r2.text();
-                throw new Error("Proxy 2 failed (" + r2.status + ")");
-            } catch(e2) {
-                console.error("Alle Proxies fehlgeschlagen", e2);
-                throw new Error("Keine Verbindung zur Datenbank möglich. Prüfe Internet & Sheet-Freigabe.");
-            }
-        }
-    }
-
-    // --- LOGIN HANDLER ---
-    async function handleLogin() {
-        const inputKey = document.getElementById('loginKey').value.trim();
-        const errorMsg = document.getElementById('loginError');
-        const loginBtn = document.getElementById('performLoginBtn');
-        
-        if (!inputKey) return;
-
-        loginBtn.innerText = "Prüfe...";
-        loginBtn.disabled = true;
-        errorMsg.style.display = 'none';
-
-        try {
-            // 1. Hash Input
-            const inputHash = await sha256(inputKey);
-            console.log("Suche Hash:", inputHash); 
-
-            // 2. Fetch DB via Multi-Proxy
-            const csvText = await fetchWithFallback();
-            
-            // 3. Parse DB
-            const users = parseCSV(csvText);
-            
-            if(users.length === 0) {
-                throw new Error("Tabelle scheint leer zu sein oder falsches Format.");
-            }
-
-            // Check if 'hash' column was actually found
-            if(!users[0].hasOwnProperty('hash')) {
-                throw new Error("Spalte 'Hash' in Tabelle nicht gefunden.");
-            }
-            
-            // 4. Find User
-            const foundUser = users.find(u => u.hash === inputHash);
-
-            if (foundUser) {
-                currentUser = foundUser;
-                console.log("Login erfolgreich:", currentUser.name);
-                updateUserDisplay();
-                
-                const loginTrigger = document.getElementById('loginTrigger');
-                loginTrigger.innerText = "Angemeldet: " + currentUser.name.split(' ')[0];
-                loginTrigger.style.color = "#28a745"; 
-                loginTrigger.onclick = null; 
-                
-                closeModal('loginModal');
-                document.getElementById('loginKey').value = ''; 
-            } else {
-                errorMsg.innerText = "Key ungültig (Passwort falsch).";
-                errorMsg.style.display = 'block';
-            }
-
-        } catch (e) {
-            console.error(e);
-            errorMsg.innerText = e.message;
-            errorMsg.style.display = 'block';
-        } finally {
-            loginBtn.innerText = "Anmelden";
-            loginBtn.disabled = false;
-        }
-    }
-
-    function handleLogout() {
-        console.log("Benutzer abgemeldet.");
-        currentUser = null;
-        updateUserDisplay();
-
-        const loginTrigger = document.getElementById('loginTrigger');
-        loginTrigger.innerText = "Anmelden";
-        loginTrigger.style.color = "#007C89";
-        loginTrigger.onclick = function() { 
-            if(!currentUser) {
-                openModal("loginModal"); 
-                document.getElementById('loginKey').focus();
-            }
-        };
-    }
-
-    function updateUserDisplay() {
-        const logoutBtn = document.getElementById('logoutBtn');
-        if(currentUser) {
-            document.getElementById('activeUserName').innerText = (currentUser.name || "User") + " (" + (currentUser.role || "User") + ")";
-            document.getElementById('licenseExpiry').innerText = currentUser.validUntil || "Unbekannt";
-            logoutBtn.style.display = 'inline';
-        } else {
-            document.getElementById('activeUserName').innerText = "Gast (Nicht angemeldet)";
-            document.getElementById('licenseExpiry').innerText = "-";
-            logoutBtn.style.display = 'none';
-        }
-    }
-
-    // --- MODAL LOGIC ---
+    // ----- Modal-Helfer -----
     const impressumModal = document.getElementById("impressumModal");
-    const loginModal = document.getElementById("loginModal");
-
     function openModal(id) { document.getElementById(id).style.display = "block"; }
     function closeModal(id) { document.getElementById(id).style.display = "none"; }
 
-    document.getElementById("versionTrigger").onclick = function() { openModal("impressumModal"); }
-    
-    document.getElementById("loginTrigger").onclick = function() { 
-        if(!currentUser) {
-            openModal("loginModal"); 
-            document.getElementById('loginKey').focus();
+    // ----- base64url + Signaturpruefung -----
+    function b64urlToBytes(s) {
+        s = s.replace(/-/g, "+").replace(/_/g, "/");
+        while (s.length % 4) s += "=";
+        const bin = atob(s);
+        const out = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+        return out;
+    }
+    let _verifyKey = null;
+    async function getVerifyKey() {
+        if (_verifyKey) return _verifyKey;
+        _verifyKey = await crypto.subtle.importKey("jwk", PUBLIC_JWK, { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+        return _verifyKey;
+    }
+    // Prueft Signatur + Ablauf. Liefert Payload oder null.
+    async function verifyToken(token) {
+        if (!token || typeof token !== "string") return null;
+        const parts = token.split(".");
+        if (parts.length !== 2) return null;
+        try {
+            const ok = await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, await getVerifyKey(), b64urlToBytes(parts[1]), new TextEncoder().encode(parts[0]));
+            if (!ok) return null;
+            const payload = JSON.parse(new TextDecoder().decode(b64urlToBytes(parts[0])));
+            if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null; // abgelaufen
+            return payload;
+        } catch (e) { return null; }
+    }
+
+    // ----- Feature-Gate -----
+    function hasFeature(name) { return !!(license && Array.isArray(license.feat) && license.feat.includes(name)); }
+    function requireFeature(name) {
+        if (hasFeature(name)) return true;
+        const err = document.getElementById("licenseError");
+        err.innerText = license ? "Diese Funktion ist in deiner Lizenz nicht enthalten." : "Diese Funktion benoetigt eine aktive Lizenz.";
+        err.style.display = "block";
+        openModal("licenseModal");
+        return false;
+    }
+
+    // ----- Aktivierung / Refresh -----
+    function mapError(code, status) {
+        switch (code) {
+            case "invalid_key": return "Schluessel ungueltig.";
+            case "revoked": return "Lizenz wurde widerrufen.";
+            case "expired": return "Lizenz ist abgelaufen.";
+            case "rate_limited": return "Zu viele Versuche. Bitte spaeter erneut.";
+            case "missing_key": return "Bitte einen Schluessel eingeben.";
+            default: return "Verbindungs-/Serverfehler (" + status + ").";
+        }
+    }
+    async function activateLicense(key) {
+        const r = await fetch(LICENSE_API + "/activate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key: key }) });
+        if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(mapError(e.error, r.status)); }
+        const data = await r.json();
+        const payload = await verifyToken(data.token);
+        if (!payload) throw new Error("Token-Verifikation fehlgeschlagen.");
+        localStorage.setItem(LS_TOKEN, data.token);
+        license = payload;
+        return payload;
+    }
+    async function tryRefresh() {
+        const token = localStorage.getItem(LS_TOKEN);
+        if (!token) return;
+        try {
+            const r = await fetch(LICENSE_API + "/refresh", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: token }) });
+            if (r.status === 403) { localStorage.removeItem(LS_TOKEN); license = null; updateLicenseUI(); return; } // widerrufen/abgelaufen
+            if (!r.ok) return; // temporaerer Fehler: bestehendes Token weiter nutzen
+            const data = await r.json();
+            const payload = await verifyToken(data.token);
+            if (payload) { localStorage.setItem(LS_TOKEN, data.token); license = payload; updateLicenseUI(); }
+        } catch (e) { /* offline: bestehendes Token gilt bis exp */ }
+    }
+    function deactivateLicense() {
+        localStorage.removeItem(LS_TOKEN);
+        license = null;
+        updateLicenseUI();
+        closeModal("impressumModal");
+    }
+
+    // ----- UI -----
+    function fmtDate(epoch) { try { return new Date(epoch * 1000).toLocaleDateString("de-AT"); } catch (e) { return "-"; } }
+    function updateLicenseUI() {
+        const trig = document.getElementById("licenseTrigger");
+        const nameEl = document.getElementById("activeUserName");
+        const expEl = document.getElementById("licenseExpiry");
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (license) {
+            trig.innerText = "✓ " + String(license.name || "Lizenziert").split(" ")[0];
+            trig.style.color = "#28a745";
+            nameEl.innerText = (license.name || "Lizenz") + (license.tier ? " (" + license.tier + ")" : "");
+            expEl.innerText = fmtDate(license.exp);
+            logoutBtn.style.display = "inline";
+        } else {
+            trig.innerText = "Lizenz aktivieren";
+            trig.style.color = "#007C89";
+            nameEl.innerText = "Gast (keine Lizenz)";
+            expEl.innerText = "-";
+            logoutBtn.style.display = "none";
+        }
+    }
+    async function initLicense() {
+        const token = localStorage.getItem(LS_TOKEN);
+        if (token) {
+            license = await verifyToken(token);
+            if (!license) localStorage.removeItem(LS_TOKEN); // ungueltig/abgelaufen
+        }
+        updateLicenseUI();
+        if (license && navigator.onLine) {
+            const ageDays = (Math.floor(Date.now() / 1000) - (license.iat || 0)) / 86400;
+            if (ageDays >= REFRESH_AFTER_DAYS) tryRefresh();
         }
     }
 
-    document.getElementById('performLoginBtn').addEventListener('click', handleLogin);
-    
-    document.getElementById('loginKey').addEventListener('keyup', function(event) {
-        if (event.key === "Enter") { handleLogin(); }
-    });
-
-    window.onclick = function(event) {
-        if (event.target == impressumModal) closeModal("impressumModal");
-        if (event.target == loginModal) closeModal("loginModal");
+    // ----- Verdrahtung -----
+    async function doActivateFromInput() {
+        const input = document.getElementById("licenseKey");
+        const btn = document.getElementById("activateBtn");
+        const err = document.getElementById("licenseError");
+        const key = input.value.trim();
+        if (!key) return;
+        btn.innerText = "Pruefe..."; btn.disabled = true; err.style.display = "none";
+        try {
+            await activateLicense(key);
+            updateLicenseUI();
+            closeModal("licenseModal");
+            input.value = "";
+        } catch (e) {
+            err.innerText = e.message; err.style.display = "block";
+        } finally {
+            btn.innerText = "Aktivieren"; btn.disabled = false;
+        }
     }
+    document.getElementById("versionTrigger").onclick = function () { openModal("impressumModal"); };
+    document.getElementById("licenseTrigger").onclick = function () {
+        if (license) { openModal("impressumModal"); }
+        else { openModal("licenseModal"); document.getElementById("licenseKey").focus(); }
+    };
+    document.getElementById("activateBtn").addEventListener("click", doActivateFromInput);
+    document.getElementById("licenseKey").addEventListener("keyup", function (e) { if (e.key === "Enter") doActivateFromInput(); });
+
+    window.onclick = function (event) {
+        if (event.target == impressumModal) closeModal("impressumModal");
+        if (event.target == document.getElementById("licenseModal")) closeModal("licenseModal");
+    };
 
     // --- SHORTCUTS & BUGFIX ---
     window.addEventListener('keydown', e => {
@@ -699,9 +663,9 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
     function startGame() {
         loader.style.display = 'none';
         resize();
+
+        initLicense(); // Lizenzstatus laden/verifizieren (async, blockiert das Rendern nicht)
         
-        // Init as Guest
-        updateUserDisplay();
 
         activeObjects.push(createObject(TEMPLATES[0], canvas.width/2 - 50, canvas.height/2 - 50));
         activePlayerIndex = 0; 
@@ -954,7 +918,8 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
 
     // --- EXPORT FUNCTIONALITY (PNG) ---
     function exportImage() {
-        const link = document.createElement('a'); 
+        if (!requireFeature('export')) return;
+        const link = document.createElement('a');
         link.download = `ski-sim-${Date.now()}.png`; 
         link.href = canvas.toDataURL("image/png"); 
         link.click();
@@ -962,6 +927,7 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
     
     // --- SAVE FUNCTIONALITY (JSON) ---
     function saveProject() {
+        if (!requireFeature('save')) return;
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -972,11 +938,11 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
 
         const state = {
             metadata: {
-                version: "105",
+                version: "107",
                 timestamp: now.toISOString(),
                 dateLocal: now.toLocaleString('de-AT'),
                 userAgent: navigator.userAgent,
-                creator: currentUser ? currentUser.name : "Unknown" 
+                creator: license ? license.name : "Unbekannt"
             },
             objects: activeObjects
         };
@@ -1027,51 +993,7 @@ Fehleranalyse: Wenn es nicht klappt, sagt dir die Fehlermeldung jetzt genauer, o
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    window.addEventListener('keydown', e => {
-        // --- BUGFIX V101: BLOCK SHORTCUTS WHEN TYPING ---
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-        if (e.key==='s'||e.key==='S') { saveProject(); return; } 
-        if (e.key==='e'||e.key==='E') { exportImage(); return; } 
-        if (e.key==='o'||e.key==='O') { importProject(); return; } 
-        
-        if (e.code==='Tab') { 
-            e.preventDefault(); 
-            if(activeObjects.length > 0) {
-                if (activePlayerIndex === -1) activePlayerIndex = 0; 
-                else { activePlayerIndex++; if(activePlayerIndex >= activeObjects.length) activePlayerIndex = -1; }
-            }
-            return; 
-        }
-        if (activePlayerIndex === -1) return;
-        if (e.key==='Enter') { openTextEditor(activeObjects[activePlayerIndex]); return; }
-        if (e.key === 'c' || e.key === 'C') { cycleColor(activePlayerIndex); return; }
-        if (e.key === 'Delete' || e.key === 'Del') { returnToDock(activePlayerIndex); return; }
-        if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
-        if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=true;
-        if(e.key==='+') keys['ZoomIn']=true; if(e.key==='-') keys['ZoomOut']=true;
-    });
-    
-    window.addEventListener('keyup', e => {
-        // Same check here to avoid getting stuck keys
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-
-        if (activePlayerIndex === -1) return;
-        if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä')) triggerSnap(activePlayerIndex);
-        if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
-        if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=false; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=false;
-        if(e.key==='+') keys['ZoomIn']=false; if(e.key==='-') keys['ZoomOut']=false;
-    });
-
-    // IMPRESSUM MODAL LOGIC
-    const modal = document.getElementById("impressumModal");
-    const trigger = document.getElementById("versionTrigger");
-    const span = document.getElementsByClassName("close-btn")[0];
-    trigger.onclick = function() { modal.style.display = "block"; }
-    span.onclick = function() { modal.style.display = "none"; }
-    window.onclick = function(event) { if (event.target == modal) { modal.style.display = "none"; } }
-
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V105', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V107', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
