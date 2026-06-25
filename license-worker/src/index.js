@@ -127,6 +127,7 @@ async function buildTokenForRecord(rec, env) {
     name: rec.name,
     tier: rec.tier || "standard",
     feat: Array.isArray(rec.features) ? rec.features : [],
+    vu: rec.validUntil, // Lizenz-Enddatum (Anzeige "Gueltig bis"), unabhaengig vom 30-Tage-exp
     iat: now,
     exp,
   };

@@ -1,19 +1,18 @@
-<!-- Skisim v107 -->
-<!-- Änderung: Neues Lizenzverfahren (signierte Tokens via Cloudflare Worker)
+<!-- Skisim v108 -->
+<!-- Bugfix: "Gültig bis" zeigt jetzt das Lizenz-Enddatum statt der Token-Frist
 
 Apache V2 License
-2026-06-24
+2026-06-25
 Christian Klingler, asolvo
 
-Neu in v107 (Teil B):
-- Aktivierung über Lizenzschlüssel gegen Cloudflare Worker (/activate), Token im localStorage
-- Lokale Verifikation der ES256-Signatur mit eingebettetem Public Key (kein Fremd-Proxy mehr)
-- 30-Tage-Token, Offline-Nutzung bis Ablauf; stiller Refresh (/refresh) ab 7 Tagen, fängt Widerruf ab
-- Granulares Feature-Gating: Export (PNG), Speichern (JSON) und Teilen nur mit passender Lizenz
-- Lizenz-Dialog + Statusanzeige/Abmeldung im Impressum
-- Aufräumen: doppelte keydown-Listener und doppelte Impressum-Logik entfernt
+Änderung gegenüber v107:
+- Das Token enthält jetzt das Lizenz-Enddatum (Feld "vu" = validUntil).
+  Die Anzeige "Gültig bis" im Impressum zeigt dieses Datum (z.B. 25.06.2028)
+  statt des technischen 30-Tage-Token-Ablaufs.
+  (Worker: "vu" im Token-Payload; Client: Anzeige nutzt license.vu.)
 
-In v106 wurde der alte Google-Sheet-/Proxy-Login entfernt.
+Verlauf: v106 = alter Google-Sheet-/Proxy-Login entfernt,
+         v107 = neue Token-Lizenzierung (signierte ES256-Tokens via Cloudflare Worker).
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -23,7 +22,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V107</title>
+    <title>Ski-Simulation V108</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -302,7 +301,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         </ul>
         <div class="ui-footer">
             <span id="licenseTrigger">Lizenz aktivieren</span>
-            <div id="versionTrigger">v107 (Info)</div>
+            <div id="versionTrigger">v108 (Info)</div>
         </div>
     </div>
 </div>
@@ -435,6 +434,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     // ----- UI -----
     function fmtDate(epoch) { try { return new Date(epoch * 1000).toLocaleDateString("de-AT"); } catch (e) { return "-"; } }
+    function fmtIsoDate(s) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s)); return m ? m[3] + "." + m[2] + "." + m[1] : String(s); }
     function updateLicenseUI() {
         const trig = document.getElementById("licenseTrigger");
         const nameEl = document.getElementById("activeUserName");
@@ -444,7 +444,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             trig.innerText = "✓ " + String(license.name || "Lizenziert").split(" ")[0];
             trig.style.color = "#28a745";
             nameEl.innerText = (license.name || "Lizenz") + (license.tier ? " (" + license.tier + ")" : "");
-            expEl.innerText = fmtDate(license.exp);
+            expEl.innerText = license.vu ? fmtIsoDate(license.vu) : fmtDate(license.exp);
             logoutBtn.style.display = "inline";
         } else {
             trig.innerText = "Lizenz aktivieren";
@@ -993,7 +993,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V107', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V108', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
