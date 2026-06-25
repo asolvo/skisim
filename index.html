@@ -1,20 +1,19 @@
-<!-- Skisim v111 -->
-<!-- Bugfix: Text-/Vektor-Bearbeitung über eigenen Dialog (statt prompt)
+<!-- Skisim v112 -->
+<!-- Neu: Objekt "Bemaßung" (Maßlinie mit Beschriftung)
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Änderung gegenüber v110:
-- Text-Objekte und Geschwindigkeits-Vektoren werden jetzt über einen eingebauten
-  Dialog (Eingabefeld + OK/Abbrechen) bearbeitet, nicht mehr über das native
-  prompt(). prompt() wird von modernen Browsern (v.a. Tablets/eingebettet) oft
-  blockiert – dadurch ließ sich Text/Geschwindigkeit nicht mehr ändern.
-- Bestätigt: Beim App-Start wird weiterhin 1 Skifahrer (blau) aktiv gesetzt,
-  sodass Gäste trotz gesperrtem Dock sofort eine Figur haben.
+Neu in v112:
+- Neuer Objekttyp "Bemaßung": Maßlinie mit Maßhilfslinien, Pfeilen und Maßzahl.
+  Beschriftung als Freitext editierbar (Doppelklick/Enter), Farbe umschaltbar (c).
+- Sonderverhalten beim Skalieren: nur die Länge ändert sich, die Höhe (Pfeile,
+  Maßhilfslinien, Text) bleibt fix – greift bei Mausrad, +/- und 2-Finger-Geste.
+- Prozedural gezeichnet (wie Vektor); Dock-Vorschau als SVG.
 
-Verlauf: v107 = Token-Lizenzierung, v108 = Lizenz-Enddatum,
-         v109 = gesperrte Funktionen ausgegraut, v110 = Gast-Limit (1 Person).
+Verlauf: v108 = Lizenz-Enddatum, v109 = gesperrte Funktionen ausgegraut,
+         v110 = Gast-Limit (1 Person), v111 = Bearbeiten via Dialog.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -24,7 +23,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V111</title>
+    <title>Ski-Simulation V112</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -324,7 +323,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         </ul>
         <div class="ui-footer">
             <span id="licenseTrigger">Lizenz aktivieren</span>
-            <div id="versionTrigger">v111 (Info)</div>
+            <div id="versionTrigger">v112 (Info)</div>
         </div>
     </div>
 </div>
@@ -580,6 +579,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     const SVG_LINE_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="20" viewBox="0 0 200 20"><line x1="5" y1="10" x2="195" y2="10" stroke="#808080" stroke-width="4" stroke-linecap="round" /></svg>`);
     const SVG_ARROW_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><line x1="5" y1="20" x2="85" y2="20" stroke="#0000ff" stroke-width="6" stroke-linecap="round"/><path d="M 95 20 L 75 10 L 75 30 Z" fill="#0000ff" /></svg>`);
     const SVG_V_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#808080" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`);
+    const SVG_BEMASSUNG_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50"><text x="100" y="16" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold" fill="#1A1B1F">5,0 m</text><line x1="12" y1="24" x2="12" y2="46" stroke="#1A1B1F" stroke-width="2"/><line x1="188" y1="24" x2="188" y2="46" stroke="#1A1B1F" stroke-width="2"/><line x1="12" y1="35" x2="188" y2="35" stroke="#1A1B1F" stroke-width="2"/><path d="M12,35 L26,30 L26,40 Z" fill="#1A1B1F"/><path d="M188,35 L174,30 L174,40 Z" fill="#1A1B1F"/></svg>`);
     const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="37.023964" y="35.509697" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(-25)"/><rect x="41.606819" y="-6.7521315" width="12" height="72" rx="5" fill="#81ae98" transform="rotate(25)"/><rect x="29.947439" y="34.780109" width="40.105122" height="30.439781" rx="12.031537" fill="#826dff" stroke="#544bb3" stroke-width="1.89488"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><circle cx="28" cy="50" r="7" fill="#826dff"/><circle cx="72.856575" cy="42.936256" r="5.3266931" fill="#333"/><circle cx="72" cy="50" r="7" fill="#826dff"/><circle cx="72.398407" cy="46.840637" r="7" fill="#826dff"/><circle cx="27.282869" cy="43.219124" r="5.0876493" fill="#333"/><circle cx="27.537849" cy="47.868526" r="7" fill="#826dff"/><path fill="#826dff" stroke="#544bb3" stroke-width="0.0710732" stroke-linecap="round" stroke-linejoin="round" d="m 26.698432,56.845502 c -0.667894,-0.131 -1.566917,-0.473694 -2.160106,-0.823398 -1.898546,-1.119258 -3.065111,-2.867871 -3.459405,-5.185451 -0.0671,-0.394422 -0.198227,-0.986055 -0.291385,-1.314741 -0.241444,-0.851876 -0.244849,-2.32468 -0.0076,-3.283606 1.169417,-4.726449 6.66981,-6.835578 10.69416,-4.100681 0.531849,0.361438 1.32698,1.144604 1.712851,1.687076 0.661537,0.930017 1.048532,1.903386 1.267196,3.187251 0.05971,0.350598 0.18942,0.924303 0.28824,1.274901 0.249474,0.885096 0.256045,2.506428 0.01379,3.402268 -0.360517,1.333155 -1.008202,2.413352 -2.027714,3.381789 -0.943482,0.896216 -2.047984,1.472984 -3.342006,1.74519 -0.59985,0.126183 -2.110363,0.142705 -2.688026,0.0294 z"/><path fill="#826dff" d="m 70.55556,56.815465 c -1.272123,-0.292075 -2.367548,-0.873992 -3.284024,-1.744555 -1.020379,-0.96926 -1.669683,-2.047432 -2.022137,-3.357763 -0.244882,-0.910404 -0.243566,-2.525074 0.0028,-3.426294 0.120106,-0.43937 0.183234,-0.934571 0.203156,-1.593626 0.05825,-1.927187 0.812842,-3.642411 2.145459,-4.876761 3.920014,-3.630949 10.123656,-1.865147 11.534362,3.283136 0.247704,0.903982 0.25338,2.507979 0.01226,3.466135 -0.104144,0.413853 -0.186133,1.049203 -0.210791,1.633466 -0.127233,3.014686 -1.99193,5.494622 -4.833055,6.427674 -0.681537,0.223823 -0.87211,0.251101 -1.912351,0.27373 -0.783305,0.01704 -1.310051,-0.01038 -1.635675,-0.08514 z"/></svg>`);
     
     // CUSTOM INKSCAPE SLED (Updated V78)
@@ -601,7 +601,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         skiLeftShoulder: new Image(), skiRightShoulder: new Image(),
         boarder: new Image(), tree: new Image(),
         skiPlow: new Image(), injured: new Image(), sled: new Image(), sign: new Image(), fence: new Image(), // Added fence
-        linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image()
+        linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image(), bemassungPreview: new Image()
     };
     
     // COLORS for Cycle
@@ -622,6 +622,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { type: 'sprite', assetKey: 'fence', width: 200, height: 20, rotation: 0 },
         { type: 'text', text: 'Text', color: '#000000', width: 80, height: 30, rotation: 0 },
         { type: 'velocity', text: '40 km/h (11 m/s)', color: '#d9534f', width: 150, height: 40, rotation: 0 },
+        { type: 'bemassung', text: '5,0 m', color: '#1A1B1F', width: 200, height: 50, rotation: 0 },
         { type: 'line', color: '#808080', width: 200, height: 20, rotation: 0 },
         { type: 'arrow', color: '#0000ff', width: 100, height: 40, rotation: 0 },
         { type: 'vshape', color: '#808080', width: 100, height: 60, rotation: 0 },
@@ -643,7 +644,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     let lastTapTime = 0;
 
     function isInfiniteResource(obj) {
-        if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect'].includes(obj.type)) return true;
+        if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect', 'bemassung'].includes(obj.type)) return true;
         // UPDATED: added fence to infinite resources
         if ((obj.type === 'sprite' && (obj.assetKey === 'tree' || obj.assetKey === 'fence')) || obj.type === 'sign') return true; 
         return false;
@@ -652,6 +653,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function getGermanLabel(tpl) {
         if (tpl.type === 'text') return 'Textfeld';
         if (tpl.type === 'velocity') return 'Geschwindigkeits-Vektor';
+        if (tpl.type === 'bemassung') return 'Bemaßung';
         if (tpl.type === 'line') return 'Linie';
         if (tpl.type === 'arrow') return 'Pfeil';
         if (tpl.type === 'vshape') return 'V-Form';
@@ -689,6 +691,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         ASSETS.sign.src = SVG_SIGN; 
         ASSETS.fence.src = SVG_FENCE; // Load fence
         ASSETS.linePreview.src = SVG_LINE_PREVIEW; ASSETS.arrowPreview.src = SVG_ARROW_PREVIEW; ASSETS.vPreview.src = SVG_V_PREVIEW;
+        ASSETS.bemassungPreview.src = SVG_BEMASSUNG_PREVIEW;
         setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
 
@@ -713,8 +716,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         let obj = { type: tpl.type, x: x, y: y, width: tpl.width, height: tpl.height, rotation: tpl.rotation, speed: 7, dx: 0, dy: 0 };
         if(tpl.type === 'sprite') {
             obj.assetKey = tpl.assetKey;
-        } else if(tpl.type === 'text' || tpl.type === 'velocity') { 
-            obj.text = tpl.text; obj.color = tpl.color; 
+        } else if(tpl.type === 'text' || tpl.type === 'velocity' || tpl.type === 'bemassung') {
+            obj.text = tpl.text; obj.color = tpl.color;
         } else {
             obj.color = tpl.color;
         }
@@ -727,6 +730,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (tpl.type === 'line') return ASSETS.linePreview;
         if (tpl.type === 'arrow') return ASSETS.arrowPreview;
         if (tpl.type === 'vshape') return ASSETS.vPreview;
+        if (tpl.type === 'bemassung') return ASSETS.bemassungPreview;
         return null;
     }
 
@@ -822,7 +826,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > canvas.width - p.width) p.x = canvas.width - p.width; if (p.y < 0) p.y = 0; if (p.y > canvas.height - p.height) p.y = canvas.height - p.height; }
     
     function performZoom(p, factor) {
-        const minSize = 20; 
+        const minSize = 20;
+        if (p.type === 'bemassung') { // v112: nur Laenge (Breite) aendern, Hoehe bleibt fix
+            const bw = p.width * factor;
+            if (bw >= minSize) { p.x -= (bw - p.width) / 2; p.width = bw; checkBounds(p); }
+            return;
+        }
         const nw = p.width * factor;
         const nh = p.height * factor;
         if (Math.max(nw, nh) >= minSize) {
@@ -839,7 +848,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     function getLayer(p) {
-        if (p.type === 'text' || p.type === 'velocity') return 3; 
+        if (p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung') return 3;
         if (p.type === 'rect') return 1;
         // UPDATED LAYER LOGIC: Fence is on layer 1
         if (p.type === 'sign' || ['tree', 'injured', 'fence'].includes(p.assetKey)) return 1;
@@ -849,7 +858,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     function cycleColor(index) {
         const p = activeObjects[index];
-        if (p && ['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign'].includes(p.type)) {
+        if (p && ['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign', 'bemassung'].includes(p.type)) {
             let idx = COLOR_PALETTE.indexOf(p.color);
             if (idx === -1) idx = 0;
             p.color = COLOR_PALETTE[(idx + 1) % COLOR_PALETTE.length];
@@ -859,16 +868,16 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // v111: Bearbeitung über eigenen Dialog statt prompt() (prompt wird oft blockiert)
     let editTarget = null, editMode = null;
     function openTextEditor(p) {
-        if (!p || (p.type !== 'text' && p.type !== 'velocity')) return;
+        if (!p || (p.type !== 'text' && p.type !== 'velocity' && p.type !== 'bemassung')) return;
         editTarget = p; editMode = p.type;
         const label = document.getElementById('editLabel');
         const input = document.getElementById('editInput');
-        if (p.type === 'text') {
-            label.innerText = 'Text ändern:';
-            input.type = 'text'; input.value = p.text || '';
-        } else {
+        if (p.type === 'velocity') {
             label.innerText = 'Geschwindigkeit in km/h:';
             input.type = 'number'; input.value = '';
+        } else {
+            label.innerText = (p.type === 'bemassung') ? 'Maß / Beschriftung:' : 'Text ändern:';
+            input.type = 'text'; input.value = p.text || '';
         }
         openModal('editModal');
         setTimeout(function () { input.focus(); input.select(); }, 30);
@@ -880,6 +889,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             editTarget.text = val;
             ctx.font = 'bold ' + editTarget.height + 'px Arial';
             editTarget.width = ctx.measureText(val).width + 20;
+        } else if (editTarget && editMode === 'bemassung') {
+            editTarget.text = val; // Breite (Länge) bleibt unverändert
         } else if (editTarget && editMode === 'velocity') {
             if (val !== '' && !isNaN(parseFloat(val))) {
                 const kmh = parseFloat(val);
@@ -964,7 +975,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const dist = getTouchDist(e.touches[0], e.touches[1]);
             const angle = getTouchAngle(e.touches[0], e.touches[1]);
             const scale = dist / gestureStart.dist;
-            p.width = gestureStart.width * scale; p.height = gestureStart.height * scale;
+            p.width = gestureStart.width * scale; if (p.type !== 'bemassung') p.height = gestureStart.height * scale; // v112: Bemaßung nur in der Länge
             p.rotation = gestureStart.rotation + (angle - gestureStart.angle) * (180/Math.PI);
             return;
         }
@@ -1057,7 +1068,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V111', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V112', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
@@ -1084,6 +1095,18 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         else if (p.type === 'vshape') { ctx.beginPath(); ctx.moveTo(-p.width/2, -p.height/2); ctx.lineTo(0, p.height/2); ctx.lineTo(p.width/2, -p.height/2); ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/15); ctx.lineCap = 'round'; ctx.stroke(); }
         else if (p.type === 'arrow') { const headLen = p.width * 0.2; const bodyH = p.height * 0.2; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = bodyH; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -p.height/2); ctx.lineTo(p.width/2 - headLen, p.height/2); ctx.fill(); }
         else if (p.type === 'velocity') { const headLen = p.width * 0.15; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -8); ctx.lineTo(p.width/2 - headLen, 8); ctx.fill(); ctx.save(); ctx.translate(0, -15); ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); }
+        else if (p.type === 'bemassung') {
+            const w = p.width, h = p.height;
+            const wit = h * 0.42;                          // Maßhilfslinien-Halbhöhe
+            const arrow = Math.min(h * 0.4, w * 0.45);     // Pfeillänge (für kurze Maße begrenzt)
+            const ah = h * 0.18;                           // Pfeil-Halbhöhe
+            ctx.strokeStyle = p.color; ctx.fillStyle = p.color; ctx.lineWidth = Math.max(2, h / 16); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(-w/2, 0); ctx.lineTo(w/2, 0); ctx.stroke();                                  // Maßlinie
+            ctx.beginPath(); ctx.moveTo(-w/2, -wit); ctx.lineTo(-w/2, wit); ctx.moveTo(w/2, -wit); ctx.lineTo(w/2, wit); ctx.stroke(); // Maßhilfslinien
+            ctx.beginPath(); ctx.moveTo(-w/2, 0); ctx.lineTo(-w/2 + arrow, -ah); ctx.lineTo(-w/2 + arrow, ah); ctx.closePath(); ctx.fill(); // Pfeil links
+            ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2 - arrow, -ah); ctx.lineTo(w/2 - arrow, ah); ctx.closePath(); ctx.fill();   // Pfeil rechts
+            ctx.save(); ctx.translate(0, -wit - 3); ctx.font = 'bold ' + Math.round(h * 0.34) + 'px Arial'; ctx.fillStyle = '#1A1B1F'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); // Maßzahl
+        }
         else if (p.type === 'sign') {
             const postW = p.width * 0.06; const postH = p.height * 0.25;
             ctx.fillStyle = '#666666'; ctx.fillRect(-postW / 2, p.height / 2 - postH, postW, postH);
