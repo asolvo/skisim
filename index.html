@@ -1,20 +1,22 @@
-<!-- Skisim v113 -->
-<!-- Responsive & Touch: mobile Bedienbarkeit (3 kritische Punkte)
+<!-- Skisim v114 -->
+<!-- Bugfix Bemaßung-Editor + Tastatur/Barrierefreiheit
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Behoben in v113 (Mobil/Touch):
-- Layout responsiv (Media-Query <=760px): kompaktes Panel oben links
-  (eingeklappt), kleinere Toolbar-Buttons rechts ohne Überlappung.
-- Objekt-Dock auf Mobil als untere, horizontal scrollbare Leiste; alle
-  Objekte erreichbar.
-- Dock per Touch nutzbar: Scrollen funktioniert, Objekt per Tap hinzufügen
-  (touch-action der Items gelöst, kein Drag-Blocker mehr). Maus-Drag bleibt.
+Änderungen in v114:
+- Bugfix: Bemaßung lässt sich jetzt auch per Doppelklick/Doppeltipp ändern
+  (die Bedingung in handleStart kannte den Typ 'bemassung' nicht).
+- Tastatur: Objekt hinzufügen/duplizieren mit '+', Drehen layoutunabhängig
+  mit ',' / '.' (zusätzlich zu ö/ä), 'Esc' schließt Dialoge.
+  (Keyboard-Zoom +/- entfällt; Zoom weiter per Mausrad / 2-Finger.)
+- Barrierefreiheit: 'user-scalable=no' entfernt und 'touch-action: none' nur
+  noch auf dem Canvas → Seite/UI lässt sich auf Mobil zoomen.
+- Querformat: Panel wird nicht mehr ausgeblendet (Lizenz-Link bleibt erreichbar);
+  Inhalt scrollt bei wenig Höhe.
 
-Verlauf: v109 = Funktionen ausgegraut, v110 = Gast-Limit, v111 = Edit-Dialog,
-         v112 = Bemaßung.
+Verlauf: v110 Gast-Limit, v111 Edit-Dialog, v112 Bemaßung, v113 Responsive/Touch.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -23,8 +25,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Ski-Simulation V113</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ski-Simulation V114</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,8 +40,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             background: #e0e0e0; 
             font-family: 'Roboto', sans-serif; 
             font-weight: 400;
-            color: #1A1B1F; 
-            touch-action: none; 
+            color: #1A1B1F;
         }
         
         h1, h2, h3, h4, h5, h6 {
@@ -238,7 +239,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
         .error-msg { color: #d9534f; font-size: 13px; margin-top: 5px; display: none; }
 
-        @media (max-height: 500px) { .ui { display: none; } }
+        /* v114: Querformat/kurze Höhe — Panel bleibt sichtbar, Inhalt scrollt */
+        @media (max-height: 500px) { .ui:not(.collapsed) .ui-content { max-height: 58vh; overflow-y: auto; } }
 
         /* v113: Mobiles Layout (Smartphone) */
         @media (max-width: 760px) {
@@ -342,19 +344,21 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     </div>
     <div class="ui-content">
         <ul style="margin:0; padding-left: 20px;">
-            <li><strong>Objekte:</strong> Ziehen zum Hinzufügen.</li>
+            <li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
-            <li><strong>Text/Vektor:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
+            <li><strong>Text/Vektor/Bemaßung:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
             <li><strong>Bewegen:</strong> Pfeiltasten.</li>
+            <li><strong>Drehen:</strong> Tasten <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
+            <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">+</span> (dupliziert Auswahl).</li>
             <li><strong>Speichern:</strong> Taste <span class="key-badge">s</span> (JSON) / <span class="key-badge">e</span> (Bild).</li>
             <li><strong>Import:</strong> Taste <span class="key-badge">o</span> (Öffnen).</li>
         </ul>
         <div class="ui-footer">
             <span id="licenseTrigger">Lizenz aktivieren</span>
-            <div id="versionTrigger">v113 (Info)</div>
+            <div id="versionTrigger">v114 (Info)</div>
         </div>
     </div>
 </div>
@@ -565,38 +569,59 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     };
 
     // --- SHORTCUTS & BUGFIX ---
+    // v114: Objekt per Tastatur hinzufügen — dupliziert die Auswahl, sonst Skifahrer
+    function addOrDuplicate() {
+        let tpl, nx, ny;
+        if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) {
+            const src = activeObjects[activePlayerIndex];
+            if (isPersonTpl(src) && guestPersonLimitReached()) return; // Gast: keine 2. Personen-Figur
+            tpl = { type: src.type, assetKey: src.assetKey, text: src.text, color: src.color, width: src.width, height: src.height, rotation: src.rotation };
+            nx = src.x + 30; ny = src.y + 30;
+        } else {
+            if (guestPersonLimitReached()) return;
+            tpl = TEMPLATES[0];
+            nx = canvas.width / 2 - tpl.width / 2; ny = canvas.height / 2 - tpl.height / 2;
+        }
+        const obj = createObject(tpl, nx, ny);
+        activeObjects.push(obj);
+        checkBounds(obj);
+        activePlayerIndex = activeObjects.length - 1;
+        renderDock();
+    }
+
     window.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeModal('impressumModal'); closeModal('licenseModal'); closeEdit(); return; } // v114: Esc schließt Dialoge
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
-        if (e.key==='s'||e.key==='S') { saveProject(); return; } 
-        if (e.key==='e'||e.key==='E') { exportImage(); return; } 
-        if (e.key==='o'||e.key==='O') { importProject(); return; } 
-        
-        if (e.code==='Tab') { 
-            e.preventDefault(); 
+        if (e.key==='s'||e.key==='S') { saveProject(); return; }
+        if (e.key==='e'||e.key==='E') { exportImage(); return; }
+        if (e.key==='o'||e.key==='O') { importProject(); return; }
+        if (e.key==='+'||e.key==='=') { addOrDuplicate(); return; } // v114: Objekt hinzufügen/duplizieren
+
+        if (e.code==='Tab') {
+            e.preventDefault();
             if(activeObjects.length > 0) {
-                if (activePlayerIndex === -1) activePlayerIndex = 0; 
+                if (activePlayerIndex === -1) activePlayerIndex = 0;
                 else { activePlayerIndex++; if(activePlayerIndex >= activeObjects.length) activePlayerIndex = -1; }
             }
-            return; 
+            return;
         }
         if (activePlayerIndex === -1) return;
         if (e.key==='Enter') { openTextEditor(activeObjects[activePlayerIndex]); return; }
         if (e.key === 'c' || e.key === 'C') { cycleColor(activePlayerIndex); return; }
         if (e.key === 'Delete' || e.key === 'Del') { returnToDock(activePlayerIndex); return; }
         if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
-        if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=true;
-        if(e.key==='+') keys['ZoomIn']=true; if(e.key==='-') keys['ZoomOut']=true;
+        // v114: Drehen via ö/ä (DE) oder , / . (layoutunabhängig)
+        if(e.key==='ö'||e.key==='Ö'||e.key===',') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä'||e.key==='.') keys['RotateRight']=true;
     });
-    
+
     window.addEventListener('keyup', e => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
         if (activePlayerIndex === -1) return;
-        if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä')) triggerSnap(activePlayerIndex);
+        if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä') || e.key===',' || e.key==='.') triggerSnap(activePlayerIndex);
         if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
-        if(e.key==='ö'||e.key==='Ö') keys['RotateLeft']=false; if(e.key==='ä'||e.key==='Ä') keys['RotateRight']=false;
-        if(e.key==='+') keys['ZoomIn']=false; if(e.key==='-') keys['ZoomOut']=false;
+        if(e.key==='ö'||e.key==='Ö'||e.key===',') keys['RotateLeft']=false; if(e.key==='ä'||e.key==='Ä'||e.key==='.') keys['RotateRight']=false;
     });
 
     // --- ASSETS & GAME LOOP (unchanged) ---
@@ -740,7 +765,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         activePlayerIndex = 0; 
         dockedObjects = TEMPLATES.slice(1);
         renderDock();
-        if (window.innerWidth <= 760) document.getElementById('instructionBox').classList.add('collapsed'); // v113: Panel auf Mobil eingeklappt starten
+        if (window.innerWidth <= 760 || window.innerHeight <= 500) document.getElementById('instructionBox').classList.add('collapsed'); // v113/v114: Panel auf Mobil/Querformat eingeklappt starten
         requestAnimationFrame(drawLoop);
     }
 
@@ -965,7 +990,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         
         if (idx !== -1) {
             const p = activeObjects[idx]; activePlayerIndex = idx;
-            if ((p.type === 'text' || p.type === 'velocity') && (now - lastTapTime < 300)) { openTextEditor(p); lastTapTime = 0; return; }
+            if ((p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung') && (now - lastTapTime < 300)) { openTextEditor(p); lastTapTime = 0; return; }
             lastTapTime = now;
             if (isRight) { rotatingPlayerIndex = idx; isSnapping = false; }
             else { draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0; }
@@ -1120,7 +1145,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V113', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V114', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
