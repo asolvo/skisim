@@ -1,17 +1,19 @@
-<!-- Skisim v115 -->
-<!-- Tastenbelegung: + / - zoomen wieder, Objekt hinzufügen via Einfg
+<!-- Skisim v116 -->
+<!-- Settings-Popup, Theme (Hell/Dunkel/Auto) und DE/EN-Übersetzung
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Änderung gegenüber v114:
-- '+' und '-' zoomen wieder (Keyboard-Zoom zurück).
-- Objekt hinzufügen/duplizieren jetzt über die 'Einfg'-Taste (Insert) —
-  analog zu 'Entf' (Delete) zum Löschen.
+Neu in v116:
+- Info-Panel: Zahnrad-Icon (öffnet Popup) + Lizenz-Anzeige; kein Versionshinweis mehr.
+- Popup: Lizenz aktivieren/anzeigen, Impressum UND neuer Einstellungen-Abschnitt.
+- Einstellung "Darstellung": Helles/Dunkles Design oder Auto (System) — Dark-Theme
+  für die UI; Zeichenfläche bleibt hell. Gespeichert in localStorage.
+- Einstellung "Sprache": Deutsch | English — vollständige Übersetzung der UI,
+  Tooltips, Dialoge, Meldungen und Objektnamen. Gespeichert.
 
-Verlauf: v110 Gast-Limit, v111 Edit-Dialog, v112 Bemaßung,
-         v113 Responsive/Touch, v114 Bemaßung-Bugfix + Tastatur/A11y.
+Verlauf: v112 Bemaßung, v113 Responsive/Touch, v114 Tastatur/A11y, v115 Tasten.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -21,7 +23,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V115</title>
+    <title>Ski-Simulation V116</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -266,6 +268,55 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             /* Farb-Button über das Dock heben */
             #gamepad { bottom: 120px; }
         }
+        /* ===== v116: Settings / Zahnrad ===== */
+        .footer-icon-btn { background: none; border: none; padding: 4px; margin: 0; cursor: pointer; color: #747579; display: flex; align-items: center; border-radius: 6px; }
+        .footer-icon-btn:hover { color: #1A1B1F; background: #eef0f2; }
+        .settings-section { margin-top: 18px; border-top: 1px solid #eee; padding-top: 12px; }
+        .settings-section h4 { margin: 0 0 10px; font-size: 15px; }
+        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .setting-row label { font-weight: 500; font-size: 14px; color: #1A1B1F; }
+        .setting-row select { padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 14px; background: #fff; color: #1A1B1F; min-width: 150px; }
+        .popup-version { text-align: right; font-size: 11px; color: #aaa; margin-top: 8px; }
+
+        /* ===== v116: Dunkles Design (nur UI-Chrome; Zeichenfläche bleibt hell) ===== */
+        body.theme-dark { background: #14161a; color: #e6e8eb; }
+        body.theme-dark .ui { background: rgba(32,35,40,0.96); box-shadow: 0 4px 20px rgba(0,0,0,0.5); color: #e6e8eb; }
+        body.theme-dark .ui-header { background: #262a31; border-bottom-color: #363b44; }
+        body.theme-dark .ui-header:hover { background: #2c313a; }
+        body.theme-dark h1, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4 { color: #f0f2f4; }
+        body.theme-dark li { color: #d6d9dd; }
+        body.theme-dark .key-badge { background: #363b44; border-color: #4a505a; color: #e6e8eb; }
+        body.theme-dark .toggle-icon { color: #9aa0a8; }
+        body.theme-dark .ui-footer { border-top-color: #363b44; }
+        body.theme-dark .footer-icon-btn { color: #9aa0a8; }
+        body.theme-dark .footer-icon-btn:hover { color: #fff; background: #2c313a; }
+        body.theme-dark .modal-content { background: #20232a; border-color: #363b44; color: #e6e8eb; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+        body.theme-dark .modal h3 { color: #f0f2f4; border-bottom-color: #363b44; }
+        body.theme-dark .modal-body, body.theme-dark .modal-body strong { color: #e6e8eb; }
+        body.theme-dark .close-btn { color: #9aa0a8; }
+        body.theme-dark .close-btn:hover { color: #fff; }
+        body.theme-dark #user-info-display { background: #262a31; border-left-color: #00a3b4; }
+        body.theme-dark .license-date { color: #9aa0a8; }
+        body.theme-dark .form-group label, body.theme-dark .setting-row label { color: #d6d9dd; }
+        body.theme-dark .form-group input, body.theme-dark .setting-row select { background: #2a2e36; border-color: #4a505a; color: #e6e8eb; }
+        body.theme-dark .btn-secondary { background: #363b44; color: #e6e8eb; }
+        body.theme-dark .btn-secondary:hover { background: #424955; }
+        body.theme-dark .settings-section { border-top-color: #363b44; }
+        body.theme-dark .popup-version { color: #777; }
+        body.theme-dark #dock { background: rgba(32,35,40,0.95); box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        body.theme-dark #dock:hover { background: rgba(32,35,40,1); }
+        body.theme-dark .dock-title { color: #9aa0a8; }
+        body.theme-dark .dock-item { background: #2a2e36; border-color: #4a505a; }
+        body.theme-dark .dock-item:active { background: #1e2937; border-color: #00a3b4; }
+        body.theme-dark .text-preview, body.theme-dark .vector-preview { color: #e6e8eb; }
+        body.theme-dark .header-btn { background: #262a31; color: #e6e8eb; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        body.theme-dark .header-btn:hover { background: #2c313a; }
+        body.theme-dark .header-btn:active { background: #1e2228; }
+        body.theme-dark .header-btn:disabled:hover { background: #262a31; }
+        body.theme-dark .control-group { background: rgba(32,35,40,0.85); }
+        body.theme-dark .touch-btn { background: #2a2e36; border-color: #4a505a; color: #e6e8eb; }
+        body.theme-dark #loader { background: #14161a; color: #e6e8eb; }
+        body.theme-dark .modal-link, body.theme-dark #licenseTrigger { color: #4cc6d4; }
     </style>
 </head>
 <body>
@@ -280,35 +331,56 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         <h3>ASI-Tirol Skisimulation</h3>
         <div class="modal-body">
             <div id="user-info-display">
-                Lizenziert für: <strong id="activeUserName">Gast</strong>
-                <span class="license-date">Gültig bis: <span id="licenseExpiry">-</span></span>
-                <span id="logoutBtn" class="logout-link" style="display:none;" onclick="deactivateLicense()">(Lizenz entfernen)</span>
+                <span id="lbl-licensedFor">Lizenziert für:</span> <strong id="activeUserName">Gast</strong>
+                <span class="license-date"><span id="lbl-validUntil">Gültig bis:</span> <span id="licenseExpiry">-</span></span>
+                <span id="logoutBtn" class="logout-link" style="display:none;" onclick="deactivateLicense()">(<span id="lbl-removeLicense">Lizenz entfernen</span>)</span>
             </div>
+            <button class="btn-primary" id="popupActivateBtn" style="display:none; width:100%; margin-bottom:15px;" onclick="openLicenseFromPopup()">Lizenz aktivieren</button>
 
-            Verantwortlich für die Skisimulation (App):
+            <span id="lbl-responsible">Verantwortlich für die Skisimulation (App):</span>
             <br><br>
             <strong>Werner Senn</strong>
             6591 Gurnau, Grins, Austria
             <br>
             <strong>Christian Klingler</strong>
             6511 Zams, Austria
+
+            <div id="settingsSection" class="settings-section">
+                <h4 id="lbl-settings">Einstellungen</h4>
+                <div class="setting-row">
+                    <label id="lbl-appearance" for="setTheme">Darstellung</label>
+                    <select id="setTheme">
+                        <option value="light" id="opt-light">Helles Design</option>
+                        <option value="dark" id="opt-dark">Dunkles Design</option>
+                        <option value="auto" id="opt-auto">Auto (System)</option>
+                    </select>
+                </div>
+                <div class="setting-row">
+                    <label id="lbl-language" for="setLang">Sprache</label>
+                    <select id="setLang">
+                        <option value="de">Deutsch</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+            </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
+        <div class="popup-version">v116</div>
     </div>
 </div>
 
 <div id="licenseModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal('licenseModal')">&times;</span>
-        <h3>Lizenz aktivieren</h3>
+        <h3 id="lm-title">Lizenz aktivieren</h3>
         <div class="modal-body">
             <div class="form-group">
-                <label for="licenseKey">Lizenzschlüssel eingeben:</label>
+                <label id="lm-label" for="licenseKey">Lizenzschlüssel eingeben:</label>
                 <input type="text" id="licenseKey" placeholder="z.B. ASI-XXXX-XXXX" autocomplete="off">
                 <div id="licenseError" class="error-msg">Schlüssel ungültig.</div>
             </div>
             <div class="login-actions">
-                <button class="btn-secondary" onclick="closeModal('licenseModal')">Abbrechen</button>
+                <button class="btn-secondary" id="lm-cancel" onclick="closeModal('licenseModal')">Abbrechen</button>
                 <button class="btn-primary" id="activateBtn">Aktivieren</button>
             </div>
         </div>
@@ -318,14 +390,14 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <div id="editModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeEdit()">&times;</span>
-        <h3>Bearbeiten</h3>
+        <h3 id="em-title">Bearbeiten</h3>
         <div class="modal-body">
             <div class="form-group">
                 <label id="editLabel" for="editInput">Text ändern:</label>
                 <input type="text" id="editInput" autocomplete="off">
             </div>
             <div class="login-actions">
-                <button class="btn-secondary" onclick="closeEdit()">Abbrechen</button>
+                <button class="btn-secondary" id="em-cancel" onclick="closeEdit()">Abbrechen</button>
                 <button class="btn-primary" id="editOkBtn">OK</button>
             </div>
         </div>
@@ -338,7 +410,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         <span class="toggle-icon">▼</span>
     </div>
     <div class="ui-content">
-        <ul style="margin:0; padding-left: 20px;">
+        <ul id="instrList" style="margin:0; padding-left: 20px;">
             <li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
@@ -354,13 +426,15 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         </ul>
         <div class="ui-footer">
             <span id="licenseTrigger">Lizenz aktivieren</span>
-            <div id="versionTrigger">v115 (Info)</div>
+            <button id="settingsTrigger" class="footer-icon-btn" title="Einstellungen" aria-label="Einstellungen">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
         </div>
     </div>
 </div>
 
 <button id="shareBtn" class="header-btn" title="Teilen">
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
         <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
     </svg>
@@ -378,7 +452,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
 <div id="gamepad">
     <div class="control-group">
-        <span style="font-size:10px; color:#747579;">Farbe</span>
+        <span id="lbl-farbe" style="font-size:10px; color:#747579;">Farbe</span>
         <button class="touch-btn" id="btnColor" title="Farbe ändern">🎨</button>
     </div>
 </div>
@@ -399,6 +473,109 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     const PUBLIC_JWK = { kty: "EC", crv: "P-256", x: "nsu4Z_DGOkiKxFTWb8KB_1FGR5vQbP8fMHvh_Kzke2I", y: "am4U3mkL6zzD_inls9DpoCkA7ritxp6Y36iX8HNM3qo", key_ops: ["verify"], ext: true };
 
     let license = null; // verifizierte Payload {sub,name,tier,feat,iat,exp} oder null
+
+    // ===== v116: Internationalisierung (DE/EN) + Theme =====
+    const I18N = {
+      de: {
+        loading: "Lade Simulation...",
+        licensedFor: "Lizenziert für:", validUntil: "Gültig bis:", removeLicense: "Lizenz entfernen",
+        responsible: "Verantwortlich für die Skisimulation (App):",
+        settings: "Einstellungen", appearance: "Darstellung", themeLight: "Helles Design", themeDark: "Dunkles Design", themeAuto: "Auto (System)", language: "Sprache",
+        activateLicense: "Lizenz aktivieren", enterKey: "Lizenzschlüssel eingeben:", keyPlaceholder: "z.B. ASI-XXXX-XXXX", cancel: "Abbrechen", activate: "Aktivieren", checking: "Prüfe...",
+        edit: "Bearbeiten", ok: "OK", color: "Farbe",
+        guestStatus: "Gast (keine Lizenz)",
+        editText: "Text ändern:", editSpeed: "Geschwindigkeit in km/h:", editDim: "Maß / Beschriftung:",
+        featNotIncluded: "Diese Funktion ist in deiner Lizenz nicht enthalten.", featNeedsLicense: "Diese Funktion benötigt eine aktive Lizenz.",
+        errInvalidKey: "Schlüssel ungültig.", errRevoked: "Lizenz wurde widerrufen.", errExpired: "Lizenz ist abgelaufen.", errRate: "Zu viele Versuche. Bitte später erneut.", errMissing: "Bitte einen Schlüssel eingeben.", errServer: "Verbindungs-/Serverfehler", errVerify: "Token-Verifikation fehlgeschlagen.",
+        dockLock: "Als Gast nur 1 Figur möglich – Lizenz aktivieren für mehr",
+        tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
+        offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
+        importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V116",
+        dockTitle: "Objekte", signLabel: "Schild",
+        objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
+        objSkiBlue: "Skifahrer (Blau)", objSkiGreen: "Skifahrer (Grün, gerade)", objSkiLeft: "Skifahrer (Grün, Schulter vor)", objSkiRight: "Skifahrer (Grün, Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
+        instructions: `<li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
+            <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
+            <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
+            <li><strong>Text/Vektor/Bemaßung:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
+            <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
+            <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
+            <li><strong>Bewegen:</strong> Pfeiltasten.</li>
+            <li><strong>Drehen:</strong> Tasten <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
+            <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">Einfg</span> (dupliziert Auswahl).</li>
+            <li><strong>Zoom:</strong> Tasten <span class="key-badge">+</span> / <span class="key-badge">−</span> oder Mausrad.</li>
+            <li><strong>Speichern:</strong> Taste <span class="key-badge">s</span> (JSON) / <span class="key-badge">e</span> (Bild).</li>
+            <li><strong>Import:</strong> Taste <span class="key-badge">o</span> (Öffnen).</li>`
+      },
+      en: {
+        loading: "Loading simulation...",
+        licensedFor: "Licensed to:", validUntil: "Valid until:", removeLicense: "Remove license",
+        responsible: "Responsible for the ski simulation (app):",
+        settings: "Settings", appearance: "Appearance", themeLight: "Light theme", themeDark: "Dark theme", themeAuto: "Auto (system)", language: "Language",
+        activateLicense: "Activate license", enterKey: "Enter license key:", keyPlaceholder: "e.g. ASI-XXXX-XXXX", cancel: "Cancel", activate: "Activate", checking: "Checking...",
+        edit: "Edit", ok: "OK", color: "Color",
+        guestStatus: "Guest (no license)",
+        editText: "Change text:", editSpeed: "Speed in km/h:", editDim: "Measurement / label:",
+        featNotIncluded: "This feature is not included in your license.", featNeedsLicense: "This feature requires an active license.",
+        errInvalidKey: "Invalid key.", errRevoked: "License has been revoked.", errExpired: "License has expired.", errRate: "Too many attempts. Please try again later.", errMissing: "Please enter a key.", errServer: "Connection/server error", errVerify: "Token verification failed.",
+        dockLock: "As a guest only 1 figure – activate a license for more",
+        tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
+        offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
+        importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V116",
+        dockTitle: "Objects", signLabel: "Sign",
+        objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
+        objSkiBlue: "Skier (blue)", objSkiGreen: "Skier (green, straight)", objSkiLeft: "Skier (green, shoulder forward)", objSkiRight: "Skier (green, shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
+        instructions: `<li><strong>Objects:</strong> Drag (mouse) or tap (touch).</li>
+            <li><strong>Focus:</strong> Click empty area to deselect.</li>
+            <li><strong>Touch:</strong> 2 fingers to zoom & rotate.</li>
+            <li><strong>Text/Vector/Dimension:</strong> <span class="key-badge">Enter</span> or <strong>double-click</strong>.</li>
+            <li><strong>Color:</strong> key <span class="key-badge">c</span> or button 🎨.</li>
+            <li><strong>Delete:</strong> key <span class="key-badge">Del</span> or drag back to dock.</li>
+            <li><strong>Move:</strong> arrow keys.</li>
+            <li><strong>Rotate:</strong> keys <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
+            <li><strong>Add:</strong> key <span class="key-badge">Ins</span> (duplicates selection).</li>
+            <li><strong>Zoom:</strong> keys <span class="key-badge">+</span> / <span class="key-badge">−</span> or mouse wheel.</li>
+            <li><strong>Save:</strong> key <span class="key-badge">s</span> (JSON) / <span class="key-badge">e</span> (image).</li>
+            <li><strong>Import:</strong> key <span class="key-badge">o</span> (open).</li>`
+      }
+    };
+    let lang = (localStorage.getItem('skisim_lang') === 'en') ? 'en' : 'de';
+    let themeMode = localStorage.getItem('skisim_theme') || 'auto';
+    function t(k) { return (I18N[lang] && I18N[lang][k] !== undefined) ? I18N[lang][k] : (I18N.de[k] || k); }
+    function setText(id, s) { const e = document.getElementById(id); if (e) e.textContent = s; }
+    function setTitleAttr(id, s) { const e = document.getElementById(id); if (e) e.title = s; }
+
+    function applyTheme(mode) {
+        themeMode = (['light', 'dark', 'auto'].includes(mode)) ? mode : 'auto';
+        localStorage.setItem('skisim_theme', themeMode);
+        const dark = themeMode === 'dark' || (themeMode === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.body.classList.toggle('theme-dark', dark);
+        const sel = document.getElementById('setTheme'); if (sel) sel.value = themeMode;
+    }
+    function applyLanguage(l) {
+        lang = (l === 'en') ? 'en' : 'de';
+        localStorage.setItem('skisim_lang', lang);
+        document.documentElement.lang = lang;
+        const list = document.getElementById('instrList'); if (list) list.innerHTML = t('instructions');
+        setText('loader', t('loading'));
+        setText('lbl-licensedFor', t('licensedFor')); setText('lbl-validUntil', t('validUntil')); setText('lbl-removeLicense', t('removeLicense'));
+        setText('lbl-responsible', t('responsible'));
+        setText('lbl-settings', t('settings')); setText('lbl-appearance', t('appearance')); setText('lbl-language', t('language'));
+        setText('opt-light', t('themeLight')); setText('opt-dark', t('themeDark')); setText('opt-auto', t('themeAuto'));
+        setText('popupActivateBtn', t('activateLicense'));
+        setText('lm-title', t('activateLicense')); setText('lm-label', t('enterKey'));
+        const lk = document.getElementById('licenseKey'); if (lk) lk.placeholder = t('keyPlaceholder');
+        setText('lm-cancel', t('cancel')); setText('activateBtn', t('activate'));
+        setText('em-title', t('edit')); setText('em-cancel', t('cancel')); setText('editOkBtn', t('ok'));
+        setText('lbl-farbe', t('color'));
+        setTitleAttr('importBtn', t('tImport')); setTitleAttr('settingsTrigger', t('tSettings')); setTitleAttr('btnColor', t('colorTitle'));
+        const sl = document.getElementById('setLang'); if (sl) sl.value = lang;
+        if (typeof updateLicenseUI === 'function') updateLicenseUI();
+        if (typeof renderDock === 'function') renderDock();
+    }
+    function openLicenseFromPopup() { closeModal('impressumModal'); openModal('licenseModal'); const k = document.getElementById('licenseKey'); if (k) k.focus(); }
 
     // ----- Modal-Helfer -----
     const impressumModal = document.getElementById("impressumModal");
@@ -439,7 +616,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function requireFeature(name) {
         if (hasFeature(name)) return true;
         const err = document.getElementById("licenseError");
-        err.innerText = license ? "Diese Funktion ist in deiner Lizenz nicht enthalten." : "Diese Funktion benoetigt eine aktive Lizenz.";
+        err.innerText = license ? t('featNotIncluded') : t('featNeedsLicense');
         err.style.display = "block";
         openModal("licenseModal");
         return false;
@@ -448,12 +625,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // ----- Aktivierung / Refresh -----
     function mapError(code, status) {
         switch (code) {
-            case "invalid_key": return "Schluessel ungueltig.";
-            case "revoked": return "Lizenz wurde widerrufen.";
-            case "expired": return "Lizenz ist abgelaufen.";
-            case "rate_limited": return "Zu viele Versuche. Bitte spaeter erneut.";
-            case "missing_key": return "Bitte einen Schluessel eingeben.";
-            default: return "Verbindungs-/Serverfehler (" + status + ").";
+            case "invalid_key": return t('errInvalidKey');
+            case "revoked": return t('errRevoked');
+            case "expired": return t('errExpired');
+            case "rate_limited": return t('errRate');
+            case "missing_key": return t('errMissing');
+            default: return t('errServer') + " (" + status + ").";
         }
     }
     async function activateLicense(key) {
@@ -461,7 +638,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(mapError(e.error, r.status)); }
         const data = await r.json();
         const payload = await verifyToken(data.token);
-        if (!payload) throw new Error("Token-Verifikation fehlgeschlagen.");
+        if (!payload) throw new Error(t('errVerify'));
         localStorage.setItem(LS_TOKEN, data.token);
         license = payload;
         return payload;
@@ -499,23 +676,26 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const nameEl = document.getElementById("activeUserName");
         const expEl = document.getElementById("licenseExpiry");
         const logoutBtn = document.getElementById("logoutBtn");
+        const popupActivate = document.getElementById("popupActivateBtn");
         if (license) {
             trig.innerText = "✓ " + String(license.name || "Lizenziert").split(" ")[0];
             trig.style.color = "#28a745";
             nameEl.innerText = (license.name || "Lizenz") + (license.tier ? " (" + license.tier + ")" : "");
             expEl.innerText = license.vu ? fmtIsoDate(license.vu) : fmtDate(license.exp);
             logoutBtn.style.display = "inline";
+            if (popupActivate) popupActivate.style.display = "none";
         } else {
-            trig.innerText = "Lizenz aktivieren";
+            trig.innerText = t('activateLicense');
             trig.style.color = "#007C89";
-            nameEl.innerText = "Gast (keine Lizenz)";
+            nameEl.innerText = t('guestStatus');
             expEl.innerText = "-";
             logoutBtn.style.display = "none";
+            if (popupActivate) popupActivate.style.display = "block";
         }
         // v109: nicht lizenzierte Funktionen ausgrauen + nicht klickbar
-        setGate("exportBtn", hasFeature("export"), "Bild exportieren (PNG)", "Export – mit deiner Lizenz nicht aktiv");
-        setGate("saveBtn",   hasFeature("save"),   "Projekt speichern (JSON)", "Speichern – mit deiner Lizenz nicht aktiv");
-        setGate("shareBtn",  hasFeature("share"),  "Teilen", "Teilen – mit deiner Lizenz nicht aktiv");
+        setGate("exportBtn", hasFeature("export"), t('tExport'), t('offExport'));
+        setGate("saveBtn",   hasFeature("save"),   t('tSave'),   t('offSave'));
+        setGate("shareBtn",  hasFeature("share"),  t('tShare'),  t('offShare'));
         renderDock(); // v110: Dock-Limit (Gast = 1 Personen-Figur) aktualisieren
     }
     async function initLicense() {
@@ -538,7 +718,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const err = document.getElementById("licenseError");
         const key = input.value.trim();
         if (!key) return;
-        btn.innerText = "Pruefe..."; btn.disabled = true; err.style.display = "none";
+        btn.innerText = t('checking'); btn.disabled = true; err.style.display = "none";
         try {
             await activateLicense(key);
             updateLicenseUI();
@@ -547,16 +727,21 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         } catch (e) {
             err.innerText = e.message; err.style.display = "block";
         } finally {
-            btn.innerText = "Aktivieren"; btn.disabled = false;
+            btn.innerText = t('activate'); btn.disabled = false;
         }
     }
-    document.getElementById("versionTrigger").onclick = function () { openModal("impressumModal"); };
+    document.getElementById("settingsTrigger").onclick = function () { openModal("impressumModal"); };
     document.getElementById("licenseTrigger").onclick = function () {
         if (license) { openModal("impressumModal"); }
         else { openModal("licenseModal"); document.getElementById("licenseKey").focus(); }
     };
     document.getElementById("activateBtn").addEventListener("click", doActivateFromInput);
     document.getElementById("licenseKey").addEventListener("keyup", function (e) { if (e.key === "Enter") doActivateFromInput(); });
+
+    // v116: Settings-Verdrahtung + Initialisierung (Theme/Sprache)
+    document.getElementById("setTheme").addEventListener("change", function (e) { applyTheme(e.target.value); });
+    document.getElementById("setLang").addEventListener("change", function (e) { applyLanguage(e.target.value); });
+    if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { if (themeMode === "auto") applyTheme("auto"); }); } catch (e) {} }
 
     window.onclick = function (event) {
         if (event.target == impressumModal) closeModal("impressumModal");
@@ -705,30 +890,29 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     function getGermanLabel(tpl) {
-        if (tpl.type === 'text') return 'Textfeld';
-        if (tpl.type === 'velocity') return 'Geschwindigkeits-Vektor';
-        if (tpl.type === 'bemassung') return 'Bemaßung';
-        if (tpl.type === 'line') return 'Linie';
-        if (tpl.type === 'arrow') return 'Pfeil';
-        if (tpl.type === 'vshape') return 'V-Form';
-        if (tpl.type === 'rect') return 'Box / Hindernis';
-        if (tpl.type === 'sign') return 'Warnschild (Veränderbar)';
+        if (tpl.type === 'text') return t('objText');
+        if (tpl.type === 'velocity') return t('objVelocity');
+        if (tpl.type === 'bemassung') return t('objBemassung');
+        if (tpl.type === 'line') return t('objLine');
+        if (tpl.type === 'arrow') return t('objArrow');
+        if (tpl.type === 'vshape') return t('objVshape');
+        if (tpl.type === 'rect') return t('objRect');
+        if (tpl.type === 'sign') return t('objSign');
         if (tpl.type === 'sprite') {
             switch(tpl.assetKey) {
-                case 'skiBlue': return 'Skifahrer (Blau)';
-                case 'skiGreen': return 'Skifahrer (Grün, gerade)';
-                case 'skiLeftShoulder': return 'Skifahrer (Grün, Schulter vor)';
-                case 'skiRightShoulder': return 'Skifahrer (Grün, Schulter zurück)';
-                case 'skiPlow': return 'Pflugfahrer';
-                case 'boarder': return 'Snowboarder';
-                case 'sled': return 'Rodler';
-                case 'injured': return 'Verletzte Person';
-                case 'tree': return 'Baum';
-                // NEW LABEL FOR FENCE
-                case 'fence': return 'Fangzaun';
+                case 'skiBlue': return t('objSkiBlue');
+                case 'skiGreen': return t('objSkiGreen');
+                case 'skiLeftShoulder': return t('objSkiLeft');
+                case 'skiRightShoulder': return t('objSkiRight');
+                case 'skiPlow': return t('objPlow');
+                case 'boarder': return t('objBoarder');
+                case 'sled': return t('objSled');
+                case 'injured': return t('objInjured');
+                case 'tree': return t('objTree');
+                case 'fence': return t('objFence');
             }
         }
-        return 'Objekt';
+        return t('objDefault');
     }
 
     function preloadAssets(callback) {
@@ -796,7 +980,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function guestPersonLimitReached() { return !license && personCount() >= 1; }
 
     function renderDock() {
-        dockContainer.innerHTML = '<div class="dock-title">Objekte</div>';
+        dockContainer.innerHTML = '<div class="dock-title">' + t('dockTitle') + '</div>';
         dockedObjects.forEach((tpl, index) => {
             const el = document.createElement('div'); el.className = 'dock-item';
             el.title = getGermanLabel(tpl); 
@@ -813,7 +997,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             }
             if (isPersonTpl(tpl) && guestPersonLimitReached()) {
                 el.classList.add('locked');
-                el.title = 'Als Gast nur 1 Figur möglich – Lizenz aktivieren für mehr';
+                el.title = t('dockLock');
             } else {
                 // Maus: Drag-and-Drop wie bisher
                 el.addEventListener('mousedown', (e) => handleDockDragStart(e, tpl, index));
@@ -1125,11 +1309,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                     console.log("Import erfolgreich. Objekte: " + activeObjects.length);
                     renderDock(); // v110: Dock-Limit nach Import aktualisieren
                 } else {
-                    alert("Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.");
+                    alert(t('importBadFormat'));
                 }
             } catch (err) {
                 console.error(err);
-                alert("Fehler beim Lesen der Datei.");
+                alert(t('importReadError'));
             }
             // Reset input so same file can be selected again if needed
             event.target.value = '';
@@ -1143,7 +1327,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V115', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: t('shareTitle'), text: t('shareText'), files: [file] }); } catch (err) { console.log('share cancelled', err); } } else { alert(t('shareNotSupported')); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
@@ -1188,7 +1372,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const radius = Math.min(p.width, p.height) * 0.30; const centerYOffset = -p.height * 0.05;
             ctx.beginPath(); ctx.arc(0, centerYOffset, radius, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.fill();
             ctx.fillStyle = '#ffffff'; const fontSize = Math.round(p.height * 0.18); ctx.font = 'bold ' + fontSize + 'px Arial, sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('Schild', 0, centerYOffset + (p.height * 0.07));
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(t('signLabel'), 0, centerYOffset + (p.height * 0.07));
         }
         ctx.restore(); 
     }
@@ -1208,6 +1392,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         }
         requestAnimationFrame(drawLoop);
     }
+    // v116: Theme/Sprache initialisieren (erst hier, nach allen const/let-Deklarationen)
+    applyTheme(themeMode);
+    applyLanguage(lang);
     preloadAssets(startGame);
 </script>
 </body>
