@@ -17,8 +17,15 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0006](0006-kv-datenmodell.md) | KV-Datenmodell: Zeiger + Datensatz (für /refresh) | Akzeptiert | 2026-06-25 |
 | [0007](0007-auslieferung-github-pages.md) | Auslieferung via GitHub Pages (Entwicklung), später alpinesicherheit.com | Akzeptiert | 2026-06-25 |
 | [0008](0008-single-file-versionierung.md) | Single-File-Versionierung mit Changelog-Kommentar | Akzeptiert | 2026-06-25 |
+| [0009](0009-theme-system.md) | Theme-System (Hell / Dunkel / Auto), nur UI dunkel | Akzeptiert | 2026-06-25 |
+| [0010](0010-mehrsprachigkeit-de-en.md) | Mehrsprachigkeit (Deutsch / English) per Laufzeit-i18n | Akzeptiert | 2026-06-25 |
+| [0011](0011-in-app-dialoge-statt-prompt.md) | Eigene In-App-Dialoge statt nativer prompt() | Akzeptiert | 2026-06-25 |
+| [0012](0012-gast-einschraenkungen.md) | Gast-Einschränkungen (Freemium-Gating) | Akzeptiert | 2026-06-25 |
+| [0013](0013-geraete-eingabe-barrierefreiheit.md) | Geräte- & Eingabe-Unterstützung (Responsive, Touch, Tastatur, A11y) | Akzeptiert | 2026-06-25 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client **v107** als `index.html` im Repo und via GitHub Pages online
-(https://asolvo.github.io/skisim/). Produktivauslieferung auf
-`alpinesicherheit.com` erfolgt später durch den Betreiber.
+aktiv, Client aktuell **v116** als `index.html` im Repo und via GitHub Pages online
+(https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
+Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
+Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
+(v116). Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.
