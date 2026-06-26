@@ -1,22 +1,17 @@
-<!-- Skisim v114 -->
-<!-- Bugfix Bemaßung-Editor + Tastatur/Barrierefreiheit
+<!-- Skisim v115 -->
+<!-- Tastenbelegung: + / - zoomen wieder, Objekt hinzufügen via Einfg
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Änderungen in v114:
-- Bugfix: Bemaßung lässt sich jetzt auch per Doppelklick/Doppeltipp ändern
-  (die Bedingung in handleStart kannte den Typ 'bemassung' nicht).
-- Tastatur: Objekt hinzufügen/duplizieren mit '+', Drehen layoutunabhängig
-  mit ',' / '.' (zusätzlich zu ö/ä), 'Esc' schließt Dialoge.
-  (Keyboard-Zoom +/- entfällt; Zoom weiter per Mausrad / 2-Finger.)
-- Barrierefreiheit: 'user-scalable=no' entfernt und 'touch-action: none' nur
-  noch auf dem Canvas → Seite/UI lässt sich auf Mobil zoomen.
-- Querformat: Panel wird nicht mehr ausgeblendet (Lizenz-Link bleibt erreichbar);
-  Inhalt scrollt bei wenig Höhe.
+Änderung gegenüber v114:
+- '+' und '-' zoomen wieder (Keyboard-Zoom zurück).
+- Objekt hinzufügen/duplizieren jetzt über die 'Einfg'-Taste (Insert) —
+  analog zu 'Entf' (Delete) zum Löschen.
 
-Verlauf: v110 Gast-Limit, v111 Edit-Dialog, v112 Bemaßung, v113 Responsive/Touch.
+Verlauf: v110 Gast-Limit, v111 Edit-Dialog, v112 Bemaßung,
+         v113 Responsive/Touch, v114 Bemaßung-Bugfix + Tastatur/A11y.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -26,7 +21,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V114</title>
+    <title>Ski-Simulation V115</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -352,13 +347,14 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
             <li><strong>Bewegen:</strong> Pfeiltasten.</li>
             <li><strong>Drehen:</strong> Tasten <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
-            <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">+</span> (dupliziert Auswahl).</li>
+            <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">Einfg</span> (dupliziert Auswahl).</li>
+            <li><strong>Zoom:</strong> Tasten <span class="key-badge">+</span> / <span class="key-badge">−</span> oder Mausrad.</li>
             <li><strong>Speichern:</strong> Taste <span class="key-badge">s</span> (JSON) / <span class="key-badge">e</span> (Bild).</li>
             <li><strong>Import:</strong> Taste <span class="key-badge">o</span> (Öffnen).</li>
         </ul>
         <div class="ui-footer">
             <span id="licenseTrigger">Lizenz aktivieren</span>
-            <div id="versionTrigger">v114 (Info)</div>
+            <div id="versionTrigger">v115 (Info)</div>
         </div>
     </div>
 </div>
@@ -596,7 +592,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (e.key==='s'||e.key==='S') { saveProject(); return; }
         if (e.key==='e'||e.key==='E') { exportImage(); return; }
         if (e.key==='o'||e.key==='O') { importProject(); return; }
-        if (e.key==='+'||e.key==='=') { addOrDuplicate(); return; } // v114: Objekt hinzufügen/duplizieren
+        if (e.key==='Insert') { addOrDuplicate(); return; } // v115: Objekt hinzufügen/duplizieren (Einfg-Taste, analog Entf zum Löschen)
 
         if (e.code==='Tab') {
             e.preventDefault();
@@ -613,6 +609,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
         // v114: Drehen via ö/ä (DE) oder , / . (layoutunabhängig)
         if(e.key==='ö'||e.key==='Ö'||e.key===',') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä'||e.key==='.') keys['RotateRight']=true;
+        if(e.key==='+') keys['ZoomIn']=true; if(e.key==='-') keys['ZoomOut']=true; // v115: Keyboard-Zoom wieder aktiv
     });
 
     window.addEventListener('keyup', e => {
@@ -622,6 +619,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä') || e.key===',' || e.key==='.') triggerSnap(activePlayerIndex);
         if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
         if(e.key==='ö'||e.key==='Ö'||e.key===',') keys['RotateLeft']=false; if(e.key==='ä'||e.key==='Ä'||e.key==='.') keys['RotateRight']=false;
+        if(e.key==='+') keys['ZoomIn']=false; if(e.key==='-') keys['ZoomOut']=false;
     });
 
     // --- ASSETS & GAME LOOP (unchanged) ---
@@ -1145,7 +1143,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V114', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: 'Ski-Unfallskizze', text: 'Erstellt mit Ski-Simulation V115', files: [file] }); } catch (err) { console.log('Teilen abgebrochen', err); } } else { alert('Teilen nicht unterstützt.'); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
