@@ -22,10 +22,12 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0011](0011-in-app-dialoge-statt-prompt.md) | Eigene In-App-Dialoge statt nativer prompt() | Akzeptiert | 2026-06-25 |
 | [0012](0012-gast-einschraenkungen.md) | Gast-Einschränkungen (Freemium-Gating) | Akzeptiert | 2026-06-25 |
 | [0013](0013-geraete-eingabe-barrierefreiheit.md) | Geräte- & Eingabe-Unterstützung (Responsive, Touch, Tastatur, A11y) | Akzeptiert | 2026-06-25 |
+| [0014](0014-farbschema-und-farbwaehler.md) | Farbschema (7 Farben, Pisten-Blau/-Rot) und kontextueller Farbwähler | Akzeptiert | 2026-06-25 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **v116** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **v117** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
-(v116). Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.
+(v116), Farbschema & kontextueller Farbwähler (v117). Produktivauslieferung auf
+`alpinesicherheit.com` erfolgt später durch den Betreiber.
