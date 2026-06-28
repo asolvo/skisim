@@ -1,18 +1,16 @@
-<!-- Skisim v119 -->
-<!-- Objekt-Grafiken: Pflugfahrer-Ski dunkel, Schild als Warnsymbol
+<!-- Skisim v120 -->
+<!-- V-Form: konstante Linienstärke beim Skalieren (nur länger, nicht dicker)
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Neu in v119:
-- Pflugfahrer: Ski jetzt dunkel (statt grün); Stellung, Arme und Helm/Brille
-  unverändert.
-- Schild: statt des Wortes nun ein sprachunabhängiges Warnsymbol „!" (weißer
-  Rand + Ausrufezeichen), rund und einfärbbar — in Dock-Vorschau und auf der
-  Zeichenfläche.
+Neu in v120:
+- V-Form: Die Linienstärke ist jetzt konstant; beim Skalieren werden die beiden
+  Geraden nur länger, nicht dicker (analog zur Bemaßung). Vorher hing die
+  Strichbreite von der Höhe ab (lineWidth = p.height/15), jetzt fix.
 
-Verlauf: v115 Tasten, v116 Settings/Theme/Sprache, v117 Farbschema, v118 Objekt-Grafiken.
+Verlauf: v116 Settings/Theme/Sprache, v117 Farbschema, v118/v119 Objekt-Grafiken.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -22,7 +20,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V119</title>
+    <title>Ski-Simulation V120</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -375,7 +373,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v119</div>
+        <div class="popup-version">v120</div>
     </div>
 </div>
 
@@ -501,7 +499,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V119",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V120",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
         objSkiBlue: "Skifahrer (Blau)", objSkiGreen: "Skifahrer (Grün, gerade)", objSkiLeft: "Skifahrer (Grün, Schulter vor)", objSkiRight: "Skifahrer (Grün, Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -533,7 +531,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V119",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V120",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
         objSkiBlue: "Skier (blue)", objSkiGreen: "Skier (green, straight)", objSkiLeft: "Skier (green, shoulder forward)", objSkiRight: "Skier (green, shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -1397,7 +1395,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         else if (p.type === 'text') { ctx.font = 'bold ' + p.height + 'px Arial'; ctx.fillStyle = p.color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(p.text, 0, 0); } 
         else if (p.type === 'rect') { ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
         else if (p.type === 'line') { ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2, 0); ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/5); ctx.lineCap = 'round'; ctx.stroke(); }
-        else if (p.type === 'vshape') { ctx.beginPath(); ctx.moveTo(-p.width/2, -p.height/2); ctx.lineTo(0, p.height/2); ctx.lineTo(p.width/2, -p.height/2); ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/15); ctx.lineCap = 'round'; ctx.stroke(); }
+        else if (p.type === 'vshape') { ctx.beginPath(); ctx.moveTo(-p.width/2, -p.height/2); ctx.lineTo(0, p.height/2); ctx.lineTo(p.width/2, -p.height/2); ctx.strokeStyle = p.color; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.stroke(); } /* v120: feste Linienstärke (nur länger, nicht dicker) */
         else if (p.type === 'arrow') { const headLen = p.width * 0.2; const bodyH = p.height * 0.2; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = bodyH; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -p.height/2); ctx.lineTo(p.width/2 - headLen, p.height/2); ctx.fill(); }
         else if (p.type === 'velocity') { const headLen = p.width * 0.15; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -8); ctx.lineTo(p.width/2 - headLen, 8); ctx.fill(); ctx.save(); ctx.translate(0, -15); ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); }
         else if (p.type === 'bemassung') {
