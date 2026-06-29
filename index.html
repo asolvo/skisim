@@ -1,9 +1,14 @@
-<!-- Skisim v124 -->
-<!-- Bugfixes: Snowboarder-Rotation + Drag-Vorschau Text/Vektor
+<!-- Skisim v125 -->
+<!-- Farbauswahl: Tooltips mit Farbnamen statt Hex-Werten
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v125:
+- Farbleiste: Swatch-Tooltips zeigen Farbnamen (z. B. Rot, Rosa, Violett) statt
+  Hex-Werte. Namen für beide Paletten (Objekte + Skimode), DE/EN, aktualisieren
+  sich bei Sprachwechsel.
 
 Neu in v124:
 - Snowboarder bleibt beim Platzieren waagrecht (Template-Rotation 90°→0°; kein
@@ -44,7 +49,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V124</title>
+    <title>Ski-Simulation V125</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -408,7 +413,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v124</div>
+        <div class="popup-version">v125</div>
     </div>
 </div>
 
@@ -534,7 +539,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V124",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V125",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -566,7 +571,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V124",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V125",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -626,6 +631,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setGroupSel('grpLang', lang);
         if (typeof updateLicenseUI === 'function') updateLicenseUI();
         if (typeof renderDock === 'function') renderDock();
+        const swWrap = document.getElementById('colorSwatches'); // v125: Farbnamen-Tooltips an Sprache anpassen
+        if (swWrap) Array.prototype.forEach.call(swWrap.children, function (b) { b.title = colorName(b.dataset.color); });
     }
     function openLicenseFromPopup() { closeModal('impressumModal'); openModal('licenseModal'); const k = document.getElementById('licenseKey'); if (k) k.focus(); }
 
@@ -901,6 +908,16 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // COLORS for Cycle
     const COLOR_PALETTE = ['#2C7FB8', '#D9343B', '#2B2B2B', '#5BA86B', '#9C6B43', '#A6A6A6', '#ECECE6']; // v117: Blau, Rot, Schwarz, Grün, Braun, Grau, Fast-Weiß
     const FIGURE_PALETTE = ['#1E1E1E', '#ECE6D8', '#54595E', '#EE8FBE', '#EF7A1A', '#74803B', '#0E8E8E', '#6FB7E0', '#1F3A6B', '#6E54C8', '#D63C82']; // v121 Skimode: Schwarz, Bone, Graphit, Rosa, Orange, Olivgrün, Petrol, Eisblau, Tiefblau, Violett, Beere
+    // v125: Farbnamen für die Swatch-Tooltips (statt Hex-Werten)
+    const COLOR_NAMES = {
+        '#2C7FB8': { de: 'Blau', en: 'Blue' }, '#D9343B': { de: 'Rot', en: 'Red' }, '#2B2B2B': { de: 'Schwarz', en: 'Black' },
+        '#5BA86B': { de: 'Grün', en: 'Green' }, '#9C6B43': { de: 'Braun', en: 'Brown' }, '#A6A6A6': { de: 'Grau', en: 'Grey' }, '#ECECE6': { de: 'Weiß', en: 'White' },
+        '#1E1E1E': { de: 'Schwarz', en: 'Black' }, '#ECE6D8': { de: 'Beige', en: 'Bone' }, '#54595E': { de: 'Graphit', en: 'Graphite' },
+        '#EE8FBE': { de: 'Rosa', en: 'Pink' }, '#EF7A1A': { de: 'Orange', en: 'Orange' }, '#74803B': { de: 'Olivgrün', en: 'Olive' },
+        '#0E8E8E': { de: 'Petrol', en: 'Teal' }, '#6FB7E0': { de: 'Eisblau', en: 'Ice blue' }, '#1F3A6B': { de: 'Tiefblau', en: 'Navy' },
+        '#6E54C8': { de: 'Violett', en: 'Violet' }, '#D63C82': { de: 'Beere', en: 'Berry' }
+    };
+    function colorName(hex) { const n = COLOR_NAMES[String(hex).toUpperCase()]; return n ? (n[lang] || n.de) : hex; }
 
     // v121: einfärbbare Figuren — Jacke/Körper wird zur Laufzeit umgefärbt (gecacht)
     function darken(hex, f) {
@@ -1349,7 +1366,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             b.className = 'color-swatch';
             b.style.background = c;
             b.dataset.color = c;
-            b.title = c;
+            b.title = colorName(c);
             const setC = function (e) {
                 e.preventDefault();
                 const p = (activePlayerIndex !== -1) ? activeObjects[activePlayerIndex] : null;
