@@ -1,9 +1,16 @@
-<!-- Skisim v122 -->
-<!-- Hilfetext-Korrektur (Farbleiste)
+<!-- Skisim v123 -->
+<!-- Settings: Connected Button Groups + Hilfe-Box Reihenfolge
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v123:
+- Settings (Darstellung/Sprache): Dropdowns durch "Connected Button Groups"
+  ersetzt (Material Design 3) — segmentierte, verbundene Buttons; aktiver Wert
+  gefüllt (App-Teal) mit ✓, fully-rounded; Light + Dark. Tastatur/Touch-fähig.
+- Hilfe/Info-Box: "Hinzufügen" (Einfg) und "Löschen" (Entf) stehen jetzt als
+  Paar direkt nebeneinander (DE + EN, statisches HTML + i18n).
 
 Neu in v122:
 - Hilfe/Info-Box korrigiert: "Farbe: Taste c oder Button 🎨" verwies noch auf den
@@ -30,7 +37,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V122</title>
+    <title>Ski-Simulation V123</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -280,9 +287,17 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         .footer-icon-btn:hover { color: #1A1B1F; background: #eef0f2; }
         .settings-section { margin-top: 18px; border-top: 1px solid #eee; padding-top: 12px; }
         .settings-section h4 { margin: 0 0 10px; font-size: 15px; }
-        .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 10px; }
+        .setting-row { display: flex; flex-direction: column; align-items: stretch; margin-bottom: 14px; gap: 8px; }
         .setting-row label { font-weight: 500; font-size: 14px; color: #1A1B1F; }
-        .setting-row select { padding: 6px 8px; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 14px; background: #fff; color: #1A1B1F; min-width: 150px; }
+        /* v123: Connected Button Group (Material Design 3) statt Dropdown */
+        .btn-group { display: flex; width: 100%; gap: 3px; }
+        .btn-group .seg { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 9px 8px; border: none; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; background: #e7e9ee; color: #1A1B1F; border-radius: 7px; transition: background .12s, color .12s, border-radius .12s; white-space: nowrap; touch-action: manipulation; }
+        .btn-group .seg:first-child { border-top-left-radius: 18px; border-bottom-left-radius: 18px; }
+        .btn-group .seg:last-child { border-top-right-radius: 18px; border-bottom-right-radius: 18px; }
+        .btn-group .seg:hover { background: #dadde4; }
+        .btn-group .seg.is-selected { background: #007C89; color: #fff; border-radius: 18px; }
+        .btn-group .seg .seg-check { width: 0; overflow: hidden; opacity: 0; transition: width .12s, opacity .12s; }
+        .btn-group .seg.is-selected .seg-check { width: 15px; opacity: 1; }
         .popup-version { text-align: right; font-size: 11px; color: #aaa; margin-top: 8px; }
 
         /* ===== v116: Dunkles Design (nur UI-Chrome; Zeichenfläche bleibt hell) ===== */
@@ -305,7 +320,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         body.theme-dark #user-info-display { background: #262a31; border-left-color: #00a3b4; }
         body.theme-dark .license-date { color: #9aa0a8; }
         body.theme-dark .form-group label, body.theme-dark .setting-row label { color: #d6d9dd; }
-        body.theme-dark .form-group input, body.theme-dark .setting-row select { background: #2a2e36; border-color: #4a505a; color: #e6e8eb; }
+        body.theme-dark .form-group input { background: #2a2e36; border-color: #4a505a; color: #e6e8eb; }
+        body.theme-dark .btn-group .seg { background: #2a2e36; color: #e6e8eb; }
+        body.theme-dark .btn-group .seg:hover { background: #343a44; }
+        body.theme-dark .btn-group .seg.is-selected { background: #00a3b4; color: #fff; }
         body.theme-dark .btn-secondary { background: #363b44; color: #e6e8eb; }
         body.theme-dark .btn-secondary:hover { background: #424955; }
         body.theme-dark .settings-section { border-top-color: #363b44; }
@@ -366,24 +384,24 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <div id="settingsSection" class="settings-section">
                 <h4 id="lbl-settings">Einstellungen</h4>
                 <div class="setting-row">
-                    <label id="lbl-appearance" for="setTheme">Darstellung</label>
-                    <select id="setTheme">
-                        <option value="light" id="opt-light">Helles Design</option>
-                        <option value="dark" id="opt-dark">Dunkles Design</option>
-                        <option value="auto" id="opt-auto">Auto (System)</option>
-                    </select>
+                    <label id="lbl-appearance">Darstellung</label>
+                    <div class="btn-group" id="grpTheme" role="group" aria-label="Darstellung">
+                        <button type="button" class="seg" data-val="light"><span class="seg-check">✓</span><span id="opt-light">Hell</span></button>
+                        <button type="button" class="seg" data-val="dark"><span class="seg-check">✓</span><span id="opt-dark">Dunkel</span></button>
+                        <button type="button" class="seg" data-val="auto"><span class="seg-check">✓</span><span id="opt-auto">Auto</span></button>
+                    </div>
                 </div>
                 <div class="setting-row">
-                    <label id="lbl-language" for="setLang">Sprache</label>
-                    <select id="setLang">
-                        <option value="de">Deutsch</option>
-                        <option value="en">English</option>
-                    </select>
+                    <label id="lbl-language">Sprache</label>
+                    <div class="btn-group" id="grpLang" role="group" aria-label="Sprache">
+                        <button type="button" class="seg" data-val="de"><span class="seg-check">✓</span><span>Deutsch</span></button>
+                        <button type="button" class="seg" data-val="en"><span class="seg-check">✓</span><span>English</span></button>
+                    </div>
                 </div>
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v122</div>
+        <div class="popup-version">v123</div>
     </div>
 </div>
 
@@ -434,10 +452,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
             <li><strong>Text/Vektor/Bemaßung:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Farbleiste (bei Auswahl).</li>
+            <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">Einfg</span> (dupliziert Auswahl).</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
             <li><strong>Bewegen:</strong> Pfeiltasten.</li>
             <li><strong>Drehen:</strong> Tasten <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
-            <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">Einfg</span> (dupliziert Auswahl).</li>
             <li><strong>Zoom:</strong> Tasten <span class="key-badge">+</span> / <span class="key-badge">−</span> oder Mausrad.</li>
             <li><strong>Speichern:</strong> Taste <span class="key-badge">s</span> (JSON) / <span class="key-badge">e</span> (Bild).</li>
             <li><strong>Import:</strong> Taste <span class="key-badge">o</span> (Öffnen).</li>
@@ -498,7 +516,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         loading: "Lade Simulation...",
         licensedFor: "Lizenziert für:", validUntil: "Gültig bis:", removeLicense: "Lizenz entfernen",
         responsible: "Verantwortlich für die Skisimulation (App):",
-        settings: "Einstellungen", appearance: "Darstellung", themeLight: "Helles Design", themeDark: "Dunkles Design", themeAuto: "Auto (System)", language: "Sprache",
+        settings: "Einstellungen", appearance: "Darstellung", themeLight: "Hell", themeDark: "Dunkel", themeAuto: "Auto", language: "Sprache",
         activateLicense: "Lizenz aktivieren", enterKey: "Lizenzschlüssel eingeben:", keyPlaceholder: "z.B. ASI-XXXX-XXXX", cancel: "Abbrechen", activate: "Aktivieren", checking: "Prüfe...",
         edit: "Bearbeiten", ok: "OK", color: "Farbe",
         guestStatus: "Gast (keine Lizenz)",
@@ -509,7 +527,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V122",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V123",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -518,10 +536,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
             <li><strong>Text/Vektor/Bemaßung:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Farbleiste (bei Auswahl).</li>
+            <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">Einfg</span> (dupliziert Auswahl).</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
             <li><strong>Bewegen:</strong> Pfeiltasten.</li>
             <li><strong>Drehen:</strong> Tasten <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
-            <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">Einfg</span> (dupliziert Auswahl).</li>
             <li><strong>Zoom:</strong> Tasten <span class="key-badge">+</span> / <span class="key-badge">−</span> oder Mausrad.</li>
             <li><strong>Speichern:</strong> Taste <span class="key-badge">s</span> (JSON) / <span class="key-badge">e</span> (Bild).</li>
             <li><strong>Import:</strong> Taste <span class="key-badge">o</span> (Öffnen).</li>`
@@ -530,7 +548,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         loading: "Loading simulation...",
         licensedFor: "Licensed to:", validUntil: "Valid until:", removeLicense: "Remove license",
         responsible: "Responsible for the ski simulation (app):",
-        settings: "Settings", appearance: "Appearance", themeLight: "Light theme", themeDark: "Dark theme", themeAuto: "Auto (system)", language: "Language",
+        settings: "Settings", appearance: "Appearance", themeLight: "Light", themeDark: "Dark", themeAuto: "Auto", language: "Language",
         activateLicense: "Activate license", enterKey: "Enter license key:", keyPlaceholder: "e.g. ASI-XXXX-XXXX", cancel: "Cancel", activate: "Activate", checking: "Checking...",
         edit: "Edit", ok: "OK", color: "Color",
         guestStatus: "Guest (no license)",
@@ -541,7 +559,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V122",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V123",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -550,10 +568,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Touch:</strong> 2 fingers to zoom & rotate.</li>
             <li><strong>Text/Vector/Dimension:</strong> <span class="key-badge">Enter</span> or <strong>double-click</strong>.</li>
             <li><strong>Color:</strong> key <span class="key-badge">c</span> or color bar (when selected).</li>
+            <li><strong>Add:</strong> key <span class="key-badge">Ins</span> (duplicates selection).</li>
             <li><strong>Delete:</strong> key <span class="key-badge">Del</span> or drag back to dock.</li>
             <li><strong>Move:</strong> arrow keys.</li>
             <li><strong>Rotate:</strong> keys <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
-            <li><strong>Add:</strong> key <span class="key-badge">Ins</span> (duplicates selection).</li>
             <li><strong>Zoom:</strong> keys <span class="key-badge">+</span> / <span class="key-badge">−</span> or mouse wheel.</li>
             <li><strong>Save:</strong> key <span class="key-badge">s</span> (JSON) / <span class="key-badge">e</span> (image).</li>
             <li><strong>Import:</strong> key <span class="key-badge">o</span> (open).</li>`
@@ -564,13 +582,22 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function t(k) { return (I18N[lang] && I18N[lang][k] !== undefined) ? I18N[lang][k] : (I18N.de[k] || k); }
     function setText(id, s) { const e = document.getElementById(id); if (e) e.textContent = s; }
     function setTitleAttr(id, s) { const e = document.getElementById(id); if (e) e.title = s; }
+    // v123: Connected Button Group — markiert den aktiven Wert (data-val)
+    function setGroupSel(groupId, val) {
+        const g = document.getElementById(groupId); if (!g) return;
+        g.querySelectorAll('.seg').forEach(function (b) {
+            const on = b.getAttribute('data-val') === val;
+            b.classList.toggle('is-selected', on);
+            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    }
 
     function applyTheme(mode) {
         themeMode = (['light', 'dark', 'auto'].includes(mode)) ? mode : 'auto';
         localStorage.setItem('skisim_theme', themeMode);
         const dark = themeMode === 'dark' || (themeMode === 'auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         document.body.classList.toggle('theme-dark', dark);
-        const sel = document.getElementById('setTheme'); if (sel) sel.value = themeMode;
+        setGroupSel('grpTheme', themeMode);
     }
     function applyLanguage(l) {
         lang = (l === 'en') ? 'en' : 'de';
@@ -589,7 +616,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setText('em-title', t('edit')); setText('em-cancel', t('cancel')); setText('editOkBtn', t('ok'));
         setText('lbl-farbe', t('color'));
         setTitleAttr('importBtn', t('tImport')); setTitleAttr('settingsTrigger', t('tSettings')); setTitleAttr('btnColor', t('colorTitle'));
-        const sl = document.getElementById('setLang'); if (sl) sl.value = lang;
+        setGroupSel('grpLang', lang);
         if (typeof updateLicenseUI === 'function') updateLicenseUI();
         if (typeof renderDock === 'function') renderDock();
     }
@@ -757,8 +784,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById("licenseKey").addEventListener("keyup", function (e) { if (e.key === "Enter") doActivateFromInput(); });
 
     // v116: Settings-Verdrahtung + Initialisierung (Theme/Sprache)
-    document.getElementById("setTheme").addEventListener("change", function (e) { applyTheme(e.target.value); });
-    document.getElementById("setLang").addEventListener("change", function (e) { applyLanguage(e.target.value); });
+    document.getElementById("grpTheme").addEventListener("click", function (e) { const b = e.target.closest(".seg"); if (b) applyTheme(b.getAttribute("data-val")); });
+    document.getElementById("grpLang").addEventListener("click", function (e) { const b = e.target.closest(".seg"); if (b) applyLanguage(b.getAttribute("data-val")); });
     if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { if (themeMode === "auto") applyTheme("auto"); }); } catch (e) {} }
 
     window.onclick = function (event) {

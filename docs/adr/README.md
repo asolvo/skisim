@@ -26,13 +26,15 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0015](0015-objekt-grafiken.md) | Objekt-Grafiken: Top-Down-Stil und Überarbeitung | Akzeptiert | 2026-06-25 |
 | [0016](0016-vform-konstante-linienbreite.md) | V-Form mit skalier-invarianter Linienbreite | Akzeptiert | 2026-06-29 |
 | [0017](0017-einfaerbbare-figuren-skimode-palette.md) | Einfärbbare Personen-Figuren mit separater Skimode-Palette | Akzeptiert | 2026-06-29 |
+| [0018](0018-settings-connected-button-groups.md) | Settings-Auswahl als Connected Button Groups (Material Design 3) | Akzeptiert | 2026-06-29 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **v121** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **v123** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
 (v116), Farbschema & kontextueller Farbwähler (v117), Objekt-Grafiken überarbeitet
 (v118/v119), V-Form mit konstanter Linienbreite (v120), einfärbbare Personen-Figuren
-mit separater Skimode-Palette (v121). Produktivauslieferung auf `alpinesicherheit.com`
+mit separater Skimode-Palette (v121), Hilfetext-Korrektur (v122), Settings-Auswahl
+als Connected Button Groups (v123). Produktivauslieferung auf `alpinesicherheit.com`
 erfolgt später durch den Betreiber.
