@@ -1,6 +1,6 @@
 # User Stories — Ski-Simulation
 
-**Stand:** v119 · App: [asolvo.github.io/skisim](https://asolvo.github.io/skisim/)
+**Stand:** v121 · App: [asolvo.github.io/skisim](https://asolvo.github.io/skisim/)
 
 User Stories für die Web-App zum Skizzieren von Alpinunfällen. Hauptrolle:
 **Sachverständige:r** (z. B. für Ski-/Rodelunfälle), die am Tablet, Laptop oder
@@ -16,16 +16,21 @@ Format: *Als \<Rolle\> möchte ich \<Ziel\>, damit \<Nutzen\>.*
 - **Objekt platzieren:** Als Sachverständige:r möchte ich Objekte aus dem Dock per
   Ziehen (Maus) oder Antippen (Touch) auf die Fläche setzen, damit ich eine Skizze
   schnell aufbauen kann.
-- **Figuren:** Als Sachverständige:r möchte ich Skifahrer (blau/grün, mit
-  Schulterstellung vor/zurück), Pflugfahrer, Snowboarder, Rodler und eine verletzte
+- **Figuren:** Als Sachverständige:r möchte ich Skifahrer (mit Schulterstellung
+  gerade / vor / zurück), Pflugfahrer, Snowboarder, Rodler und eine verletzte
   Person platzieren, damit ich alle Beteiligten darstellen kann.
+- **Figuren einfärben:** Als Sachverständige:r möchte ich jede Personen-Figur
+  (Skifahrer, Snowboarder, Pflugfahrer, Rodler) in einer eigenen Farbe einfärben,
+  damit ich die Beteiligten klar auseinanderhalten kann — aus einer eigenen
+  Skimode-Farbpalette (11 Farben), getrennt von der Objekt-Palette.
 - **Verletzte Person:** Als Sachverständige:r möchte ich eine klar erkennbare,
   liegende Person mit Notfall-Markierung setzen, um die Endlage zu kennzeichnen.
 - **Umgebung & Hinweise:** Als Sachverständige:r möchte ich Bäume, Fangzaun und ein
   einfärbbares Warnschild („!") platzieren, um die Pistensituation darzustellen.
 - **Hilfsobjekte:** Als Sachverständige:r möchte ich Linien, Pfeile, V-Formen,
   Boxen/Hindernisse, Textfelder und Geschwindigkeits-Vektoren nutzen, um Wege,
-  Richtungen und Tempo zu annotieren.
+  Richtungen und Tempo zu annotieren. Die V-Form wird beim Skalieren nur länger,
+  nicht dicker (konstante Linienbreite, wie die Bemaßung).
 - **Bemaßung:** Als Sachverständige:r möchte ich eine Maßlinie (Bemaßung) mit
   Beschriftung setzen, die sich beim Skalieren nur in der **Länge** ändert (nicht
   dicker wird), damit ich Abstände maßstabsgetreu eintragen kann.
@@ -55,10 +60,11 @@ Format: *Als \<Rolle\> möchte ich \<Ziel\>, damit \<Nutzen\>.*
 - **Beschriftung:** Als Sachverständige:r möchte ich Text-, Vektor- und
   Bemaßungs-Beschriftungen per Doppelklick/-tipp oder `Enter` in einem Dialog
   ändern, der zuverlässig auf allen Geräten funktioniert.
-- **Farbe (kontextuelle Leiste):** Als Sachverständige:r möchte ich bei einem
-  ausgewählten einfärbbaren Objekt eine Farbleiste sehen und die Farbe per Klick
-  direkt wählen — aus einer harmonischen Palette (Pisten-Blau/-Rot, Schwarz, Grün,
-  Braun, Grau, Fast-Weiß).
+- **Farbe (kontextuelle Leiste):** Als Sachverständige:r möchte ich bei einer
+  ausgewählten einfärbbaren Auswahl eine Farbleiste sehen und die Farbe per Klick
+  direkt wählen. Die Leiste zeigt automatisch die passende Palette: für **Objekte**
+  die harmonische 7-Farben-Palette (Pisten-Blau/-Rot, Schwarz, Grün, Braun, Grau,
+  Fast-Weiß), für **Personen-Figuren** die 11-Farben-Skimode-Palette.
 - **Größe/Drehung/Position:** Als Sachverständige:r möchte ich Objekte frei
   verschieben, drehen (mit Einrasten in 15°-Schritten) und skalieren.
 
