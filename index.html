@@ -1,16 +1,21 @@
-<!-- Skisim v120 -->
-<!-- V-Form: konstante Linienstärke beim Skalieren (nur länger, nicht dicker)
+<!-- Skisim v121 -->
+<!-- Figuren einfärbbar (Skimode-Palette)
 
 Apache V2 License
 2026-06-25
 Christian Klingler, asolvo
 
-Neu in v120:
-- V-Form: Die Linienstärke ist jetzt konstant; beim Skalieren werden die beiden
-  Geraden nur länger, nicht dicker (analog zur Bemaßung). Vorher hing die
-  Strichbreite von der Höhe ab (lineWidth = p.height/15), jetzt fix.
+Neu in v121:
+- Alle Personen-Figuren (Skifahrer, Snowboarder, Pflugfahrer, Rodler) sind nun
+  einfärbbar: Jacke/Körper nimmt die Farbe an, Helm/Brille/Ski/Board bleiben
+  neutral. Umsetzung: Figur-SVGs werden zur Laufzeit umgefärbt und gecacht.
+- Eigene Skimode-Farbpalette für Figuren (Schwarz, Bone, Graphit, Rosa, Orange,
+  Olivgrün, Petrol, Eisblau, Tiefblau, Violett, Beere); Objekte (Linie, Pfeil …)
+  behalten ihre Palette. Die Farbleiste zeigt automatisch die passende Palette.
+- "Skifahrer Blau/Grün" zu einem einfärbbaren Skifahrer zusammengeführt
+  (Haltungs-Varianten bleiben).
 
-Verlauf: v116 Settings/Theme/Sprache, v117 Farbschema, v118/v119 Objekt-Grafiken.
+Verlauf: v117 Farbschema, v118/v119 Objekt-Grafiken, v120 V-Form.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -20,7 +25,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V120</title>
+    <title>Ski-Simulation V121</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -373,7 +378,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v120</div>
+        <div class="popup-version">v121</div>
     </div>
 </div>
 
@@ -499,10 +504,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V120",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V121",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
-        objSkiBlue: "Skifahrer (Blau)", objSkiGreen: "Skifahrer (Grün, gerade)", objSkiLeft: "Skifahrer (Grün, Schulter vor)", objSkiRight: "Skifahrer (Grün, Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
+        objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
         instructions: `<li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
@@ -531,10 +536,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V120",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V121",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
-        objSkiBlue: "Skier (blue)", objSkiGreen: "Skier (green, straight)", objSkiLeft: "Skier (green, shoulder forward)", objSkiRight: "Skier (green, shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
+        objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
         instructions: `<li><strong>Objects:</strong> Drag (mouse) or tap (touch).</li>
             <li><strong>Focus:</strong> Click empty area to deselect.</li>
             <li><strong>Touch:</strong> 2 fingers to zoom & rotate.</li>
@@ -853,15 +858,50 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     
     // COLORS for Cycle
     const COLOR_PALETTE = ['#2C7FB8', '#D9343B', '#2B2B2B', '#5BA86B', '#9C6B43', '#A6A6A6', '#ECECE6']; // v117: Blau, Rot, Schwarz, Grün, Braun, Grau, Fast-Weiß
+    const FIGURE_PALETTE = ['#1E1E1E', '#ECE6D8', '#54595E', '#EE8FBE', '#EF7A1A', '#74803B', '#0E8E8E', '#6FB7E0', '#1F3A6B', '#6E54C8', '#D63C82']; // v121 Skimode: Schwarz, Bone, Graphit, Rosa, Orange, Olivgrün, Petrol, Eisblau, Tiefblau, Violett, Beere
+
+    // v121: einfärbbare Figuren — Jacke/Körper wird zur Laufzeit umgefärbt (gecacht)
+    function darken(hex, f) {
+        f = (f === undefined) ? 0.62 : f;
+        const m = /^#?([0-9a-fA-F]{6})$/.exec(String(hex));
+        if (!m) return hex;
+        const n = parseInt(m[1], 16);
+        const r = Math.round(((n >> 16) & 255) * f), g = Math.round(((n >> 8) & 255) * f), b = Math.round((n & 255) * f);
+        return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+    }
+    const FIGURES = {
+        skiBlue:          { src: SVG_SKI_BLUE,           jacket: '#3399ff', stroke: '#0056b3' },
+        skiLeftShoulder:  { src: SVG_SKI_LEFT_SHOULDER,  jacket: '#669966', stroke: '#228B22' },
+        skiRightShoulder: { src: SVG_SKI_RIGHT_SHOULDER, jacket: '#669966', stroke: '#228B22' },
+        boarder:          { src: SVG_BOARDER,            jacket: '#826dff', stroke: '#544bb3' },
+        skiPlow:          { src: SVG_SKI_PLOW,           jacket: '#826dff', stroke: '#544bb3' },
+        sled:             { src: SVG_SLED,               jacket: '#e67e22', stroke: '#c4621a' }
+    };
+    const _spriteCache = {};
+    function isFigure(p) { return !!(p && p.type === 'sprite' && FIGURES[p.assetKey]); }
+    function paletteFor(p) { return isFigure(p) ? FIGURE_PALETTE : COLOR_PALETTE; }
+    function getColoredSprite(assetKey, color) {
+        const cfg = FIGURES[assetKey];
+        if (!cfg) return ASSETS[assetKey];
+        color = color || '#1F3A6B';
+        const key = assetKey + '|' + color;
+        if (!_spriteCache[key]) {
+            const raw = decodeURIComponent(cfg.src.split(',').slice(1).join(','));
+            const svg = raw.split(cfg.jacket).join(color).split(cfg.stroke).join(darken(color));
+            const im = new Image();
+            im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+            _spriteCache[key] = im;
+        }
+        return _spriteCache[key];
+    }
 
     const TEMPLATES = [
-        { type: 'sprite', assetKey: 'skiBlue', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'skiGreen', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'skiLeftShoulder', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'skiRightShoulder', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'skiPlow', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'boarder', width: 100, height: 100, rotation: 90 },
-        { type: 'sprite', assetKey: 'sled', width: 80, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiBlue', color: '#1F3A6B', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiLeftShoulder', color: '#1F3A6B', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiRightShoulder', color: '#1F3A6B', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiPlow', color: '#0E8E8E', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'boarder', color: '#6E54C8', width: 100, height: 100, rotation: 90 },
+        { type: 'sprite', assetKey: 'sled', color: '#EF7A1A', width: 80, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 }, 
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
         { type: 'sign', color: '#D9343B', width: 80, height: 80, rotation: 0 },
@@ -909,7 +949,6 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (tpl.type === 'sprite') {
             switch(tpl.assetKey) {
                 case 'skiBlue': return t('objSkiBlue');
-                case 'skiGreen': return t('objSkiGreen');
                 case 'skiLeftShoulder': return t('objSkiLeft');
                 case 'skiRightShoulder': return t('objSkiRight');
                 case 'skiPlow': return t('objPlow');
@@ -963,6 +1002,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         let obj = { type: tpl.type, x: x, y: y, width: tpl.width, height: tpl.height, rotation: tpl.rotation, speed: 7, dx: 0, dy: 0 };
         if(tpl.type === 'sprite') {
             obj.assetKey = tpl.assetKey;
+            if (tpl.color) obj.color = tpl.color; // v121: einfärbbare Figuren
         } else if(tpl.type === 'text' || tpl.type === 'velocity' || tpl.type === 'bemassung') {
             obj.text = tpl.text; obj.color = tpl.color;
         } else {
@@ -972,7 +1012,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     function getDockPreviewAsset(tpl) {
-        if (tpl.type === 'sprite') return ASSETS[tpl.assetKey];
+        if (tpl.type === 'sprite') return isFigure(tpl) ? getColoredSprite(tpl.assetKey, tpl.color) : ASSETS[tpl.assetKey];
         if (tpl.type === 'sign') return ASSETS.sign;
         if (tpl.type === 'line') return ASSETS.linePreview;
         if (tpl.type === 'arrow') return ASSETS.arrowPreview;
@@ -982,7 +1022,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     // v110: Gast (ohne Lizenz) darf nur 1 Personen-Figur gleichzeitig setzen
-    const PERSON_ASSETS = ['skiBlue','skiGreen','skiLeftShoulder','skiRightShoulder','skiPlow','boarder','sled','injured'];
+    const PERSON_ASSETS = ['skiBlue','skiLeftShoulder','skiRightShoulder','skiPlow','boarder','sled','injured'];
     function isPersonTpl(tpl) { return tpl && tpl.type === 'sprite' && PERSON_ASSETS.includes(tpl.assetKey); }
     function personCount() { return activeObjects.filter(o => isPersonTpl(o)).length; }
     function guestPersonLimitReached() { return !license && personCount() >= 1; }
@@ -1123,13 +1163,14 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         return 0; 
     }
 
-    function isColorable(p) { return !!(p && ['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign', 'bemassung'].includes(p.type)); }
+    function isColorable(p) { return !!(p && (['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign', 'bemassung'].includes(p.type) || isFigure(p))); }
     function cycleColor(index) {
         const p = activeObjects[index];
         if (isColorable(p)) {
-            let idx = COLOR_PALETTE.indexOf(p.color);
+            const pal = paletteFor(p);
+            let idx = pal.indexOf(p.color);
             if (idx === -1) idx = 0;
-            p.color = COLOR_PALETTE[(idx + 1) % COLOR_PALETTE.length];
+            p.color = pal[(idx + 1) % pal.length];
         }
     }
 
@@ -1256,11 +1297,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     
     // v117: kontextuelle Farbleiste — Swatches setzen die Farbe direkt
     let _colorBarKey = null;
-    function buildColorSwatches() {
+    let _shownPalette = null;
+    function buildColorSwatches(palette) {
         const wrap = document.getElementById('colorSwatches');
         if (!wrap) return;
         wrap.innerHTML = '';
-        COLOR_PALETTE.forEach(function (c) {
+        palette.forEach(function (c) {
             const b = document.createElement('button');
             b.className = 'color-swatch';
             b.style.background = c;
@@ -1275,23 +1317,28 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             b.addEventListener('touchstart', setC, { passive: false });
             wrap.appendChild(b);
         });
+        _shownPalette = palette;
     }
     function updateColorBar() {
         const bar = document.getElementById('colorBar');
         if (!bar) return;
         const p = (activePlayerIndex !== -1) ? activeObjects[activePlayerIndex] : null;
-        const colorable = isColorable(p);
-        const key = colorable ? (activePlayerIndex + ':' + p.color) : 'none';
+        if (!isColorable(p)) {
+            if (_colorBarKey !== 'none') { _colorBarKey = 'none'; bar.style.display = 'none'; }
+            return;
+        }
+        const pal = paletteFor(p);
+        const key = activePlayerIndex + ':' + p.color + ':' + (pal === FIGURE_PALETTE ? 'f' : 'o');
         if (key === _colorBarKey) return;
         _colorBarKey = key;
-        if (!colorable) { bar.style.display = 'none'; return; }
+        if (_shownPalette !== pal) buildColorSwatches(pal);
         bar.style.display = 'flex';
         const sw = document.getElementById('colorSwatches').children;
         for (let i = 0; i < sw.length; i++) {
             sw[i].classList.toggle('active', String(sw[i].dataset.color).toLowerCase() === String(p.color).toLowerCase());
         }
     }
-    buildColorSwatches();
+    buildColorSwatches(COLOR_PALETTE);
 
     // --- EXPORT FUNCTIONALITY (PNG) ---
     function exportImage() {
@@ -1391,7 +1438,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     function drawObject(p) {
         ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2); ctx.rotate(p.rotation * Math.PI / 180);
-        if (p.type === 'sprite') { const img = ASSETS[p.assetKey]; try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){} } 
+        if (p.type === 'sprite') { const img = isFigure(p) ? getColoredSprite(p.assetKey, p.color) : ASSETS[p.assetKey]; try { if (img && img.complete) ctx.drawImage(img, -p.width/2, -p.height/2, p.width, p.height); } catch(e){} } 
         else if (p.type === 'text') { ctx.font = 'bold ' + p.height + 'px Arial'; ctx.fillStyle = p.color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(p.text, 0, 0); } 
         else if (p.type === 'rect') { ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
         else if (p.type === 'line') { ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2, 0); ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/5); ctx.lineCap = 'round'; ctx.stroke(); }
