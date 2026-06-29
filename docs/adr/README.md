@@ -24,11 +24,15 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0013](0013-geraete-eingabe-barrierefreiheit.md) | Geräte- & Eingabe-Unterstützung (Responsive, Touch, Tastatur, A11y) | Akzeptiert | 2026-06-25 |
 | [0014](0014-farbschema-und-farbwaehler.md) | Farbschema (7 Farben, Pisten-Blau/-Rot) und kontextueller Farbwähler | Akzeptiert | 2026-06-25 |
 | [0015](0015-objekt-grafiken.md) | Objekt-Grafiken: Top-Down-Stil und Überarbeitung | Akzeptiert | 2026-06-25 |
+| [0016](0016-vform-konstante-linienbreite.md) | V-Form mit skalier-invarianter Linienbreite | Akzeptiert | 2026-06-29 |
+| [0017](0017-einfaerbbare-figuren-skimode-palette.md) | Einfärbbare Personen-Figuren mit separater Skimode-Palette | Akzeptiert | 2026-06-29 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **v119** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **v121** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
 (v116), Farbschema & kontextueller Farbwähler (v117), Objekt-Grafiken überarbeitet
-(v118/v119). Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.
+(v118/v119), V-Form mit konstanter Linienbreite (v120), einfärbbare Personen-Figuren
+mit separater Skimode-Palette (v121). Produktivauslieferung auf `alpinesicherheit.com`
+erfolgt später durch den Betreiber.
