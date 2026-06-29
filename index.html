@@ -1,9 +1,14 @@
-<!-- Skisim v121 -->
-<!-- Figuren einfärbbar (Skimode-Palette)
+<!-- Skisim v122 -->
+<!-- Hilfetext-Korrektur (Farbleiste)
 
 Apache V2 License
-2026-06-25
+2026-06-29
 Christian Klingler, asolvo
+
+Neu in v122:
+- Hilfe/Info-Box korrigiert: "Farbe: Taste c oder Button 🎨" verwies noch auf den
+  seit v117 entfernten 🎨-Button. Jetzt: "Taste c oder Farbleiste (bei Auswahl)"
+  (DE + EN, statisches HTML und i18n-Texte).
 
 Neu in v121:
 - Alle Personen-Figuren (Skifahrer, Snowboarder, Pflugfahrer, Rodler) sind nun
@@ -15,7 +20,7 @@ Neu in v121:
 - "Skifahrer Blau/Grün" zu einem einfärbbaren Skifahrer zusammengeführt
   (Haltungs-Varianten bleiben).
 
-Verlauf: v117 Farbschema, v118/v119 Objekt-Grafiken, v120 V-Form.
+Verlauf: v117 Farbschema, v118/v119 Objekt-Grafiken, v120 V-Form, v121 Figuren-Farben.
 Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 -->
 
@@ -25,7 +30,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V121</title>
+    <title>Ski-Simulation V122</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -378,7 +383,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v121</div>
+        <div class="popup-version">v122</div>
     </div>
 </div>
 
@@ -428,7 +433,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
             <li><strong>Text/Vektor/Bemaßung:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
-            <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
+            <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Farbleiste (bei Auswahl).</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
             <li><strong>Bewegen:</strong> Pfeiltasten.</li>
             <li><strong>Drehen:</strong> Tasten <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
@@ -504,7 +509,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V121",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V122",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -512,7 +517,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
             <li><strong>Text/Vektor/Bemaßung:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
-            <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Button 🎨.</li>
+            <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Farbleiste (bei Auswahl).</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
             <li><strong>Bewegen:</strong> Pfeiltasten.</li>
             <li><strong>Drehen:</strong> Tasten <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
@@ -536,7 +541,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V121",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V122",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -544,7 +549,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Focus:</strong> Click empty area to deselect.</li>
             <li><strong>Touch:</strong> 2 fingers to zoom & rotate.</li>
             <li><strong>Text/Vector/Dimension:</strong> <span class="key-badge">Enter</span> or <strong>double-click</strong>.</li>
-            <li><strong>Color:</strong> key <span class="key-badge">c</span> or button 🎨.</li>
+            <li><strong>Color:</strong> key <span class="key-badge">c</span> or color bar (when selected).</li>
             <li><strong>Delete:</strong> key <span class="key-badge">Del</span> or drag back to dock.</li>
             <li><strong>Move:</strong> arrow keys.</li>
             <li><strong>Rotate:</strong> keys <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
