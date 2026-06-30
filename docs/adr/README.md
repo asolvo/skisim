@@ -29,9 +29,10 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0018](0018-settings-connected-button-groups.md) | Settings-Auswahl als Connected Button Groups (Material Design 3) | Akzeptiert | 2026-06-29 |
 | [0019](0019-dock-rueckkehr-urspruengliche-position.md) | Rückkehr gelöschter Objekte an die ursprüngliche Dock-Position | Akzeptiert | 2026-06-29 |
 | [0020](0020-eisblau-standardfarbe-figuren.md) | Eisblau als einheitliche Standardfarbe aller Personen-Figuren (verfeinert 0017) | Akzeptiert | 2026-06-29 |
+| [0021](0021-material-design-3-ui.md) | UI im Material Design 3 mit tonalem Token-Farbsystem | Akzeptiert | 2026-06-29 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **v127** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **v128** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
@@ -40,5 +41,6 @@ Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprac
 mit separater Skimode-Palette (v121), Hilfetext-Korrektur (v122), Settings-Auswahl
 als Connected Button Groups (v123), Bugfixes Snowboarder-Rotation & Drag-Vorschau
 Text/Vektor (v124), Farbnamen-Tooltips (v125), Dock-Rückkehr an die ursprüngliche
-Position (v126), Eisblau als einheitliche Standardfarbe aller Figuren (v126/v127).
-Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.
+Position (v126), Eisblau als einheitliche Standardfarbe aller Figuren (v126/v127),
+UI-Überarbeitung im Material Design 3 (v128). Produktivauslieferung auf
+`alpinesicherheit.com` erfolgt später durch den Betreiber.
