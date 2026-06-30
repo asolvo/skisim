@@ -1,9 +1,14 @@
-<!-- Skisim v126 -->
-<!-- Start-Skifahrer eisblau + Dock-Rückkehr an ursprünglichen Platz
+<!-- Skisim v127 -->
+<!-- Eisblau als einheitliche Standardfarbe aller Personen-Figuren
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v127:
+- Eisblau (#6FB7E0) ist nun die Standardfarbe ALLER Personen-Figuren (Skifahrer
+  gerade/Schulter, Pflugfahrer, Snowboarder, Rodler) — auch die Dock-Symbole sind
+  eisblau statt tiefblau/violett/orange. Einfärben pro Objekt bleibt möglich.
 
 Neu in v126:
 - Start-Skifahrer (gerade) ist jetzt eisblau statt tiefblau.
@@ -54,7 +59,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V126</title>
+    <title>Ski-Simulation V127</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -418,7 +423,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v126</div>
+        <div class="popup-version">v127</div>
     </div>
 </div>
 
@@ -544,7 +549,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V126",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V127",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -576,7 +581,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V126",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V127",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -947,7 +952,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function getColoredSprite(assetKey, color) {
         const cfg = FIGURES[assetKey];
         if (!cfg) return ASSETS[assetKey];
-        color = color || '#1F3A6B';
+        color = color || '#6FB7E0';
         const key = assetKey + '|' + color;
         if (!_spriteCache[key]) {
             const raw = decodeURIComponent(cfg.src.split(',').slice(1).join(','));
@@ -960,12 +965,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     const TEMPLATES = [
-        { type: 'sprite', assetKey: 'skiBlue', color: '#6FB7E0', width: 100, height: 100, rotation: 0 }, // v126: Start-Skifahrer eisblau
-        { type: 'sprite', assetKey: 'skiLeftShoulder', color: '#1F3A6B', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'skiRightShoulder', color: '#1F3A6B', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'skiPlow', color: '#0E8E8E', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'boarder', color: '#6E54C8', width: 100, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'sled', color: '#EF7A1A', width: 80, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiBlue', color: '#6FB7E0', width: 100, height: 100, rotation: 0 }, // v127: Eisblau = Standardfarbe für alle Personen-Figuren
+        { type: 'sprite', assetKey: 'skiLeftShoulder', color: '#6FB7E0', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiRightShoulder', color: '#6FB7E0', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiPlow', color: '#6FB7E0', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'boarder', color: '#6FB7E0', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'sled', color: '#6FB7E0', width: 80, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 }, 
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
         { type: 'sign', color: '#D9343B', width: 80, height: 80, rotation: 0 },
