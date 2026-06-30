@@ -1,9 +1,14 @@
-<!-- Skisim v125 -->
-<!-- Farbauswahl: Tooltips mit Farbnamen statt Hex-Werten
+<!-- Skisim v126 -->
+<!-- Start-Skifahrer eisblau + Dock-Rückkehr an ursprünglichen Platz
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v126:
+- Start-Skifahrer (gerade) ist jetzt eisblau statt tiefblau.
+- Gelöschte/ins Dock zurückgelegte Objekte kehren an ihre ursprüngliche Position
+  in der Objektleiste zurück (stabile dockOrder), nicht mehr ans Ende.
 
 Neu in v125:
 - Farbleiste: Swatch-Tooltips zeigen Farbnamen (z. B. Rot, Rosa, Violett) statt
@@ -49,7 +54,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V125</title>
+    <title>Ski-Simulation V126</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -413,7 +418,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v125</div>
+        <div class="popup-version">v126</div>
     </div>
 </div>
 
@@ -539,7 +544,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V125",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V126",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -571,7 +576,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V125",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V126",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -815,7 +820,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) {
             const src = activeObjects[activePlayerIndex];
             if (isPersonTpl(src) && guestPersonLimitReached()) return; // Gast: keine 2. Personen-Figur
-            tpl = { type: src.type, assetKey: src.assetKey, text: src.text, color: src.color, width: src.width, height: src.height, rotation: src.rotation };
+            tpl = { type: src.type, assetKey: src.assetKey, text: src.text, color: src.color, width: src.width, height: src.height, rotation: src.rotation, dockOrder: src.dockOrder };
             nx = src.x + 30; ny = src.y + 30;
         } else {
             if (guestPersonLimitReached()) return;
@@ -955,7 +960,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     const TEMPLATES = [
-        { type: 'sprite', assetKey: 'skiBlue', color: '#1F3A6B', width: 100, height: 100, rotation: 0 },
+        { type: 'sprite', assetKey: 'skiBlue', color: '#6FB7E0', width: 100, height: 100, rotation: 0 }, // v126: Start-Skifahrer eisblau
         { type: 'sprite', assetKey: 'skiLeftShoulder', color: '#1F3A6B', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiRightShoulder', color: '#1F3A6B', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'skiPlow', color: '#0E8E8E', width: 100, height: 100, rotation: 0 },
@@ -974,6 +979,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { type: 'vshape', color: '#A6A6A6', width: 100, height: 60, rotation: 0 },
         { type: 'rect', color: '#A6A6A6', width: 80, height: 120, rotation: 0 }
     ];
+    TEMPLATES.forEach(function (t, i) { t.dockOrder = i; }); // v126: stabile Dock-Reihenfolge für Rückkehr an ursprünglichen Platz
 
     const canvas = document.getElementById('skiCanvas');
     const ctx = canvas.getContext('2d');
@@ -1059,6 +1065,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     function createObject(tpl, x, y) {
         let obj = { type: tpl.type, x: x, y: y, width: tpl.width, height: tpl.height, rotation: tpl.rotation, speed: 7, dx: 0, dy: 0 };
+        if (tpl.dockOrder !== undefined) obj.dockOrder = tpl.dockOrder; // v126: ursprüngliche Dock-Position merken
         if(tpl.type === 'sprite') {
             obj.assetKey = tpl.assetKey;
             if (tpl.color) obj.color = tpl.color; // v121: einfärbbare Figuren
@@ -1180,9 +1187,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const p = activeObjects[index];
         // Only return to dock if NOT infinite. If infinite, just delete.
         if (!isInfiniteResource(p)) {
-            let ni = { type: p.type, width: p.width, height: p.height, rotation: 0 };
+            let ni = { type: p.type, width: p.width, height: p.height, rotation: 0, dockOrder: p.dockOrder };
             if(p.type === 'sprite') ni.assetKey = p.assetKey; else if (p.type === 'text' || p.type === 'velocity') { ni.text = p.text; ni.color = p.color; } else { ni.color = p.color; }
-            dockedObjects.push(ni); 
+            // v126: an ursprünglicher Dock-Position einsortieren statt ans Ende anhängen
+            const ord = (ni.dockOrder === undefined) ? Number.MAX_SAFE_INTEGER : ni.dockOrder;
+            const pos = dockedObjects.findIndex(function (d) { return (d.dockOrder === undefined ? Number.MAX_SAFE_INTEGER : d.dockOrder) > ord; });
+            if (pos === -1) dockedObjects.push(ni); else dockedObjects.splice(pos, 0, ni);
         }
         activeObjects.splice(index, 1); 
         renderDock();
