@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--
+  Security-Testfall: Projekt-Import validiert Fremd-Eingaben nicht (CWE-20 / CWE-502).
+  Fundstelle: index.html -> handleFileSelect(): `activeObjects = data.objects` ohne Validierung.
+
+  Der Test lädt die echte index.html in ein iframe (gleicher Origin) und ruft den echten
+  Import-Pfad über ein File + change-Event auf #fileInput auf. Die Assertions beschreiben
+  das SICHERE Soll-Verhalten:
+    - Gast (keine Lizenz) darf nach Import höchstens 1 Personen-Figur haben (v110-Regel).
+    - Objekte mit unbekanntem type / unbekanntem assetKey werden nicht übernommen.
+    - Nicht-numerische/negative Geometrie wird nicht übernommen.
+    - Objekte ohne type werden nicht übernommen.
+
+  Ausführen: über den lokalen Static-Server öffnen, z. B.
+    http://localhost:8099/tests/security-import-validation.test.html
+  Aktuell (ungefixt): mehrere Assertions schlagen fehl -> Lücke nachgewiesen.
+  Nach dem Fix (Validierung/Whitelist in handleFileSelect): alle Assertions grün.
+-->
+<html lang="de">
+<head><meta charset="UTF-8"><title>Security-Test: Import-Validierung</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 24px; color: #1a1c1e; }
+  h1 { font-size: 18px; } .row { padding: 6px 10px; border-radius: 6px; margin: 4px 0; font-size: 14px; }
+  .pass { background: #e6f4ea; color: #14532d; } .fail { background: #fdecea; color: #7f1d1d; }
+  code { background: #eee; padding: 1px 5px; border-radius: 4px; }
+  #summary { font-weight: 600; margin: 12px 0; } iframe { width: 1px; height: 1px; border: 0; position: absolute; left: -9999px; }
+</style></head>
+<body>
+  <h1>Security-Testfall — Projekt-Import validiert Fremd-Eingaben nicht</h1>
+  <p>Prüft den echten <code>handleFileSelect</code>-Pfad in <code>../index.html</code>.</p>
+  <div id="summary">Läuft…</div>
+  <div id="results"></div>
+  <iframe id="app" src="../index.html"></iframe>
+
+<script>
+  const results = document.getElementById('results');
+  const summary = document.getElementById('summary');
+  function report(name, ok, detail) {
+    const div = document.createElement('div');
+    div.className = 'row ' + (ok ? 'pass' : 'fail');
+    div.textContent = (ok ? 'PASS  ' : 'FAIL  ') + name + (detail ? '  —  ' + detail : '');
+    results.appendChild(div);
+    return ok;
+  }
+
+  const frame = document.getElementById('app');
+  frame.addEventListener('load', async () => {
+    const win = frame.contentWindow;
+    // Warten bis die App-Funktionen bereitstehen (startGame läuft nach preloadAssets async).
+    for (let i = 0; i < 100 && typeof win.handleFileSelect !== 'function'; i++) {
+      await new Promise(r => setTimeout(r, 100));
+    }
+
+    // Testlauf im Realm der App (erreicht auch die let-Bindings license/activeObjects).
+    const obs = await win.eval(`(async () => {
+      license = null;                 // Gast: keine Lizenz
+      activeObjects = []; activePlayerIndex = -1;
+      const malicious = { objects: [
+        { type:'sprite', assetKey:'skiBlue', color:'#6FB7E0', x:10, y:10, width:100, height:100, rotation:0 },
+        { type:'sprite', assetKey:'boarder', color:'#EF7A1A', x:20, y:20, width:100, height:100, rotation:0 },
+        { type:'sprite', assetKey:'sled',    color:'#D63C82', x:30, y:30, width:100, height:100, rotation:0 },
+        { type:'__proto__evil', assetKey:'DOES_NOT_EXIST', color:12345, x:'NaN', y:{}, width:-999, height:'oops', rotation:'x' },
+        { foo:'bar' }
+      ]};
+      const file = new File([JSON.stringify(malicious)], 'evil.json', { type:'application/json' });
+      const input = document.getElementById('fileInput');
+      const dt = new DataTransfer(); dt.items.add(file); input.files = dt.files;
+      input.dispatchEvent(new Event('change'));
+      await new Promise(r => setTimeout(r, 300));
+      const arr = Array.isArray(activeObjects) ? activeObjects : [];
+      const KNOWN_TYPES = ['sprite','text','velocity','bemassung','line','arrow','vshape','rect','sign'];
+      return {
+        isGuest: !license,
+        personFigures: (typeof personCount === 'function') ? personCount() : -1,
+        total: arr.length,
+        hasUnknownType: arr.some(o => o && !KNOWN_TYPES.includes(o.type)),
+        hasBadGeometry: arr.some(o => o && (typeof o.width !== 'number' || !isFinite(o.width) || o.width <= 0
+                                         || typeof o.height !== 'number' || !isFinite(o.height))),
+        hasNoType: arr.some(o => !o || !o.type)
+      };
+    })()`);
+
+    let ok = true;
+    ok &= report('Gast-Limit: höchstens 1 Personen-Figur nach Import',
+      obs.isGuest && obs.personFigures <= 1,
+      'personFigures=' + obs.personFigures + ' (erwartet <= 1)');
+    ok &= report('Keine Objekte mit unbekanntem type übernommen', !obs.hasUnknownType);
+    ok &= report('Keine Objekte mit ungültiger Geometrie übernommen', !obs.hasBadGeometry);
+    ok &= report('Keine Objekte ohne type übernommen', !obs.hasNoType);
+
+    summary.textContent = ok
+      ? '✓ Alle Assertions grün — Import ist abgesichert.'
+      : '✗ Verwundbar: mindestens eine Assertion fehlgeschlagen (Import validiert nicht).';
+    summary.className = ok ? 'pass' : 'fail';
+  });
+</script>
+</body>
+</html>

@@ -1,9 +1,18 @@
-<!-- Skisim v131 -->
-<!-- Drag-Vorschau für "Box" gefixt
+<!-- Skisim v132 -->
+<!-- Security: Projekt-Import validiert Fremd-Eingaben (Whitelist + Gast-Limit)
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v132 (Security-Fix):
+- Projekt-Import (handleFileSelect) validiert nun jede importierte JSON-Datei:
+  Objekte werden gegen eine type-/assetKey-Whitelist geprüft, Zahlenfelder
+  validiert/geklammert, color gegen Hex-Muster, text längenbegrenzt. Unbekannte
+  oder fehlerhafte Objekte werden verworfen (CWE-20/CWE-502).
+- Ohne Lizenz wird beim Import das Gast-Limit (max. 1 Personen-Figur) durchgesetzt;
+  überzählige Personen-Figuren werden verworfen.
+- Regressions-Testfall: tests/security-import-validation.test.html.
 
 Neu in v131:
 - Box/Hindernis: beim Ziehen wieder sichtbar — das Drag-Ghost hatte ein leeres
@@ -85,7 +94,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V131</title>
+    <title>Ski-Simulation V132</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -442,7 +451,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v131</div>
+        <div class="popup-version">v132</div>
     </div>
 </div>
 
@@ -580,7 +589,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V131",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V132",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -612,7 +621,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V131",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V132",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -1484,6 +1493,50 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     // --- IMPORT FUNCTIONALITY (JSON) ---
+    // v132 (Security): importierte Projektdateien sind nicht vertrauenswuerdig.
+    // Objekte werden gegen eine Whitelist geprueft und Felder validiert/geklammert,
+    // bevor sie in den Live-Zustand uebernommen werden (CWE-20 / CWE-502).
+    const IMPORT_TYPES = ['sprite','text','velocity','bemassung','line','arrow','vshape','rect','sign'];
+    const IMPORT_ASSETS = ['skiBlue','skiLeftShoulder','skiRightShoulder','skiPlow','boarder','sled','injured','tree','fence'];
+    function _numClamp(v, def, min, max) {
+        let n = (typeof v === 'number' && isFinite(v)) ? v : def;
+        return Math.min(max, Math.max(min, n));
+    }
+    function sanitizeImportedObjects(rawList) {
+        const out = [];
+        for (const o of rawList) {
+            if (!o || typeof o !== 'object') continue;
+            if (!IMPORT_TYPES.includes(o.type)) continue;                 // unbekannter type -> verwerfen
+            if (o.type === 'sprite' && !IMPORT_ASSETS.includes(o.assetKey)) continue; // unbekannter assetKey -> verwerfen
+            const clean = {
+                type: o.type,
+                x: _numClamp(o.x, 0, -100000, 100000),
+                y: _numClamp(o.y, 0, -100000, 100000),
+                width: _numClamp(o.width, 50, 4, 100000),
+                height: _numClamp(o.height, 50, 1, 100000),
+                rotation: _numClamp(o.rotation, 0, -100000, 100000),
+                speed: 7, dx: 0, dy: 0
+            };
+            if (o.type === 'sprite') clean.assetKey = o.assetKey;
+            if (typeof o.color === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(o.color)) clean.color = o.color;
+            if (o.type === 'text' || o.type === 'velocity' || o.type === 'bemassung') {
+                clean.text = (typeof o.text === 'string') ? o.text.slice(0, 500) : '';
+            }
+            if (typeof o.dockOrder === 'number' && isFinite(o.dockOrder)) clean.dockOrder = o.dockOrder;
+            out.push(clean);
+        }
+        return out;
+    }
+    // Gast (ohne Lizenz): hoechstens 1 Personen-Figur — ueberzaehlige verwerfen (v110-Regel, auch beim Import).
+    function enforceGuestPersonLimit(list) {
+        if (license) return list;
+        let persons = 0;
+        return list.filter(o => {
+            if (isPersonTpl(o)) { persons++; return persons <= 1; }
+            return true;
+        });
+    }
+
     function importProject() {
         document.getElementById('fileInput').click();
     }
@@ -1497,13 +1550,17 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             try {
                 const data = JSON.parse(e.target.result);
                 if (data && data.objects && Array.isArray(data.objects)) {
-                    // Restore objects
-                    activeObjects = data.objects;
+                    // v132 (Security): Fremd-Eingaben validieren + Gast-Limit durchsetzen
+                    const raw = data.objects.length;
+                    let objs = sanitizeImportedObjects(data.objects);
+                    const afterSanitize = objs.length;
+                    objs = enforceGuestPersonLimit(objs);
+                    activeObjects = objs;
                     // Reset State
                     activePlayerIndex = -1;
                     draggingPlayerIndex = -1;
                     rotatingPlayerIndex = -1;
-                    console.log("Import erfolgreich. Objekte: " + activeObjects.length);
+                    console.log("Import: " + raw + " gelesen, " + afterSanitize + " gueltig, " + activeObjects.length + " uebernommen.");
                     renderDock(); // v110: Dock-Limit nach Import aktualisieren
                 } else {
                     alert(t('importBadFormat'));
