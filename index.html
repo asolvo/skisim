@@ -1,9 +1,14 @@
-<!-- Skisim 2026.07.0011 -->
-<!-- Versionsschema umgestellt auf YYYY.MM.<nnnn>
+<!-- Skisim 2026.07.0012 -->
+<!-- Legende klickbar + Schild-Standard = gelbes Dreieck
 
 Apache V2 License
 2026-07-01
 Christian Klingler, asolvo
+
+Neu in 2026.07.0012:
+- Szenario-Legende ist klickbar: Doppelklick/-tap darauf öffnet den Eingabedialog.
+- Schild-Standard korrigiert: Dock-Symbol und platziertes Schild sind jetzt beide
+  ein gelbes Dreieck (zuvor wurde beim Platzieren ein rundes rotes Schild erzeugt).
 
 Neu in 2026.07.0011:
 - Versionsschema umgestellt auf das Format YYYY.MM.<nnnn> (Jahr.Monat.fortlaufende
@@ -150,7 +155,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0011</title>
+    <title>Ski-Simulation 2026.07.0012</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -520,7 +525,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0011</div>
+        <div class="popup-version">2026.07.0012</div>
     </div>
 </div>
 
@@ -725,7 +730,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0011",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0012",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -758,7 +763,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0011",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0012",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1169,7 +1174,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { type: 'sprite', assetKey: 'sled', color: '#6FB7E0', width: 80, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 }, 
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
-        { type: 'sign', color: '#D9343B', width: 80, height: 80, rotation: 0, shape: 'round', text: '!' },
+        { type: 'sign', color: '#F2C200', width: 80, height: 80, rotation: 0, shape: 'triangle', text: '!' },
         // NEW: Fence Template
         { type: 'sprite', assetKey: 'fence', width: 200, height: 20, rotation: 0 },
         { type: 'text', text: 'Text', color: '#000000', width: 80, height: 30, rotation: 0 },
@@ -1195,6 +1200,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     let draggingPlayerIndex = -1, rotatingPlayerIndex = -1, dragOffset = { x: 0, y: 0 };
     let isSnapping = false, snappingPlayerIndex = -1, targetRotation = 0, dragFromDockItem = null; 
     let lastTapTime = 0;
+    let _legendRect = null; let _lastLegendTap = 0; // 2026.07.0012: klickbare Szenario-Legende
 
     function isInfiniteResource(obj) {
         if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect', 'bemassung'].includes(obj.type)) return true;
@@ -1496,7 +1502,14 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function handleStart(x, y, isRight) {
         const idx = getPlayerUnderMouse(x, y);
         const now = Date.now();
-        
+
+        // 2026.07.0012: Klick auf die Szenario-Legende — Doppelklick/-tap öffnet den Dialog
+        if (_legendRect && x >= _legendRect.x && x <= _legendRect.x + _legendRect.w && y >= _legendRect.y && y <= _legendRect.y + _legendRect.h) {
+            if (now - _lastLegendTap < 300) { _lastLegendTap = 0; openSceneDialog(); }
+            else { _lastLegendTap = now; }
+            return true;
+        }
+
         if (idx !== -1) {
             const p = activeObjects[idx]; activePlayerIndex = idx;
             if ((p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung' || p.type === 'sign') && (now - lastTapTime < 300)) { openTextEditor(p); lastTapTime = 0; return; }
@@ -1864,6 +1877,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         return out;
     }
     function drawSceneLegend() {
+        _legendRect = null;
         const m = sceneMeta;
         if (!m || !m.visible) return;
         const title = String(m.name || '').trim();
@@ -1903,6 +1917,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const contentH = Math.max(textH, previewsH);
         const boxH = pad + contentH + pad;
         const x0 = 16, y0 = canvas.height - boxH - 16;
+        _legendRect = { x: x0, y: y0, w: boxW, h: boxH };
 
         roundRectPath(ctx, x0, y0, boxW, boxH, 12);
         ctx.fillStyle = 'rgba(255,255,255,0.95)'; ctx.fill();
