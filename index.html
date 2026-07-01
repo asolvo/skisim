@@ -1,9 +1,17 @@
-<!-- Skisim v135 -->
-<!-- Schild: waehlbare Form + editierbare Beschriftung
+<!-- Skisim v136 -->
+<!-- Schild-Feinschliff: kein Rand, abgerundetes Dreieck, Stiel ohne Abstand, mehrzeilig
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v136 (Schild-Feinschliff):
+- Alle vier Schildformen ohne weißen Rand.
+- Dreieck mit abgerundeten Ecken (wie Quadrat/Rechteck); Text bleibt jetzt
+  innerhalb des Dreiecks (eigene Textbox in der unteren, breiten Zone).
+- Stiel reicht ohne Abstand bis zum Schild (Pfosten wird von der Fläche überdeckt).
+- Beschriftung mehrzeilig: "\n" im Textinput erzeugt einen Zeilenumbruch; die
+  Schrift passt sich Zeilenzahl, Breite und Schildgröße an.
 
 Neu in v135:
 - Objekt "Warnschild" allgemein als "Schild" / "Sign" bezeichnet.
@@ -114,7 +122,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V135</title>
+    <title>Ski-Simulation V136</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -475,7 +483,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v135</div>
+        <div class="popup-version">v136</div>
     </div>
 </div>
 
@@ -617,7 +625,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V135",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V136",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -649,7 +657,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V135",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V136",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -1338,7 +1346,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             label.innerText = 'Geschwindigkeit in km/h:';
             input.type = 'number'; input.value = '';
         } else {
-            label.innerText = (p.type === 'bemassung') ? 'Maß / Beschriftung:' : (p.type === 'sign' ? 'Beschriftung:' : 'Text ändern:');
+            label.innerText = (p.type === 'bemassung') ? 'Maß / Beschriftung:' : (p.type === 'sign' ? 'Beschriftung (\\n = neue Zeile):' : 'Text ändern:');
             input.type = 'text'; input.value = p.text || '';
         }
         openModal('editModal');
@@ -1560,6 +1568,32 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const n = parseInt(m[1], 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
         return ((0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6) ? '#1A1B1F' : '#ffffff';
     }
+    // v136: Dreieck mit abgerundeten Ecken (Apex oben, Basis unten)
+    function roundedTriPath(c, top, bot, tw, r) {
+        const ax = 0, ay = top, blx = -tw / 2, bly = bot, brx = tw / 2, bry = bot;
+        c.beginPath();
+        c.moveTo((ax + blx) / 2, (ay + bly) / 2);
+        c.arcTo(blx, bly, brx, bry, r);
+        c.arcTo(brx, bry, ax, ay, r);
+        c.arcTo(ax, ay, blx, bly, r);
+        c.closePath();
+    }
+    // v136: Schild-Beschriftung — mehrzeilig (\n), an Textbox angepasst, zentriert
+    function drawSignLabel(rawText, cyText, maxW, maxH, color) {
+        const raw = (rawText !== undefined && rawText !== null) ? String(rawText) : '';
+        if (raw === '') return;
+        const lines = raw.split(/\\n|\n/);
+        let fs = maxH * 0.5;
+        fs = Math.min(fs, (maxH * 0.92) / (lines.length * 1.15));   // vertikal einpassen
+        ctx.font = 'bold ' + fs + 'px Arial';
+        let widest = 0;
+        for (let i = 0; i < lines.length; i++) widest = Math.max(widest, ctx.measureText(lines[i]).width);
+        if (widest > maxW && widest > 0) { fs = fs * maxW / widest; ctx.font = 'bold ' + fs + 'px Arial'; }  // horizontal einpassen
+        ctx.fillStyle = color; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        const lh = fs * 1.15;
+        const startY = cyText - (lines.length - 1) * lh / 2;
+        for (let i = 0; i < lines.length; i++) ctx.fillText(lines[i], 0, startY + i * lh);
+    }
 
     // --- EXPORT FUNCTIONALITY (PNG) ---
     function exportImage() {
@@ -1731,48 +1765,36 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             ctx.save(); ctx.translate(0, -wit - 3); ctx.font = 'bold ' + Math.round(h * 0.34) + 'px Arial'; ctx.fillStyle = '#1A1B1F'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); // Maßzahl
         }
         else if (p.type === 'sign') {
-            // v135: Schild mit waehlbarer Form (rund/quadrat/rechteck/dreieck) + editierbarer Beschriftung
+            // v136: Schild in vier Formen, ohne Rand, abgerundet, Pfosten ohne Abstand, mehrzeilig
             const w = p.width, h = p.height;
             const shape = p.shape || 'round';
-            // Pfosten
-            const postW = w * 0.06, postH = h * 0.25;
-            ctx.fillStyle = '#666666'; ctx.fillRect(-postW / 2, h / 2 - postH, postW, postH);
-            const cy = -h * 0.08;
-            ctx.fillStyle = p.color; ctx.strokeStyle = '#ffffff'; ctx.lineJoin = 'round';
-            let faceW, faceH;
+            const cy = -h * 0.08;                       // Mittelpunkt der Schildflaeche
+            let faceBottom, tbW, tbH, tbY;              // Unterkante + Textbox (Breite/Hoehe/MittigY)
+            // Pfosten zuerst zeichnen -> wird von der Schildflaeche ueberdeckt -> kein Abstand
+            const postW = w * 0.06;
+            ctx.fillStyle = '#666666';
+            ctx.fillRect(-postW / 2, cy, postW, h / 2 - cy);
+            // Schildflaeche (ohne Rand)
+            ctx.fillStyle = p.color; ctx.lineJoin = 'round';
             if (shape === 'square') {
-                const s = Math.min(w, h) * 0.60; faceW = faceH = s;
-                ctx.lineWidth = Math.max(2, s * 0.06);
-                roundRectPath(ctx, -s / 2, cy - s / 2, s, s, s * 0.10); ctx.fill(); ctx.stroke();
+                const s = Math.min(w, h) * 0.62;
+                roundRectPath(ctx, -s / 2, cy - s / 2, s, s, s * 0.12); ctx.fill();
+                faceBottom = cy + s / 2; tbW = s * 0.82; tbH = s * 0.82; tbY = cy;
             } else if (shape === 'rect') {
-                const rw = w * 0.80, rh = h * 0.46; faceW = rw; faceH = rh;
-                ctx.lineWidth = Math.max(2, rh * 0.08);
-                roundRectPath(ctx, -rw / 2, cy - rh / 2, rw, rh, rh * 0.14); ctx.fill(); ctx.stroke();
+                const rw = w * 0.84, rh = h * 0.50;
+                roundRectPath(ctx, -rw / 2, cy - rh / 2, rw, rh, rh * 0.16); ctx.fill();
+                faceBottom = cy + rh / 2; tbW = rw * 0.86; tbH = rh * 0.78; tbY = cy;
             } else if (shape === 'triangle') {
-                const tw = w * 0.74, th = h * 0.62; faceW = tw * 0.66; faceH = th * 0.62;
+                const tw = w * 0.84, th = h * 0.72;
                 const top = cy - th / 2, bot = cy + th / 2;
-                ctx.lineWidth = Math.max(2, th * 0.07);
-                ctx.beginPath(); ctx.moveTo(0, top); ctx.lineTo(tw / 2, bot); ctx.lineTo(-tw / 2, bot); ctx.closePath();
-                ctx.fill(); ctx.stroke();
+                roundedTriPath(ctx, top, bot, tw, Math.min(tw, th) * 0.16); ctx.fill();
+                faceBottom = bot; tbW = tw * 0.44; tbH = th * 0.30; tbY = top + th * 0.68;
             } else { // round
-                const r = Math.min(w, h) * 0.32; faceW = faceH = r * 2;
-                const lw = Math.max(2, r * 0.10); ctx.lineWidth = lw;
+                const r = Math.min(w, h) * 0.34;
                 ctx.beginPath(); ctx.arc(0, cy, r, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(0, cy, r - lw / 2, 0, Math.PI * 2); ctx.stroke();
+                faceBottom = cy + r; tbW = r * 1.4; tbH = r * 1.4; tbY = cy;
             }
-            // Beschriftung, an Schildgroesse angepasst
-            const label = (p.text !== undefined && p.text !== null) ? String(p.text) : '';
-            if (label !== '') {
-                let fs = faceH * 0.5;
-                ctx.font = 'bold ' + fs + 'px Arial';
-                const maxW = faceW * 0.82;
-                const tw2 = ctx.measureText(label).width;
-                if (tw2 > maxW && tw2 > 0) { fs = fs * maxW / tw2; ctx.font = 'bold ' + fs + 'px Arial'; }
-                ctx.fillStyle = signTextColor(p.color);
-                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-                const ty = (shape === 'triangle') ? cy + faceH * 0.22 : cy;
-                ctx.fillText(label, 0, ty);
-            }
+            drawSignLabel(p.text, tbY, tbW, tbH, signTextColor(p.color));
         }
         ctx.restore(); 
     }
