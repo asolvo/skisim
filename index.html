@@ -1,9 +1,17 @@
-<!-- Skisim v134 -->
-<!-- Fließtext zurück auf Roboto (Überschriften bleiben Roboto Serif)
+<!-- Skisim v135 -->
+<!-- Schild: waehlbare Form + editierbare Beschriftung
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v135:
+- Objekt "Warnschild" allgemein als "Schild" / "Sign" bezeichnet.
+- Neues Kontextmenü "Form" neben der Farbauswahl: Rund, Quadrat, Rechteck
+  (Querformat) und Dreieck (Warnung).
+- Beschriftung des Schilds ist editierbar (Doppelklick/Enter, wie beim Textfeld);
+  die Schriftgröße passt sich automatisch der Schildgröße/Textlänge an, Textfarbe
+  kontrastabhängig (hell/dunkel).
 
 Neu in v134:
 - Fließtext/UI wieder in Roboto (Open Sans zurückgenommen). Überschriften/Titel
@@ -106,7 +114,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V134</title>
+    <title>Ski-Simulation V135</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -269,7 +277,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
         #ghost-drag { position: absolute; pointer-events: none; opacity: 0.8; z-index: 100; display: none; width: 80px; height: 80px; object-fit: contain; }
 
-        #gamepad { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 40px; pointer-events: none; align-items: flex-end; z-index: 20; }
+        #gamepad { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; pointer-events: none; align-items: flex-end; z-index: 20; max-width: 96vw; }
         .control-group { background: var(--md-surface-container-high); padding: 10px; border-radius: 16px; pointer-events: auto; display: flex; flex-direction: column; align-items: center; gap: 5px; box-shadow: var(--md-elev-2); }
         .btn-row { display: flex; gap: 5px; }
 
@@ -414,6 +422,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         .color-swatch:hover { transform: scale(1.08); }
         .color-swatch.active { border-color: var(--md-primary); box-shadow: 0 0 0 2px var(--md-surface-container-high), 0 0 0 4px var(--md-primary); }
         .color-swatch.active::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #fff; text-shadow: 0 0 3px rgba(0,0,0,0.9), 0 1px 2px rgba(0,0,0,0.8); pointer-events: none; }
+        /* v135: Formen-Auswahl für Schild */
+        .shape-swatch { position: relative; width: 30px; height: 30px; border-radius: 7px; border: 2px solid var(--md-outline-variant); background: var(--md-surface); color: var(--md-on-surface-variant); cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; touch-action: manipulation; transition: transform 0.1s; }
+        .shape-swatch svg { width: 18px; height: 18px; }
+        .shape-swatch:hover { transform: scale(1.08); }
+        .shape-swatch.active { border-color: var(--md-primary); color: var(--md-primary); box-shadow: 0 0 0 2px var(--md-surface-container-high), 0 0 0 4px var(--md-primary); }
     </style>
 </head>
 <body>
@@ -462,7 +475,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v134</div>
+        <div class="popup-version">v135</div>
     </div>
 </div>
 
@@ -564,6 +577,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         <span id="lbl-farbe" class="color-bar-label">Farbe</span>
         <div id="colorSwatches" class="color-swatches"></div>
     </div>
+    <div id="shapeBar" class="color-bar" style="display:none;">
+        <span id="lbl-shape" class="color-bar-label">Form</span>
+        <div id="shapeSwatches" class="color-swatches"></div>
+    </div>
 </div>
 
 <canvas id="skiCanvas"></canvas>
@@ -600,9 +617,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V134",
-        dockTitle: "Objekte", signLabel: "Schild",
-        objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V135",
+        dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
+        objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
         instructions: `<li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
@@ -632,9 +649,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V134",
-        dockTitle: "Objects", signLabel: "Sign",
-        objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V135",
+        dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
+        objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
         instructions: `<li><strong>Objects:</strong> Drag (mouse) or tap (touch).</li>
             <li><strong>Focus:</strong> Click empty area to deselect.</li>
@@ -688,12 +705,18 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setText('lm-cancel', t('cancel')); setText('activateBtn', t('activate'));
         setText('em-title', t('edit')); setText('em-cancel', t('cancel')); setText('editOkBtn', t('ok'));
         setText('lbl-farbe', t('color'));
+        setText('lbl-shape', t('shape'));
         setTitleAttr('importBtn', t('tImport')); setTitleAttr('settingsTrigger', t('tSettings')); setTitleAttr('btnColor', t('colorTitle'));
         setGroupSel('grpLang', lang);
         if (typeof updateLicenseUI === 'function') updateLicenseUI();
         if (typeof renderDock === 'function') renderDock();
         const swWrap = document.getElementById('colorSwatches'); // v125: Farbnamen-Tooltips an Sprache anpassen
         if (swWrap) Array.prototype.forEach.call(swWrap.children, function (b) { b.title = colorName(b.dataset.color); });
+        const shWrap = document.getElementById('shapeSwatches'); // v135: Form-Tooltips an Sprache anpassen
+        if (shWrap && typeof SHAPES !== 'undefined') Array.prototype.forEach.call(shWrap.children, function (b) {
+            const s = SHAPES.find(function (x) { return x.key === b.dataset.shape; });
+            if (s) b.title = (lang === 'en') ? s.en : s.de;
+        });
     }
     function openLicenseFromPopup() { closeModal('impressumModal'); openModal('licenseModal'); const k = document.getElementById('licenseKey'); if (k) k.focus(); }
 
@@ -1024,7 +1047,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { type: 'sprite', assetKey: 'sled', color: '#6FB7E0', width: 80, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 }, 
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
-        { type: 'sign', color: '#D9343B', width: 80, height: 80, rotation: 0 },
+        { type: 'sign', color: '#D9343B', width: 80, height: 80, rotation: 0, shape: 'round', text: '!' },
         // NEW: Fence Template
         { type: 'sprite', assetKey: 'fence', width: 200, height: 20, rotation: 0 },
         { type: 'text', text: 'Text', color: '#000000', width: 80, height: 30, rotation: 0 },
@@ -1127,6 +1150,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             if (tpl.color) obj.color = tpl.color; // v121: einfärbbare Figuren
         } else if(tpl.type === 'text' || tpl.type === 'velocity' || tpl.type === 'bemassung') {
             obj.text = tpl.text; obj.color = tpl.color;
+        } else if(tpl.type === 'sign') {
+            obj.color = tpl.color;
+            obj.shape = tpl.shape || 'round';                       // v135: Schildform
+            obj.text = (tpl.text !== undefined) ? tpl.text : '!';   // v135: editierbare Beschriftung
         } else {
             obj.color = tpl.color;
         }
@@ -1303,7 +1330,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // v111: Bearbeitung über eigenen Dialog statt prompt() (prompt wird oft blockiert)
     let editTarget = null, editMode = null;
     function openTextEditor(p) {
-        if (!p || (p.type !== 'text' && p.type !== 'velocity' && p.type !== 'bemassung')) return;
+        if (!p || (p.type !== 'text' && p.type !== 'velocity' && p.type !== 'bemassung' && p.type !== 'sign')) return;
         editTarget = p; editMode = p.type;
         const label = document.getElementById('editLabel');
         const input = document.getElementById('editInput');
@@ -1311,7 +1338,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             label.innerText = 'Geschwindigkeit in km/h:';
             input.type = 'number'; input.value = '';
         } else {
-            label.innerText = (p.type === 'bemassung') ? 'Maß / Beschriftung:' : 'Text ändern:';
+            label.innerText = (p.type === 'bemassung') ? 'Maß / Beschriftung:' : (p.type === 'sign' ? 'Beschriftung:' : 'Text ändern:');
             input.type = 'text'; input.value = p.text || '';
         }
         openModal('editModal');
@@ -1326,6 +1353,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             editTarget.width = ctx.measureText(val).width + 20;
         } else if (editTarget && editMode === 'bemassung') {
             editTarget.text = val; // Breite (Länge) bleibt unverändert
+        } else if (editTarget && editMode === 'sign') {
+            editTarget.text = val; // v135: Schrift passt sich beim Zeichnen der Schildgröße an
         } else if (editTarget && editMode === 'velocity') {
             if (val !== '' && !isNaN(parseFloat(val))) {
                 const kmh = parseFloat(val);
@@ -1348,7 +1377,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         
         if (idx !== -1) {
             const p = activeObjects[idx]; activePlayerIndex = idx;
-            if ((p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung') && (now - lastTapTime < 300)) { openTextEditor(p); lastTapTime = 0; return; }
+            if ((p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung' || p.type === 'sign') && (now - lastTapTime < 300)) { openTextEditor(p); lastTapTime = 0; return; }
             lastTapTime = now;
             if (isRight) { rotatingPlayerIndex = idx; isSnapping = false; }
             else { draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0; }
@@ -1466,6 +1495,72 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
     buildColorSwatches(COLOR_PALETTE);
 
+    // v135: Formen-Auswahl für Schild
+    const SHAPES = [
+        { key: 'round',    de: 'Rund',     en: 'Round',     svg: '<circle cx="12" cy="12" r="8"/>' },
+        { key: 'square',   de: 'Quadrat',  en: 'Square',    svg: '<rect x="5" y="5" width="14" height="14" rx="2"/>' },
+        { key: 'rect',     de: 'Rechteck', en: 'Rectangle', svg: '<rect x="3" y="7" width="18" height="10" rx="2"/>' },
+        { key: 'triangle', de: 'Dreieck',  en: 'Triangle',  svg: '<path d="M12 4 L21 20 L3 20 Z"/>' }
+    ];
+    const SHAPE_KEYS = SHAPES.map(function (s) { return s.key; });
+    let _shapeBarKey = null;
+    function isShapeChangeable(p) { return !!(p && p.type === 'sign'); }
+    function buildShapeSwatches() {
+        const wrap = document.getElementById('shapeSwatches');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        SHAPES.forEach(function (s) {
+            const b = document.createElement('button');
+            b.className = 'shape-swatch';
+            b.dataset.shape = s.key;
+            b.title = (lang === 'en') ? s.en : s.de;
+            b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true">' + s.svg + '</svg>';
+            const setS = function (e) {
+                e.preventDefault();
+                const p = (activePlayerIndex !== -1) ? activeObjects[activePlayerIndex] : null;
+                if (isShapeChangeable(p)) { p.shape = s.key; _shapeBarKey = null; updateShapeBar(); }
+            };
+            b.addEventListener('click', setS);
+            b.addEventListener('touchstart', setS, { passive: false });
+            wrap.appendChild(b);
+        });
+    }
+    function updateShapeBar() {
+        const bar = document.getElementById('shapeBar');
+        if (!bar) return;
+        const p = (activePlayerIndex !== -1) ? activeObjects[activePlayerIndex] : null;
+        if (!isShapeChangeable(p)) {
+            if (_shapeBarKey !== 'none') { _shapeBarKey = 'none'; bar.style.display = 'none'; }
+            return;
+        }
+        const cur = p.shape || 'round';
+        const key = activePlayerIndex + ':' + cur;
+        if (key === _shapeBarKey) return;
+        _shapeBarKey = key;
+        bar.style.display = 'flex';
+        const sw = document.getElementById('shapeSwatches').children;
+        for (let i = 0; i < sw.length; i++) { sw[i].classList.toggle('active', sw[i].dataset.shape === cur); }
+    }
+    buildShapeSwatches();
+
+    // v135: abgerundetes Rechteck + kontrastreiche Textfarbe für Schilder
+    function roundRectPath(c, x, y, w, h, r) {
+        r = Math.min(r, w / 2, h / 2);
+        c.beginPath();
+        c.moveTo(x + r, y);
+        c.arcTo(x + w, y, x + w, y + h, r);
+        c.arcTo(x + w, y + h, x, y + h, r);
+        c.arcTo(x, y + h, x, y, r);
+        c.arcTo(x, y, x + w, y, r);
+        c.closePath();
+    }
+    function signTextColor(hex) {
+        const m = /^#?([0-9a-fA-F]{6})$/.exec(String(hex));
+        if (!m) return '#ffffff';
+        const n = parseInt(m[1], 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+        return ((0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6) ? '#1A1B1F' : '#ffffff';
+    }
+
     // --- EXPORT FUNCTIONALITY (PNG) ---
     function exportImage() {
         if (!requireFeature('export')) return;
@@ -1532,6 +1627,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             if (typeof o.color === 'string' && /^#?[0-9a-fA-F]{3,8}$/.test(o.color)) clean.color = o.color;
             if (o.type === 'text' || o.type === 'velocity' || o.type === 'bemassung') {
                 clean.text = (typeof o.text === 'string') ? o.text.slice(0, 500) : '';
+            }
+            if (o.type === 'sign') { // v135: Form + Beschriftung validieren
+                clean.shape = (SHAPE_KEYS.indexOf(o.shape) !== -1) ? o.shape : 'round';
+                clean.text = (typeof o.text === 'string') ? o.text.slice(0, 500) : '!';
             }
             if (typeof o.dockOrder === 'number' && isFinite(o.dockOrder)) clean.dockOrder = o.dockOrder;
             out.push(clean);
@@ -1632,18 +1731,48 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             ctx.save(); ctx.translate(0, -wit - 3); ctx.font = 'bold ' + Math.round(h * 0.34) + 'px Arial'; ctx.fillStyle = '#1A1B1F'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); // Maßzahl
         }
         else if (p.type === 'sign') {
-            const postW = p.width * 0.06; const postH = p.height * 0.25;
-            ctx.fillStyle = '#666666'; ctx.fillRect(-postW / 2, p.height / 2 - postH, postW, postH);
-            const radius = Math.min(p.width, p.height) * 0.30; const cy = -p.height * 0.05;
-            ctx.beginPath(); ctx.arc(0, cy, radius, 0, Math.PI * 2); ctx.fillStyle = p.color; ctx.fill();
-            // v119: weißer Rand + Warnsymbol "!" statt Text
-            const rw = Math.max(2, radius * 0.1);
-            ctx.lineWidth = rw; ctx.strokeStyle = '#ffffff';
-            ctx.beginPath(); ctx.arc(0, cy, radius - rw / 2, 0, Math.PI * 2); ctx.stroke();
-            ctx.fillStyle = '#ffffff';
-            const bw = radius * 0.18;
-            ctx.fillRect(-bw / 2, cy - radius * 0.55, bw, radius * 0.62);
-            ctx.beginPath(); ctx.arc(0, cy + radius * 0.42, radius * 0.13, 0, Math.PI * 2); ctx.fill();
+            // v135: Schild mit waehlbarer Form (rund/quadrat/rechteck/dreieck) + editierbarer Beschriftung
+            const w = p.width, h = p.height;
+            const shape = p.shape || 'round';
+            // Pfosten
+            const postW = w * 0.06, postH = h * 0.25;
+            ctx.fillStyle = '#666666'; ctx.fillRect(-postW / 2, h / 2 - postH, postW, postH);
+            const cy = -h * 0.08;
+            ctx.fillStyle = p.color; ctx.strokeStyle = '#ffffff'; ctx.lineJoin = 'round';
+            let faceW, faceH;
+            if (shape === 'square') {
+                const s = Math.min(w, h) * 0.60; faceW = faceH = s;
+                ctx.lineWidth = Math.max(2, s * 0.06);
+                roundRectPath(ctx, -s / 2, cy - s / 2, s, s, s * 0.10); ctx.fill(); ctx.stroke();
+            } else if (shape === 'rect') {
+                const rw = w * 0.80, rh = h * 0.46; faceW = rw; faceH = rh;
+                ctx.lineWidth = Math.max(2, rh * 0.08);
+                roundRectPath(ctx, -rw / 2, cy - rh / 2, rw, rh, rh * 0.14); ctx.fill(); ctx.stroke();
+            } else if (shape === 'triangle') {
+                const tw = w * 0.74, th = h * 0.62; faceW = tw * 0.66; faceH = th * 0.62;
+                const top = cy - th / 2, bot = cy + th / 2;
+                ctx.lineWidth = Math.max(2, th * 0.07);
+                ctx.beginPath(); ctx.moveTo(0, top); ctx.lineTo(tw / 2, bot); ctx.lineTo(-tw / 2, bot); ctx.closePath();
+                ctx.fill(); ctx.stroke();
+            } else { // round
+                const r = Math.min(w, h) * 0.32; faceW = faceH = r * 2;
+                const lw = Math.max(2, r * 0.10); ctx.lineWidth = lw;
+                ctx.beginPath(); ctx.arc(0, cy, r, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(0, cy, r - lw / 2, 0, Math.PI * 2); ctx.stroke();
+            }
+            // Beschriftung, an Schildgroesse angepasst
+            const label = (p.text !== undefined && p.text !== null) ? String(p.text) : '';
+            if (label !== '') {
+                let fs = faceH * 0.5;
+                ctx.font = 'bold ' + fs + 'px Arial';
+                const maxW = faceW * 0.82;
+                const tw2 = ctx.measureText(label).width;
+                if (tw2 > maxW && tw2 > 0) { fs = fs * maxW / tw2; ctx.font = 'bold ' + fs + 'px Arial'; }
+                ctx.fillStyle = signTextColor(p.color);
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                const ty = (shape === 'triangle') ? cy + faceH * 0.22 : cy;
+                ctx.fillText(label, 0, ty);
+            }
         }
         ctx.restore(); 
     }
@@ -1662,6 +1791,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             if(p) { ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2); ctx.beginPath(); ctx.arc(0, 0, Math.max(p.width, p.height)/1.4, 0, Math.PI*2); ctx.strokeStyle = '#007C89'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.restore(); } /* v129: Auswahl-Ring in Teal */
         }
         updateColorBar(); // v117: Farbleiste an Auswahl/Farbe anpassen
+        updateShapeBar(); // v135: Formleiste (nur bei Schild)
         requestAnimationFrame(drawLoop);
     }
     // v116: Theme/Sprache initialisieren (erst hier, nach allen const/let-Deklarationen)
