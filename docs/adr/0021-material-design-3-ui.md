@@ -43,7 +43,10 @@ bleibt in beiden Modi weiß** (gemäß ADR-0009).
 - **Farbleiste:** Pill-Card mit runden Chip-Swatches; aktiver Swatch mit Teal-Ring.
 - **Buttons:** Filled (Primäraktion) und Text-Button (Abbrechen); Connected Button
   Groups (ADR-0018) bleiben.
-- **Typografie:** durchgehend Roboto (Gewichte 400/500), Sentence case.
+- **Typografie:** Sentence case. *(Nachtrag v133: an das Website-Theme „Chaplin"
+  angeglichen — Überschriften/Titel in Roboto Serif, Fließtext/UI in Open Sans;
+  zuvor durchgehend Roboto. Links im Akzent mit Unterstreichung. Die MD3-Primär-
+  farbe #007C89 ist identisch mit der `--accent`-Farbe der Website.)*
 
 **Kein FAB:** Bewusst weggelassen — Hinzufügen erfolgt weiter über Dock
 (Ziehen/Tippen) und `Einfg`; ein globaler „+"-FAB wäre mehrdeutig.

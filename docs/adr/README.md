@@ -33,7 +33,7 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0022](0022-import-validierung.md) | Validierung importierter Projektdateien (Sicherheit, CWE-20/502) | Akzeptiert | 2026-06-29 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **v132** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **v133** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
@@ -45,5 +45,5 @@ Text/Vektor (v124), Farbnamen-Tooltips (v125), Dock-Rückkehr an die ursprüngli
 Position (v126), Eisblau als einheitliche Standardfarbe aller Figuren (v126/v127),
 UI-Überarbeitung im Material Design 3 (v128), MD3-Feinschliff & Warnschild-Gelb
 (v129), Rodler-Grafik gedreht (v130), Box-Drag-Vorschau (v131), Security-Fix
-Import-Validierung (v132). Produktivauslieferung auf `alpinesicherheit.com`
-erfolgt später durch den Betreiber.
+Import-Validierung (v132), Typografie/Link-Stil an alpinesicherheit.com angeglichen
+(v133). Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.
