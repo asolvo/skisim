@@ -1,9 +1,14 @@
-<!-- Skisim v130 -->
-<!-- Rodler-Grafik um 180° gedreht (schaut nach oben)
+<!-- Skisim v131 -->
+<!-- Drag-Vorschau für "Box" gefixt
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v131:
+- Box/Hindernis: beim Ziehen wieder sichtbar — das Drag-Ghost hatte ein leeres
+  <img> (src='') mit Hintergrundfarbe; jetzt eine echte Vorschau-Grafik
+  (data-URI-SVG-Rechteck in der Objektfarbe), analog zu Text/Vektor.
 
 Neu in v130:
 - Rodler (Rodel/Schlitten): SVG-Grafik um 180° gedreht — schaut jetzt in Dock,
@@ -80,7 +85,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V130</title>
+    <title>Ski-Simulation V131</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -437,7 +442,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v130</div>
+        <div class="popup-version">v131</div>
     </div>
 </div>
 
@@ -575,7 +580,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V130",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V131",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -607,7 +612,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V130",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V131",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -1186,7 +1191,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         } else if (tpl.type === 'velocity') {
             ghostDrag.src = SVG_VELOCITY_PREVIEW; ghostDrag.style.background = 'transparent'; ghostDrag.style.border = 'none'; ghostDrag.style.borderRadius = '0';
         } else if (tpl.type === 'rect') {
-            ghostDrag.src = ''; ghostDrag.style.backgroundColor = tpl.color; ghostDrag.style.border = 'none';
+            ghostDrag.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="120" viewBox="0 0 80 120"><rect x="4" y="4" width="72" height="112" rx="6" fill="' + (tpl.color || '#A6A6A6') + '"/></svg>');
+            ghostDrag.style.background = 'transparent'; ghostDrag.style.backgroundColor = 'transparent'; ghostDrag.style.border = 'none'; ghostDrag.style.borderRadius = '0';
         }
         ghostDrag.style.display = 'block'; moveGhost(getClientPos(e));
         document.addEventListener('mousemove', handleDockDragMove); document.addEventListener('touchmove', handleDockDragMove, {passive: false});
