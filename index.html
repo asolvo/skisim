@@ -1,9 +1,17 @@
-<!-- Skisim v137 -->
-<!-- Schild: Raute (Skiroute) ergaenzt, Dreieck weniger gerundet, Dock-Icon gelbes Dreieck
+<!-- Skisim v138 -->
+<!-- Szenario-Metadaten: Ort, UTM, Exposition, Neigung + Legende auf der Skizze
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v138:
+- Neuer Toolbar-Button "Szenario" (Karten-Pin) öffnet einen Dialog für
+  Szenario-Metadaten: Ortsbezeichnung, UTM-Koordinaten (Zone/Rechtswert/Hochwert),
+  Exposition (Himmelsrichtung ODER Grad, wechselseitig) und Neigung.
+- Darstellung als ein-/ausblendbarer Legendenblock unten links auf der
+  Zeichenfläche (mit Kompass-Pfeil für die Exposition) — im PNG-Export enthalten
+  und in der Projekt-JSON gespeichert (validiert beim Import).
 
 Neu in v137:
 - Neue Schildform "Raute" (wie Skirouten-Markierung).
@@ -127,7 +135,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V137</title>
+    <title>Ski-Simulation V138</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -248,6 +256,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         #saveBtn { right: 185px; }
         #exportBtn { right: 245px; }
         #shareBtn { right: 305px; }
+        #metaBtn { right: 365px; }
 
         /* Loader */
         #loader {
@@ -391,6 +400,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             #saveBtn   { right: 60px; }
             #exportBtn { right: 108px; }
             #shareBtn  { right: 156px; }
+            #metaBtn   { right: 204px; }
 
             /* Dock: untere, horizontal scrollbare Leiste */
             #dock {
@@ -440,6 +450,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         .shape-swatch svg { width: 18px; height: 18px; }
         .shape-swatch:hover { transform: scale(1.08); }
         .shape-swatch.active { border-color: var(--md-primary); color: var(--md-primary); box-shadow: 0 0 0 2px var(--md-surface-container-high), 0 0 0 4px var(--md-primary); }
+        /* v138: Szenario-Metadaten — Himmelsrichtungs-Buttons */
+        .dir-row { display: flex; flex-wrap: wrap; gap: 5px; }
+        .dir-btn { font-size: 12px; padding: 6px 11px; border-radius: 16px; border: none; background: var(--md-surface-container-highest); color: var(--md-on-surface); cursor: pointer; font-family: inherit; touch-action: manipulation; }
+        .dir-btn:hover { background: var(--md-seg-hover); }
+        .dir-btn.active { background: var(--md-primary); color: var(--md-on-primary); }
     </style>
 </head>
 <body>
@@ -488,7 +503,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v137</div>
+        <div class="popup-version">v138</div>
     </div>
 </div>
 
@@ -522,6 +537,46 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <div class="login-actions">
                 <button class="btn-secondary" id="em-cancel" onclick="closeEdit()">Abbrechen</button>
                 <button class="btn-primary" id="editOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="sceneModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('sceneModal')">&times;</span>
+        <h3 id="sc-title">Szenario</h3>
+        <div class="modal-body">
+            <div class="form-group">
+                <label id="sc-lbl-name" for="scName">Ortsbezeichnung</label>
+                <input type="text" id="scName" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label id="sc-lbl-utm">UTM-Koordinaten</label>
+                <div style="display:grid; grid-template-columns:64px 1fr 1fr; gap:6px;">
+                    <input type="text" id="scZone" placeholder="32T" autocomplete="off">
+                    <input type="text" id="scEast" placeholder="Rechtswert" autocomplete="off">
+                    <input type="text" id="scNorth" placeholder="Hochwert" autocomplete="off">
+                </div>
+            </div>
+            <div class="form-group">
+                <label id="sc-lbl-aspect">Exposition</label>
+                <div id="scAspectDirs" class="dir-row"></div>
+                <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                    <span id="sc-lbl-deg" style="font-size:13px; color:var(--md-on-surface-variant);">Grad</span>
+                    <input type="number" id="scAspectDeg" min="0" max="360" style="width:90px;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label id="sc-lbl-slope" for="scSlope">Neigung (°)</label>
+                <input type="number" id="scSlope" min="0" max="90" style="width:90px;">
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; font-size:14px; color:var(--md-on-surface); cursor:pointer;">
+                <input type="checkbox" id="scShow" checked> <span id="sc-lbl-show">In Skizze anzeigen</span>
+            </label>
+            <div class="login-actions">
+                <button class="btn-secondary" id="sc-cancel" onclick="closeModal('sceneModal')">Abbrechen</button>
+                <button class="btn-primary" id="sc-ok">Übernehmen</button>
             </div>
         </div>
     </div>
@@ -578,6 +633,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
     </svg>
 </button>
+<button id="metaBtn" class="header-btn" title="Szenario">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z"></path><circle cx="12" cy="11" r="2.5"></circle>
+    </svg>
+</button>
 
 <div id="dock">
     <div class="dock-title">Objekte</div>
@@ -630,8 +690,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V137",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V138",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
+        tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
         instructions: `<li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
@@ -662,8 +723,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V137",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V138",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
+        tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
         instructions: `<li><strong>Objects:</strong> Drag (mouse) or tap (touch).</li>
@@ -730,6 +792,14 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const s = SHAPES.find(function (x) { return x.key === b.dataset.shape; });
             if (s) b.title = (lang === 'en') ? s.en : s.de;
         });
+        // v138: Szenario-Dialog lokalisieren
+        setTitleAttr('metaBtn', t('tScene'));
+        setText('sc-title', t('scTitle')); setText('sc-lbl-name', t('scName')); setText('sc-lbl-utm', t('scUtm'));
+        setText('sc-lbl-aspect', t('scAspect')); setText('sc-lbl-deg', t('scDeg')); setText('sc-lbl-slope', t('scSlope'));
+        setText('sc-lbl-show', t('scShow')); setText('sc-cancel', t('cancel')); setText('sc-ok', t('scApply'));
+        const scE = document.getElementById('scEast'); if (scE) scE.placeholder = t('scPhEast');
+        const scN = document.getElementById('scNorth'); if (scN) scN.placeholder = t('scPhNorth');
+        if (typeof buildAspectDirs === 'function') buildAspectDirs();
     }
     function openLicenseFromPopup() { closeModal('impressumModal'); openModal('licenseModal'); const k = document.getElementById('licenseKey'); if (k) k.focus(); }
 
@@ -903,6 +973,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (event.target == impressumModal) closeModal("impressumModal");
         if (event.target == document.getElementById("licenseModal")) closeModal("licenseModal");
         if (event.target == document.getElementById("editModal")) closeEdit();
+        if (event.target == document.getElementById("sceneModal")) closeModal('sceneModal');
     };
 
     // --- SHORTCUTS & BUGFIX ---
@@ -1612,6 +1683,124 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         for (let i = 0; i < lines.length; i++) ctx.fillText(lines[i], 0, startY + i * lh);
     }
 
+    // v138: Szenario-Metadaten (Ort, UTM, Exposition, Neigung) — Eingabe + Legende auf der Skizze
+    let sceneMeta = { name: '', zone: '', east: '', north: '', aspectDeg: null, slope: null, visible: true };
+    const DIRS = [
+        { deg: 0, de: 'N', en: 'N' }, { deg: 45, de: 'NO', en: 'NE' }, { deg: 90, de: 'O', en: 'E' }, { deg: 135, de: 'SO', en: 'SE' },
+        { deg: 180, de: 'S', en: 'S' }, { deg: 225, de: 'SW', en: 'SW' }, { deg: 270, de: 'W', en: 'W' }, { deg: 315, de: 'NW', en: 'NW' }
+    ];
+    function normDeg(d) { return ((d % 360) + 360) % 360; }
+    function dirLabel(deg) {
+        if (deg === null || deg === undefined || isNaN(deg)) return '';
+        const d = DIRS[Math.round(normDeg(deg) / 45) % 8];
+        return (lang === 'en') ? d.en : d.de;
+    }
+    function markAspect(deg) {
+        const wrap = document.getElementById('scAspectDirs'); if (!wrap) return;
+        const idx = (deg === '' || deg === null || deg === undefined || isNaN(deg)) ? -1 : Math.round(normDeg(deg) / 45) % 8;
+        Array.prototype.forEach.call(wrap.children, function (b, i) { b.classList.toggle('active', i === idx); });
+    }
+    function buildAspectDirs() {
+        const wrap = document.getElementById('scAspectDirs'); if (!wrap) return;
+        wrap.innerHTML = '';
+        DIRS.forEach(function (d) {
+            const b = document.createElement('button');
+            b.type = 'button'; b.className = 'dir-btn'; b.dataset.deg = d.deg;
+            b.textContent = (lang === 'en') ? d.en : d.de;
+            b.addEventListener('click', function () { document.getElementById('scAspectDeg').value = d.deg; markAspect(d.deg); });
+            wrap.appendChild(b);
+        });
+    }
+    function openSceneDialog() {
+        document.getElementById('scName').value = sceneMeta.name || '';
+        document.getElementById('scZone').value = sceneMeta.zone || '';
+        document.getElementById('scEast').value = sceneMeta.east || '';
+        document.getElementById('scNorth').value = sceneMeta.north || '';
+        document.getElementById('scAspectDeg').value = (sceneMeta.aspectDeg === null || sceneMeta.aspectDeg === undefined) ? '' : Math.round(sceneMeta.aspectDeg);
+        document.getElementById('scSlope').value = (sceneMeta.slope === null || sceneMeta.slope === undefined) ? '' : Math.round(sceneMeta.slope);
+        document.getElementById('scShow').checked = sceneMeta.visible !== false;
+        const dv = document.getElementById('scAspectDeg').value;
+        markAspect(dv === '' ? null : parseFloat(dv));
+        openModal('sceneModal');
+        setTimeout(function () { document.getElementById('scName').focus(); }, 30);
+    }
+    function applyScene() {
+        const gv = function (id) { return document.getElementById(id).value.trim(); };
+        sceneMeta.name = gv('scName').slice(0, 120);
+        sceneMeta.zone = gv('scZone').slice(0, 10);
+        sceneMeta.east = gv('scEast').slice(0, 20);
+        sceneMeta.north = gv('scNorth').slice(0, 20);
+        const dv = gv('scAspectDeg'); sceneMeta.aspectDeg = (dv === '' || isNaN(parseFloat(dv))) ? null : normDeg(parseFloat(dv));
+        const sv = gv('scSlope'); sceneMeta.slope = (sv === '' || isNaN(parseFloat(sv))) ? null : Math.min(90, Math.max(0, parseFloat(sv)));
+        sceneMeta.visible = document.getElementById('scShow').checked;
+        closeModal('sceneModal');
+    }
+    function sanitizeScene(s) {
+        const out = { name: '', zone: '', east: '', north: '', aspectDeg: null, slope: null, visible: true };
+        if (!s || typeof s !== 'object') return out;
+        if (typeof s.name === 'string') out.name = s.name.slice(0, 120);
+        if (typeof s.zone === 'string') out.zone = s.zone.slice(0, 10);
+        if (typeof s.east === 'string' || typeof s.east === 'number') out.east = String(s.east).slice(0, 20);
+        if (typeof s.north === 'string' || typeof s.north === 'number') out.north = String(s.north).slice(0, 20);
+        if (typeof s.aspectDeg === 'number' && isFinite(s.aspectDeg)) out.aspectDeg = normDeg(s.aspectDeg);
+        if (typeof s.slope === 'number' && isFinite(s.slope)) out.slope = Math.min(90, Math.max(0, s.slope));
+        out.visible = (s.visible !== false);
+        return out;
+    }
+    // Legendenblock unten links auf der Zeichenflaeche (im PNG-Export enthalten)
+    function drawSceneLegend() {
+        const m = sceneMeta;
+        if (!m || !m.visible) return;
+        const title = String(m.name || '').trim();
+        const lines = [];
+        const utm = [m.zone, m.east, m.north].map(function (s) { return String(s || '').trim(); }).filter(Boolean).join(' ');
+        if (utm) lines.push([t('legUtm'), utm]);
+        if (m.aspectDeg !== null && m.aspectDeg !== undefined && !isNaN(m.aspectDeg)) lines.push([t('legAspect'), dirLabel(m.aspectDeg) + ' (' + Math.round(normDeg(m.aspectDeg)) + '°)']);
+        if (m.slope !== null && m.slope !== undefined && !isNaN(m.slope)) lines.push([t('legSlope'), Math.round(m.slope) + '°']);
+        if (!title && lines.length === 0) return;
+        const hasCompass = (m.aspectDeg !== null && m.aspectDeg !== undefined && !isNaN(m.aspectDeg));
+        const pad = 12, lh = 17, titleH = title ? 22 : 0, compassW = hasCompass ? 54 : 0;
+        ctx.save();
+        ctx.font = '600 15px "Roboto Serif", Georgia, serif';
+        const titleW = title ? ctx.measureText(title).width : 0;
+        ctx.font = '12px Roboto, sans-serif';
+        let maxLineW = 0;
+        lines.forEach(function (ln) { const w = ctx.measureText(ln[0] + '   ').width + ctx.measureText(ln[1]).width; if (w > maxLineW) maxLineW = w; });
+        const textW = Math.max(titleW, maxLineW);
+        const boxW = pad + textW + (compassW ? 12 + compassW : 0) + pad;
+        const boxH = pad + titleH + lines.length * lh + pad - 3;
+        const x0 = 16, y0 = canvas.height - boxH - 16;
+        roundRectPath(ctx, x0, y0, boxW, boxH, 12);
+        ctx.fillStyle = 'rgba(255,255,255,0.94)'; ctx.fill();
+        ctx.lineWidth = 1; ctx.strokeStyle = '#DBE0E4'; ctx.stroke();
+        ctx.textBaseline = 'top';
+        let ty = y0 + pad;
+        if (title) { ctx.font = '600 15px "Roboto Serif", Georgia, serif'; ctx.fillStyle = '#1A1C1E'; ctx.fillText(title, x0 + pad, ty); ty += titleH; }
+        lines.forEach(function (ln) {
+            ctx.font = '12px Roboto, sans-serif';
+            ctx.fillStyle = '#888888'; ctx.fillText(ln[0], x0 + pad, ty);
+            const lw = ctx.measureText(ln[0] + '   ').width;
+            ctx.fillStyle = '#41484D'; ctx.fillText(ln[1], x0 + pad + lw, ty);
+            ty += lh;
+        });
+        if (hasCompass) {
+            const cxp = x0 + boxW - pad - compassW / 2, cyp = y0 + boxH / 2, R = compassW / 2 - 5;
+            ctx.beginPath(); ctx.arc(cxp, cyp, R, 0, Math.PI * 2); ctx.strokeStyle = '#C2C7CE'; ctx.lineWidth = 1.5; ctx.stroke();
+            ctx.fillStyle = '#888888'; ctx.font = '8px Roboto, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('N', cxp, cyp - R + 5);
+            const a = normDeg(m.aspectDeg) * Math.PI / 180;
+            const ex = cxp + Math.sin(a) * (R - 4), ey = cyp - Math.cos(a) * (R - 4);
+            ctx.beginPath(); ctx.moveTo(cxp, cyp); ctx.lineTo(ex, ey); ctx.strokeStyle = '#007C89'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
+            const a1 = a + Math.PI - 0.45, a2 = a + Math.PI + 0.45, ah = 7;
+            ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex + Math.sin(a1) * ah, ey - Math.cos(a1) * ah); ctx.lineTo(ex + Math.sin(a2) * ah, ey - Math.cos(a2) * ah); ctx.closePath();
+            ctx.fillStyle = '#007C89'; ctx.fill();
+        }
+        ctx.restore();
+    }
+    const _metaBtn = document.getElementById('metaBtn'); if (_metaBtn) _metaBtn.addEventListener('click', openSceneDialog);
+    const _scOk = document.getElementById('sc-ok'); if (_scOk) _scOk.addEventListener('click', applyScene);
+    const _scDeg = document.getElementById('scAspectDeg'); if (_scDeg) _scDeg.addEventListener('input', function () { const v = this.value; markAspect(v === '' ? null : parseFloat(v)); });
+    buildAspectDirs();
+
     // --- EXPORT FUNCTIONALITY (PNG) ---
     function exportImage() {
         if (!requireFeature('export')) return;
@@ -1640,7 +1829,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                 userAgent: navigator.userAgent,
                 creator: license ? license.name : "Unbekannt"
             },
-            objects: activeObjects
+            objects: activeObjects,
+            scene: sceneMeta
         };
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
         const link = document.createElement('a');
@@ -1717,6 +1907,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                     const afterSanitize = objs.length;
                     objs = enforceGuestPersonLimit(objs);
                     activeObjects = objs;
+                    sceneMeta = sanitizeScene(data.scene || {}); // v138: Szenario-Metadaten laden
                     // Reset State
                     activePlayerIndex = -1;
                     draggingPlayerIndex = -1;
@@ -1833,6 +2024,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const p = activeObjects[activePlayerIndex];
             if(p) { ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2); ctx.beginPath(); ctx.arc(0, 0, Math.max(p.width, p.height)/1.4, 0, Math.PI*2); ctx.strokeStyle = '#007C89'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.restore(); } /* v129: Auswahl-Ring in Teal */
         }
+        drawSceneLegend(); // v138: Szenario-Legende (Ort/UTM/Exposition/Neigung)
         updateColorBar(); // v117: Farbleiste an Auswahl/Farbe anpassen
         updateShapeBar(); // v135: Formleiste (nur bei Schild)
         requestAnimationFrame(drawLoop);
