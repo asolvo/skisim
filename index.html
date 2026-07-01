@@ -1,9 +1,14 @@
-<!-- Skisim v136 -->
-<!-- Schild-Feinschliff: kein Rand, abgerundetes Dreieck, Stiel ohne Abstand, mehrzeilig
+<!-- Skisim v137 -->
+<!-- Schild: Raute (Skiroute) ergaenzt, Dreieck weniger gerundet, Dock-Icon gelbes Dreieck
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v137:
+- Neue Schildform "Raute" (wie Skirouten-Markierung).
+- Dreieck weniger stark abgerundet.
+- Dock-Symbol des Schilds ist jetzt ein gelbes Dreieck.
 
 Neu in v136 (Schild-Feinschliff):
 - Alle vier Schildformen ohne weißen Rand.
@@ -122,7 +127,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V136</title>
+    <title>Ski-Simulation V137</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -483,7 +488,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v136</div>
+        <div class="popup-version">v137</div>
     </div>
 </div>
 
@@ -625,7 +630,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V136",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V137",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -657,7 +662,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V136",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V137",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -982,7 +987,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     const SVG_INJURED_CUSTOM = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="80" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M64 34 L92 26" stroke="#d9534f" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M64 46 L90 57" stroke="#d9534f" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M41 30 L47 10" stroke="#d9534f" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M41 50 L49 70" stroke="#d9534f" stroke-width="7" stroke-linecap="round" fill="none"/><rect x="30" y="28" width="40" height="24" rx="12" fill="#d9534f" stroke="#c9302c" stroke-width="2"/><circle cx="20" cy="40" r="12" fill="#808080" stroke="#666" stroke-width="2"/><rect x="43" y="33" width="14" height="14" rx="2" fill="#ffffff"/><rect x="48.5" y="35" width="3" height="10" fill="#d9534f"/><rect x="45" y="38.5" width="10" height="3" fill="#d9534f"/></svg>`);
 
     // NEW: SVG_SIGN (Round red sign with text "Schild", short post)
-    const SVG_SIGN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="47" y="73" width="6" height="27" fill="#666"/><circle cx="50" cy="42" r="30" fill="#D9343B"/><circle cx="50" cy="42" r="30" fill="none" stroke="#ffffff" stroke-width="3"/><rect x="45.5" y="22" width="9" height="26" rx="4" fill="#ffffff"/><circle cx="50" cy="58" r="5" fill="#ffffff"/></svg>`);
+    const SVG_SIGN = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="47" y="66" width="6" height="32" fill="#666"/><path d="M50 18 L82 74 L18 74 Z" fill="#F2C200" stroke="#F2C200" stroke-width="6" stroke-linejoin="round"/><rect x="46.5" y="40" width="7" height="20" rx="3" fill="#1A1B1F"/><circle cx="50" cy="67" r="4" fill="#1A1B1F"/></svg>`);
 
     // NEW: SVG_FENCE (Top-down view, 3 posts, 2 segments, simple red/yellow pattern)
     const SVG_FENCE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="200" height="20" viewBox="0 0 200 20" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="simpleNet" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="yellow" fill-opacity="0.5"/><path d="M 0 2 L 6 2 M 0 4 L 6 4" stroke="red" stroke-width="1"/><path d="M 2 0 L 2 6 M 4 0 L 4 6" stroke="yellow" stroke-width="1"/></pattern></defs><rect x="10" y="8" width="180" height="4" fill="url(#simpleNet)"/><circle cx="10" cy="10" r="3" fill="#aa0000" stroke="#660000" stroke-width="1"/><circle cx="100" cy="10" r="3" fill="#aa0000" stroke="#660000" stroke-width="1"/><circle cx="190" cy="10" r="3" fill="#aa0000" stroke="#660000" stroke-width="1"/></svg>`);
@@ -1508,7 +1513,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { key: 'round',    de: 'Rund',     en: 'Round',     svg: '<circle cx="12" cy="12" r="8"/>' },
         { key: 'square',   de: 'Quadrat',  en: 'Square',    svg: '<rect x="5" y="5" width="14" height="14" rx="2"/>' },
         { key: 'rect',     de: 'Rechteck', en: 'Rectangle', svg: '<rect x="3" y="7" width="18" height="10" rx="2"/>' },
-        { key: 'triangle', de: 'Dreieck',  en: 'Triangle',  svg: '<path d="M12 4 L21 20 L3 20 Z"/>' }
+        { key: 'triangle', de: 'Dreieck',  en: 'Triangle',  svg: '<path d="M12 4 L21 20 L3 20 Z"/>' },
+        { key: 'diamond',  de: 'Raute',    en: 'Diamond',   svg: '<path d="M12 3 L21 12 L12 21 L3 12 Z"/>' }
     ];
     const SHAPE_KEYS = SHAPES.map(function (s) { return s.key; });
     let _shapeBarKey = null;
@@ -1567,6 +1573,17 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (!m) return '#ffffff';
         const n = parseInt(m[1], 16), r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
         return ((0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.6) ? '#1A1B1F' : '#ffffff';
+    }
+    // v137: konvexes Polygon mit abgerundeten Ecken (z. B. Raute)
+    function roundedPolyPath(c, pts, r) {
+        const n = pts.length;
+        c.beginPath();
+        c.moveTo((pts[0][0] + pts[1][0]) / 2, (pts[0][1] + pts[1][1]) / 2);
+        for (let i = 1; i <= n; i++) {
+            const cur = pts[i % n], nxt = pts[(i + 1) % n];
+            c.arcTo(cur[0], cur[1], nxt[0], nxt[1], r);
+        }
+        c.closePath();
     }
     // v136: Dreieck mit abgerundeten Ecken (Apex oben, Basis unten)
     function roundedTriPath(c, top, bot, tw, r) {
@@ -1787,8 +1804,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             } else if (shape === 'triangle') {
                 const tw = w * 0.84, th = h * 0.72;
                 const top = cy - th / 2, bot = cy + th / 2;
-                roundedTriPath(ctx, top, bot, tw, Math.min(tw, th) * 0.16); ctx.fill();
+                roundedTriPath(ctx, top, bot, tw, Math.min(tw, th) * 0.09); ctx.fill();
                 faceBottom = bot; tbW = tw * 0.44; tbH = th * 0.30; tbY = top + th * 0.68;
+            } else if (shape === 'diamond') {
+                const d = Math.min(w, h) * 0.70;        // Diagonale (Raute wie Skiroute)
+                roundedPolyPath(ctx, [[0, cy - d / 2], [d / 2, cy], [0, cy + d / 2], [-d / 2, cy]], d * 0.10); ctx.fill();
+                faceBottom = cy + d / 2; tbW = d * 0.52; tbH = d * 0.52; tbY = cy;
             } else { // round
                 const r = Math.min(w, h) * 0.34;
                 ctx.beginPath(); ctx.arc(0, cy, r, 0, Math.PI * 2); ctx.fill();
