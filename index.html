@@ -1,9 +1,15 @@
-<!-- Skisim 2026.07.0012 -->
-<!-- Legende klickbar + Schild-Standard = gelbes Dreieck
+<!-- Skisim 2026.07.0013 -->
+<!-- Legende: Neigungs-Dreieck gespiegelt + gleich breit/bündig mit Kompass
 
 Apache V2 License
 2026-07-01
 Christian Klingler, asolvo
+
+Neu in 2026.07.0013:
+- Neigungs-Dreieck in der Legende gespiegelt: senkrechte Seite links, spitzer
+  Winkel rechts, Hypotenuse fällt nach rechts ab (Neigung statt Steigung).
+- Neigungs-Dreieck und Expositions-Kreis gleich breit und links/rechts bündig
+  ausgerichtet (Kreis etwas größer, Dreieck etwas kleiner).
 
 Neu in 2026.07.0012:
 - Szenario-Legende ist klickbar: Doppelklick/-tap darauf öffnet den Eingabedialog.
@@ -155,7 +161,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0012</title>
+    <title>Ski-Simulation 2026.07.0013</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -525,7 +531,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0012</div>
+        <div class="popup-version">2026.07.0013</div>
     </div>
 </div>
 
@@ -730,7 +736,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0012",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0013",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -763,7 +769,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0012",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0013",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1849,7 +1855,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         ctx.restore();
     }
     function drawMiniCompass(px, py, size, deg) {
-        const cxp = px + size / 2, cyp = py + size / 2, R = size / 2 - 6;
+        const cxp = px + size / 2, cyp = py + size / 2, R = size / 2 - 1;
         ctx.beginPath(); ctx.arc(cxp, cyp, R, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill(); ctx.strokeStyle = '#C2C7CE'; ctx.lineWidth = 1.5; ctx.stroke();
         ctx.fillStyle = '#888888'; ctx.font = '8px Roboto, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('N', cxp, cyp - R + 5);
         const a = normDeg(deg) * Math.PI / 180;
@@ -1859,12 +1865,16 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         ctx.beginPath(); ctx.moveTo(ex, ey); ctx.lineTo(ex + Math.sin(a1) * ah, ey - Math.cos(a1) * ah); ctx.lineTo(ex + Math.sin(a2) * ah, ey - Math.cos(a2) * ah); ctx.closePath(); ctx.fillStyle = '#007C89'; ctx.fill();
     }
     function drawMiniSlope(px, py, size, angleDeg) {
+        // Neigung nach unten: senkrechte Seite links, spitzer Winkel rechts, Hypotenuse faellt nach rechts ab
+        const w = size - 2, x = px + 1, baseY = py + size - 1;
         const a = Math.max(0, Math.min(89, angleDeg)) * Math.PI / 180;
-        let rise = size * Math.tan(a); if (rise > size) rise = size;
-        const ax = px, ay = py + size, bx = px + size;
-        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, ay); ctx.lineTo(bx, ay - rise); ctx.closePath();
+        let rise = w * Math.tan(a); if (rise > w) rise = w;
+        const tlx = x, tly = baseY - rise;   // oben an der linken Seite
+        const blx = x, bly = baseY;          // unten links (rechter Winkel)
+        const brx = x + w, bry = baseY;      // unten rechts (spitzer Winkel = Neigung)
+        ctx.beginPath(); ctx.moveTo(tlx, tly); ctx.lineTo(blx, bly); ctx.lineTo(brx, bry); ctx.closePath();
         ctx.fillStyle = 'rgba(0,124,137,0.12)'; ctx.fill(); ctx.strokeStyle = '#007C89'; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.beginPath(); ctx.arc(ax, ay, size * 0.32, -a, 0); ctx.strokeStyle = '#41484D'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.beginPath(); ctx.arc(brx, bry, w * 0.34, Math.PI, Math.PI + a); ctx.strokeStyle = '#41484D'; ctx.lineWidth = 1; ctx.stroke();
     }
     function wrapLegendText(text, maxW, font, maxLines) {
         ctx.font = font;
@@ -1908,7 +1918,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const descEnd = descLines.length ? (labelX + descW) : 0;
         const textRight = Math.max(valueX + maxValueW, titleEnd, descEnd, labelX + 40);
         const previews = []; if (hasAspect) previews.push('compass'); if (hasSlope) previews.push('slope');
-        const gW = 52, gGap = 8;
+        const gW = 48, gGap = 8;
         const previewsW = previews.length ? (14 + gW) : 0;
         const boxW = textRight + previewsW + pad;
         const titleH = title ? 24 : 0;
