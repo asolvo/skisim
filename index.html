@@ -1,9 +1,13 @@
-<!-- Skisim v129 -->
-<!-- MD3-Feinschliff: Swatch-Haken, Teal-Auswahlring, Gelb, Mobile-Header, Bemaßung-Kontrast
+<!-- Skisim v130 -->
+<!-- Rodler-Grafik um 180° gedreht (schaut nach oben)
 
 Apache V2 License
 2026-06-29
 Christian Klingler, asolvo
+
+Neu in v130:
+- Rodler (Rodel/Schlitten): SVG-Grafik um 180° gedreht — schaut jetzt in Dock,
+  beim Ziehen und beim Platzieren einheitlich nach oben (statt nach unten).
 
 Neu in v129:
 - Farbleiste: aktiver Farb-Chip zeigt jetzt einen Haken (✓) zusätzlich zum Teal-Ring.
@@ -76,7 +80,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation V129</title>
+    <title>Ski-Simulation V130</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -433,7 +437,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">v129</div>
+        <div class="popup-version">v130</div>
     </div>
 </div>
 
@@ -571,7 +575,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V129",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation V130",
         dockTitle: "Objekte", signLabel: "Schild",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Warnschild (Veränderbar)",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
@@ -603,7 +607,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V129",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation V130",
         dockTitle: "Objects", signLabel: "Sign",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Warning sign (editable)",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
@@ -916,7 +920,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     const SVG_SKI_PLOW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="37.023964" y="35.509697" width="12" height="72" rx="5" fill="#333" transform="rotate(-25)"/><rect x="41.606819" y="-6.7521315" width="12" height="72" rx="5" fill="#333" transform="rotate(25)"/><rect x="29.947439" y="34.780109" width="40.105122" height="30.439781" rx="12.031537" fill="#826dff" stroke="#544bb3" stroke-width="1.89488"/><circle cx="50" cy="50" r="14" fill="#808080"/><rect x="38" y="42" width="24" height="10" rx="3" fill="#333"/><rect x="40" y="44" width="20" height="6" rx="2" fill="#87ceeb"/><circle cx="28" cy="50" r="7" fill="#826dff"/><circle cx="72.856575" cy="42.936256" r="5.3266931" fill="#333"/><circle cx="72" cy="50" r="7" fill="#826dff"/><circle cx="72.398407" cy="46.840637" r="7" fill="#826dff"/><circle cx="27.282869" cy="43.219124" r="5.0876493" fill="#333"/><circle cx="27.537849" cy="47.868526" r="7" fill="#826dff"/><path fill="#826dff" stroke="#544bb3" stroke-width="0.0710732" stroke-linecap="round" stroke-linejoin="round" d="m 26.698432,56.845502 c -0.667894,-0.131 -1.566917,-0.473694 -2.160106,-0.823398 -1.898546,-1.119258 -3.065111,-2.867871 -3.459405,-5.185451 -0.0671,-0.394422 -0.198227,-0.986055 -0.291385,-1.314741 -0.241444,-0.851876 -0.244849,-2.32468 -0.0076,-3.283606 1.169417,-4.726449 6.66981,-6.835578 10.69416,-4.100681 0.531849,0.361438 1.32698,1.144604 1.712851,1.687076 0.661537,0.930017 1.048532,1.903386 1.267196,3.187251 0.05971,0.350598 0.18942,0.924303 0.28824,1.274901 0.249474,0.885096 0.256045,2.506428 0.01379,3.402268 -0.360517,1.333155 -1.008202,2.413352 -2.027714,3.381789 -0.943482,0.896216 -2.047984,1.472984 -3.342006,1.74519 -0.59985,0.126183 -2.110363,0.142705 -2.688026,0.0294 z"/><path fill="#826dff" d="m 70.55556,56.815465 c -1.272123,-0.292075 -2.367548,-0.873992 -3.284024,-1.744555 -1.020379,-0.96926 -1.669683,-2.047432 -2.022137,-3.357763 -0.244882,-0.910404 -0.243566,-2.525074 0.0028,-3.426294 0.120106,-0.43937 0.183234,-0.934571 0.203156,-1.593626 0.05825,-1.927187 0.812842,-3.642411 2.145459,-4.876761 3.920014,-3.630949 10.123656,-1.865147 11.534362,3.283136 0.247704,0.903982 0.25338,2.507979 0.01226,3.466135 -0.104144,0.413853 -0.186133,1.049203 -0.210791,1.633466 -0.127233,3.014686 -1.99193,5.494622 -4.833055,6.427674 -0.681537,0.223823 -0.87211,0.251101 -1.912351,0.27373 -0.783305,0.01704 -1.310051,-0.01038 -1.635675,-0.08514 z"/></svg>`);
     
     // CUSTOM INKSCAPE SLED (Updated V78)
-    const SVG_SLED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="28" y="8" width="9" height="84" rx="4" fill="#8b5a2b"/><rect x="63" y="8" width="9" height="84" rx="4" fill="#8b5a2b"/><rect x="33" y="18" width="34" height="64" rx="6" fill="#a0522d"/><rect x="36" y="24" width="28" height="5" rx="2" fill="#8b5a2b"/><rect x="36" y="33" width="28" height="5" rx="2" fill="#8b5a2b"/><rect x="36" y="60" width="28" height="5" rx="2" fill="#8b5a2b"/><rect x="36" y="69" width="28" height="5" rx="2" fill="#8b5a2b"/><rect x="32" y="40" width="36" height="30" rx="13" fill="#e67e22" stroke="#c4621a" stroke-width="2"/><rect x="37" y="64" width="9" height="20" rx="4" fill="#e67e22"/><rect x="54" y="64" width="9" height="20" rx="4" fill="#e67e22"/><circle cx="50" cy="45" r="13" fill="#808080"/><rect x="40" y="39" width="20" height="9" rx="3" fill="#333"/><rect x="42" y="41" width="16" height="5" rx="2" fill="#87ceeb"/></svg>`);
+    const SVG_SLED = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(180 50 50)"><rect x="28" y="8" width="9" height="84" rx="4" fill="#8b5a2b"/><rect x="63" y="8" width="9" height="84" rx="4" fill="#8b5a2b"/><rect x="33" y="18" width="34" height="64" rx="6" fill="#a0522d"/><rect x="36" y="24" width="28" height="5" rx="2" fill="#8b5a2b"/><rect x="36" y="33" width="28" height="5" rx="2" fill="#8b5a2b"/><rect x="36" y="60" width="28" height="5" rx="2" fill="#8b5a2b"/><rect x="36" y="69" width="28" height="5" rx="2" fill="#8b5a2b"/><rect x="32" y="40" width="36" height="30" rx="13" fill="#e67e22" stroke="#c4621a" stroke-width="2"/><rect x="37" y="64" width="9" height="20" rx="4" fill="#e67e22"/><rect x="54" y="64" width="9" height="20" rx="4" fill="#e67e22"/><circle cx="50" cy="45" r="13" fill="#808080"/><rect x="40" y="39" width="20" height="9" rx="3" fill="#333"/><rect x="42" y="41" width="16" height="5" rx="2" fill="#87ceeb"/></g></svg>`);
 
     // UPDATED SVG_INJURED (Custom Version 3 - Fixed Knee Sharpness & Aspect Ratio)
     const SVG_INJURED_CUSTOM = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg width="100" height="80" viewBox="0 0 100 80" xmlns="http://www.w3.org/2000/svg"><path d="M64 34 L92 26" stroke="#d9534f" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M64 46 L90 57" stroke="#d9534f" stroke-width="9" stroke-linecap="round" fill="none"/><path d="M41 30 L47 10" stroke="#d9534f" stroke-width="7" stroke-linecap="round" fill="none"/><path d="M41 50 L49 70" stroke="#d9534f" stroke-width="7" stroke-linecap="round" fill="none"/><rect x="30" y="28" width="40" height="24" rx="12" fill="#d9534f" stroke="#c9302c" stroke-width="2"/><circle cx="20" cy="40" r="12" fill="#808080" stroke="#666" stroke-width="2"/><rect x="43" y="33" width="14" height="14" rx="2" fill="#ffffff"/><rect x="48.5" y="35" width="3" height="10" fill="#d9534f"/><rect x="45" y="38.5" width="10" height="3" fill="#d9534f"/></svg>`);

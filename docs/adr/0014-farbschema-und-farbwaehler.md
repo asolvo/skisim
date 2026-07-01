@@ -16,14 +16,21 @@ verständlicherer Farbwähler.
 
 ## Entscheidung
 
-**Palette (7 Farben, `COLOR_PALETTE`)** — Reihenfolge und Werte:
+**Palette (`COLOR_PALETTE`)** — Reihenfolge und Werte:
 Blau `#2C7FB8`, Rot `#D9343B`, Schwarz `#2B2B2B`, Grün `#5BA86B`, Braun `#9C6B43`,
-Grau `#A6A6A6`, Fast-Weiß `#ECECE6`.
+Gelb `#F2C200`, Grau `#A6A6A6`, Fast-Weiß `#ECECE6`.
 - Blau und Rot sind an **Pistenfarben** angelehnt.
+- **Gelb** (ergänzt in v129) bildet die vielen gelben Warnschilder auf Pisten ab;
+  es steht zwischen Braun und Grau.
 - Fast-Weiß ist bewusst leicht abgedunkelt, damit es auf der weißen Zeichenfläche
   noch erkennbar bleibt.
 - Standardfarben der Objekte und die Dock-Vorschau-Icons wurden an die Palette
   angeglichen.
+
+> **Nachtrag v129:** Die Palette wurde von ursprünglich 7 auf **8 Farben**
+> erweitert (Gelb `#F2C200`). Tooltip-Namen (Gelb/Yellow) in `COLOR_NAMES`.
+> Figuren nutzen weiterhin die separate 11-farbige Skimode-Palette (siehe
+> [ADR-0017](0017-einfaerbbare-figuren-skimode-palette.md)).
 
 **Farbwähler — kontextuelle Swatch-Leiste:**
 - Eine Leiste mit allen 7 Farb-Swatches erscheint **nur**, wenn ein einfärbbares
