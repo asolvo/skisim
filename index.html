@@ -1,9 +1,18 @@
-<!-- Skisim 2026.07.0017 -->
-<!-- Barrierefreiheit: WCAG 2.1 Level AA komplettiert (Kontrast, Fokus, Rahmen)
+<!-- Skisim 2026.07.0018 -->
+<!-- Menüleiste: Tab-Reihenfolge links->rechts + Überlappung mit Dock behoben
 
 Apache V2 License
 2026-07-01
 Christian Klingler, asolvo
+
+Neu in 2026.07.0018:
+- Tab-Reihenfolge der oberen Menü-Buttons folgt jetzt der visuellen Reihenfolge
+  von links nach rechts (Szenario, Teilen, Export, Speichern, Import) — die
+  DOM-Reihenfolge wurde entsprechend sortiert (Szenario war zuvor als letztes
+  ergänzt und damit am Ende der Tab-Reihenfolge).
+- Der rechte Menü-Button wurde nicht mehr vom Objekt-Dock überdeckt: Dock auf
+  box-sizing:border-box (Padding wurde vorher zur Breite addiert → ~114px statt
+  92px) und die Buttons mit klarem Abstand links neben das Dock gesetzt.
 
 Neu in 2026.07.0017 (Barrierefreiheit, Ziel WCAG 2.1 Level AA):
 - Text-Links (Lizenz aktivieren, Impressum-Link, Abbrechen-Button): eigene
@@ -206,7 +215,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0017</title>
+    <title>Ski-Simulation 2026.07.0018</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -326,12 +335,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         .header-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
         .header-btn:disabled:hover { background: var(--md-primary-container); box-shadow: none; }
 
-        /* Button Positioning */
-        #importBtn { right: 125px; }
-        #saveBtn { right: 185px; }
-        #exportBtn { right: 245px; }
-        #shareBtn { right: 305px; }
-        #metaBtn { right: 365px; }
+        /* Button Positioning — 2026.07.0018: rechter Button raeumt das Dock frei (Dock-Footprint ~16..116px) */
+        #importBtn { right: 132px; }
+        #saveBtn { right: 192px; }
+        #exportBtn { right: 252px; }
+        #shareBtn { right: 312px; }
+        #metaBtn { right: 372px; }
 
         /* Loader */
         #loader {
@@ -342,7 +351,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
         /* Dock — MD3 Navigation-Rail-Stil */
         #dock {
-            position: absolute; top: 16px; right: 16px; width: 92px;
+            position: absolute; top: 16px; right: 16px; width: 100px; box-sizing: border-box; /* 2026.07.0018: border-box -> vorhersagbarer Footprint */
             background: var(--md-surface-container); border-radius: 20px; padding: 14px 11px;
             display: flex; flex-direction: column; gap: 12px; align-items: center;
             box-shadow: var(--md-elev-2); z-index: 20;
@@ -591,7 +600,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0017</div>
+        <div class="popup-version">2026.07.0018</div>
     </div>
 </div>
 
@@ -717,13 +726,18 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     </div>
 </div>
 
+<!-- 2026.07.0018: DOM-Reihenfolge = visuelle Reihenfolge (links->rechts) fuer korrekte Tab-Reihenfolge (2.4.3) -->
+<button id="metaBtn" class="header-btn" title="Szenario">
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z"></path><circle cx="12" cy="11" r="2.5"></circle>
+    </svg>
+</button>
 <button id="shareBtn" class="header-btn" title="Teilen">
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
         <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
     </svg>
 </button>
-
 <button id="exportBtn" class="header-btn" title="Bild exportieren (PNG)">
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path>
@@ -737,11 +751,6 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <button id="importBtn" class="header-btn" title="Projekt laden (JSON)">
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-    </svg>
-</button>
-<button id="metaBtn" class="header-btn" title="Szenario">
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z"></path><circle cx="12" cy="11" r="2.5"></circle>
     </svg>
 </button>
 
@@ -799,7 +808,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", closeDialog: "Schließen",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0017",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0018",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -834,7 +843,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", closeDialog: "Close",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0017",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0018",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
