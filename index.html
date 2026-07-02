@@ -1,9 +1,20 @@
-<!-- Skisim 2026.07.0018 -->
-<!-- Menüleiste: Tab-Reihenfolge links->rechts + Überlappung mit Dock behoben
+<!-- Skisim 2026.07.0019 -->
+<!-- Ausgabe: Ordnerwahl (Speichern-Dialog) + aussagekräftige Dateinamen
 
 Apache V2 License
 2026-07-01
 Christian Klingler, asolvo
+
+Neu in 2026.07.0019 (Ausgabefunktionen):
+- PNG-Export und JSON-Speichern öffnen jetzt einen echten "Speichern unter"-
+  Dialog mit freier Ordnerwahl (File System Access API, Chrome/Edge Desktop);
+  der Browser merkt sich den zuletzt gewählten Ordner (gemeinsame id). Wo die API
+  fehlt (Firefox/Safari/Mobil), automatischer Fallback auf den Download-Ordner.
+- Aussagekräftige Dateinamen: "<Ortsname> <JJJJ-MM-TT> <HHMM> <NNN>.<ext>",
+  z. B. "Hochgallmigg L312 2026-07-01 1435 003.png". Ohne Ortsname -> "Skizze".
+- Fortlaufende Nummer (3-stellig) pro Ortsname, in localStorage persistiert; wird
+  nur bei tatsächlichem Speichern hochgezählt (nicht bei Abbruch im Dialog).
+- Teilen-Funktion nutzt denselben Dateinamen (statt fixem "skisim-sketch.png").
 
 Neu in 2026.07.0018:
 - Tab-Reihenfolge der oberen Menü-Buttons folgt jetzt der visuellen Reihenfolge
@@ -215,7 +226,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0018</title>
+    <title>Ski-Simulation 2026.07.0019</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -600,7 +611,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0018</div>
+        <div class="popup-version">2026.07.0019</div>
     </div>
 </div>
 
@@ -807,8 +818,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
-        a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", closeDialog: "Schließen",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0018",
+        a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0019",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -842,8 +853,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
-        a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", closeDialog: "Close",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0018",
+        a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0019",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -2093,26 +2104,60 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     const _csg = document.getElementById('coordSysGroup'); if (_csg) _csg.addEventListener('click', function (e) { const b = e.target.closest('.seg'); if (b) setCoordSys(b.dataset.cs); });
     buildAspectCompass();
 
+    // --- 2026.07.0019: aussagekraeftige Dateinamen + Ordnerwahl (File System Access API) ---
+    // Dateiname: "<Ortsname> <JJJJ-MM-TT> <HHMM> <NNN>.<ext>", Zaehler pro Ortsname.
+    function sanitizeForFilename(s) {
+        return String(s || '').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 40);
+    }
+    function fnKey() { const raw = sanitizeForFilename(sceneMeta && sceneMeta.name).toLowerCase(); return raw || '__default'; }
+    function fnCounters() { try { return JSON.parse(localStorage.getItem('skisim_counters') || '{}'); } catch (e) { return {}; } }
+    function peekNumber() { return (fnCounters()[fnKey()] || 0) + 1; }       // naechste Nummer (noch nicht verbraucht)
+    function commitNumber(n) { const c = fnCounters(); c[fnKey()] = n; try { localStorage.setItem('skisim_counters', JSON.stringify(c)); } catch (e) {} }
+    function buildFileName(ext, num) {
+        const name = sanitizeForFilename(sceneMeta && sceneMeta.name) || t('fnDefault');
+        const d = new Date(), p = x => String(x).padStart(2, '0');
+        const datePart = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+        const timePart = p(d.getHours()) + p(d.getMinutes());
+        return name + ' ' + datePart + ' ' + timePart + ' ' + String(num).padStart(3, '0') + '.' + ext;
+    }
+    // Speichert einen Blob: echter "Speichern unter"-Dialog (Chrome/Edge) oder klassischer Download (Fallback).
+    // Liefert true, wenn gespeichert wurde; false bei Abbruch. accept = {description, mime, ext}.
+    async function saveBlob(blob, suggestedName, accept) {
+        if (window.showSaveFilePicker) {
+            try {
+                const opts = { suggestedName: suggestedName, id: 'skisim-export' };
+                opts.types = [{ description: accept.description, accept: { [accept.mime]: [accept.ext] } }];
+                const handle = await window.showSaveFilePicker(opts);
+                const w = await handle.createWritable();
+                await w.write(blob); await w.close();
+                return true;
+            } catch (err) {
+                if (err && err.name === 'AbortError') return false; // Nutzer hat abgebrochen
+                console.warn('showSaveFilePicker nicht moeglich, Fallback-Download:', err);
+            }
+        }
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = suggestedName; a.click();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        return true;
+    }
+
     // --- EXPORT FUNCTIONALITY (PNG) ---
     function exportImage() {
         if (!requireFeature('export')) return;
-        const link = document.createElement('a');
-        link.download = `ski-sim-${Date.now()}.png`; 
-        link.href = canvas.toDataURL("image/png"); 
-        link.click();
+        const num = peekNumber();
+        const name = buildFileName('png', num);
+        canvas.toBlob(async function (blob) {
+            if (!blob) return;
+            const ok = await saveBlob(blob, name, { description: t('fnPng'), mime: 'image/png', ext: '.png' });
+            if (ok) { commitNumber(num); announce(t('a11ySaved') + ' ' + name); }
+        }, 'image/png');
     }
-    
+
     // --- SAVE FUNCTIONALITY (JSON) ---
-    function saveProject() {
+    async function saveProject() {
         if (!requireFeature('save')) return;
         const now = new Date();
-        const yyyy = now.getFullYear();
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const dd = String(now.getDate()).padStart(2, '0');
-        const dateStr = `${yyyy}${mm}${dd}`;
-        
-        const key = Math.random().toString(36).substring(2, 8);
-
         const state = {
             metadata: {
                 version: "107",
@@ -2124,11 +2169,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             objects: activeObjects,
             scene: sceneMeta
         };
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
-        const link = document.createElement('a');
-        link.href = dataStr;
-        link.download = `skisim-projekt-${key}-${dateStr}.json`;
-        link.click();
+        const num = peekNumber();
+        const name = buildFileName('json', num);
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const ok = await saveBlob(blob, name, { description: t('fnJson'), mime: 'application/json', ext: '.json' });
+        if (ok) { commitNumber(num); announce(t('a11ySaved') + ' ' + name); }
     }
 
     // --- IMPORT FUNCTIONALITY (JSON) ---
@@ -2226,7 +2271,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], 'skisim-sketch.png', { type: 'image/png' }); await navigator.share({ title: t('shareTitle'), text: t('shareText'), files: [file] }); } catch (err) { console.log('share cancelled', err); } } else { alert(t('shareNotSupported')); } });
+    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const num = peekNumber(); const fname = buildFileName('png', num); const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], fname, { type: 'image/png' }); await navigator.share({ title: t('shareTitle'), text: t('shareText'), files: [file] }); commitNumber(num); } catch (err) { console.log('share cancelled', err); } } else { alert(t('shareNotSupported')); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
