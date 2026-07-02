@@ -50,3 +50,16 @@ Import validiert (`sanitizeScene`).
 
 - **Metadaten nur als HTML-Overlay:** verworfen — wären nicht im PNG-Export.
 - **Nur UTM oder nur WGS84:** verworfen — beide Systeme kommen in der Praxis vor.
+
+## Nachtrag (2026.07.0022): Copyright-Fußzeile
+
+Optionale Urheber-Zuschreibung in der Legende: Eine Fußzeile
+**„Skizze © &lt;Lizenzname&gt;"** (lokalisiert „Sketch © …") kann über einen neuen
+Toggle **„Copyright anzeigen"** im Szenario-Dialog eingeblendet werden
+(`sceneMeta.showCopyright`, in `sanitizeScene` validiert, mit dem Projekt
+gespeichert). Entscheidungen: **Opt-in** (standardmäßig aus, überrascht bestehende
+Skizzen nicht); der Name stammt aus der **aktiven Lizenz** (`license.name`) —
+ohne Lizenz (Gast) wird die Zeile **weggelassen**, da es niemanden zuzuschreiben
+gibt. Die Zeile darf auch alleiniger Inhalt der Legende sein (die Leer-Prüfung
+berücksichtigt sie). Der bereits im Export-JSON gespeicherte `creator` bleibt
+davon unberührt.

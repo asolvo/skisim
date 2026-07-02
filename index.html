@@ -1,9 +1,16 @@
-<!-- Skisim 2026.07.0021 -->
-<!-- Bugfix: kein horizontaler Scrollbalken mehr im Dock (Desktop)
+<!-- Skisim 2026.07.0022 -->
+<!-- Copyright-Fußzeile in der Legende ("Skizze © <Lizenzname>", Opt-in)
 
 Apache V2 License
 2026-07-02
 Christian Klingler, asolvo
+
+Neu in 2026.07.0022 (Copyright):
+- In der Szenario-Legende kann optional eine Copyright-Fußzeile
+  "Skizze © <Lizenzname>" angezeigt werden. Steuerung über einen neuen Toggle
+  "Copyright anzeigen" im Szenario-Dialog (Opt-in, standardmäßig aus).
+- Der Lizenzname stammt aus der aktiven Lizenz; ohne Lizenz (Gast) wird die Zeile
+  nicht angezeigt. Die Einstellung wird mit dem Projekt gespeichert.
 
 Neu in 2026.07.0021 (Bugfix):
 - Das Objekt-Dock zeigte auf dem Desktop einen unerwünschten horizontalen
@@ -245,7 +252,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0021</title>
+    <title>Ski-Simulation 2026.07.0022</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -630,7 +637,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0021</div>
+        <div class="popup-version">2026.07.0022</div>
     </div>
 </div>
 
@@ -718,6 +725,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
             <label style="display:flex; align-items:center; gap:8px; font-size:14px; color:var(--md-on-surface); cursor:pointer;">
                 <input type="checkbox" id="scShow" checked> <span id="sc-lbl-show">In Skizze anzeigen</span>
+            </label>
+            <label style="display:flex; align-items:center; gap:8px; font-size:14px; color:var(--md-on-surface); cursor:pointer;">
+                <input type="checkbox" id="scCopyright"> <span id="sc-lbl-copyright">Copyright anzeigen</span>
             </label>
             <div class="login-actions">
                 <button class="btn-secondary" id="sc-cancel" onclick="closeModal('sceneModal')">Abbrechen</button>
@@ -839,9 +849,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0021",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0022",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
-        tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
+        tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
         instructions: `<li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
@@ -875,9 +885,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0021",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0022",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
-        tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
+        tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
         instructions: `<li><strong>Objects:</strong> Drag (mouse) or tap (touch).</li>
@@ -960,7 +970,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setText('sc-title', t('scTitle')); setText('sc-lbl-name', t('scName')); setText('sc-lbl-coords', t('scCoords'));
         setText('sc-lbl-aspect', t('scAspect')); setText('sc-lbl-deg', t('scDeg')); setText('sc-lbl-slope', t('scSlope'));
         setText('sc-lbl-cross', t('scCross')); setText('sc-lbl-desc', t('scDesc'));
-        setText('sc-lbl-show', t('scShow')); setText('sc-cancel', t('cancel')); setText('sc-ok', t('scApply'));
+        setText('sc-lbl-show', t('scShow')); setText('sc-lbl-copyright', t('scCopyright')); setText('sc-cancel', t('cancel')); setText('sc-ok', t('scApply'));
         const scE = document.getElementById('scEast'); if (scE) scE.placeholder = t('scPhEast');
         const scN = document.getElementById('scNorth'); if (scN) scN.placeholder = t('scPhNorth');
         const scLatEl = document.getElementById('scLat'); if (scLatEl) scLatEl.placeholder = t('scPhLat');
@@ -1940,7 +1950,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     // v138/v139: Szenario-Metadaten (Ort, Koordinaten UTM/WGS84, Exposition, Neigung, Querneigung, Beschreibung)
-    let sceneMeta = { name: '', desc: '', coordSys: 'utm', zone: '', east: '', north: '', lat: '', lon: '', aspectDeg: null, slope: null, crossSlope: null, visible: true };
+    let sceneMeta = { name: '', desc: '', coordSys: 'utm', zone: '', east: '', north: '', lat: '', lon: '', aspectDeg: null, slope: null, crossSlope: null, visible: true, showCopyright: false };
     const DIRS = [
         { deg: 0, de: 'N', en: 'N' }, { deg: 45, de: 'NO', en: 'NE' }, { deg: 90, de: 'O', en: 'E' }, { deg: 135, de: 'SO', en: 'SE' },
         { deg: 180, de: 'S', en: 'S' }, { deg: 225, de: 'SW', en: 'SW' }, { deg: 270, de: 'W', en: 'W' }, { deg: 315, de: 'NW', en: 'NW' }
@@ -1998,6 +2008,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         sv('scCross', (sceneMeta.crossSlope === null || sceneMeta.crossSlope === undefined) ? '' : Math.round(sceneMeta.crossSlope));
         sv('scDesc', sceneMeta.desc || '');
         document.getElementById('scShow').checked = sceneMeta.visible !== false;
+        document.getElementById('scCopyright').checked = sceneMeta.showCopyright === true;
         setCoordSys(sceneMeta.coordSys || 'utm');
         setAspectNeedle(sceneMeta.aspectDeg);
         openModal('sceneModal');
@@ -2017,10 +2028,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const slv = parseNum(gv('scSlope')); sceneMeta.slope = isNaN(slv) ? null : Math.min(90, Math.max(0, slv));
         const cv = parseNum(gv('scCross')); sceneMeta.crossSlope = isNaN(cv) ? null : Math.min(90, Math.max(0, cv));
         sceneMeta.visible = document.getElementById('scShow').checked;
+        sceneMeta.showCopyright = document.getElementById('scCopyright').checked;
         closeModal('sceneModal');
     }
     function sanitizeScene(s) {
-        const out = { name: '', desc: '', coordSys: 'utm', zone: '', east: '', north: '', lat: '', lon: '', aspectDeg: null, slope: null, crossSlope: null, visible: true };
+        const out = { name: '', desc: '', coordSys: 'utm', zone: '', east: '', north: '', lat: '', lon: '', aspectDeg: null, slope: null, crossSlope: null, visible: true, showCopyright: false };
         if (!s || typeof s !== 'object') return out;
         const str = function (v, n) { return (typeof v === 'string' || typeof v === 'number') ? String(v).slice(0, n) : ''; };
         out.name = str(s.name, 120); out.desc = str(s.desc, 400);
@@ -2031,6 +2043,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (typeof s.slope === 'number' && isFinite(s.slope)) out.slope = Math.min(90, Math.max(0, s.slope));
         if (typeof s.crossSlope === 'number' && isFinite(s.crossSlope)) out.crossSlope = Math.min(90, Math.max(0, s.crossSlope));
         out.visible = (s.visible !== false);
+        out.showCopyright = (s.showCopyright === true); // 2026.07.0022: Copyright ist Opt-in
         return out;
     }
     // --- Legende (unten links auf der Zeichenflaeche, im PNG-Export) ---
@@ -2101,7 +2114,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (hasSlope) rows.push({ icon: 'slope', label: t('legSlope'), value: Math.round(m.slope) + '°' });
         if (m.crossSlope !== null && m.crossSlope !== undefined && !isNaN(m.crossSlope)) rows.push({ icon: 'cross', label: t('legCross'), value: Math.round(m.crossSlope) + '°' });
         const desc = String(m.desc || '').trim();
-        if (!title && rows.length === 0 && !desc) return;
+        // 2026.07.0022: Copyright-Fußzeile "Skizze © <Lizenzname>" — Opt-in, nur bei aktiver Lizenz
+        const licName = (typeof license !== 'undefined' && license && license.name) ? String(license.name).trim() : '';
+        const copyText = (m.showCopyright === true && licName) ? (t('fnDefault') + ' © ' + licName) : '';
+        if (!title && rows.length === 0 && !desc && !copyText) return;
 
         const pad = 13, iconS = 14, iconGap = 8, rowH = 20, valGap = 12, descLh = 15;
         ctx.save();
@@ -2115,13 +2131,17 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const descLines = desc ? wrapLegendText(desc, 230, '12px Roboto, sans-serif', 4) : [];
         let descW = 0; ctx.font = '12px Roboto, sans-serif'; descLines.forEach(function (l) { descW = Math.max(descW, ctx.measureText(l).width); });
         const descEnd = descLines.length ? (labelX + descW) : 0;
-        const textRight = Math.max(valueX + maxValueW, titleEnd, descEnd, labelX + 40);
+        ctx.font = '11px Roboto, sans-serif';
+        const copyW = copyText ? ctx.measureText(copyText).width : 0;
+        const copyEnd = copyText ? (pad + copyW) : 0;
+        const textRight = Math.max(valueX + maxValueW, titleEnd, descEnd, copyEnd, labelX + 40);
         const previews = []; if (hasAspect) previews.push('compass'); if (hasSlope) previews.push('slope');
         const gW = 48, gGap = 8;
         const previewsW = previews.length ? (14 + gW) : 0;
         const boxW = textRight + previewsW + pad;
         const titleH = title ? 24 : 0;
-        const textH = titleH + rows.length * rowH + (descLines.length ? (6 + descLines.length * descLh) : 0);
+        const copyH = copyText ? 20 : 0; // 2026.07.0022: Höhe der Copyright-Fußzeile
+        const textH = titleH + rows.length * rowH + (descLines.length ? (6 + descLines.length * descLh) : 0) + copyH;
         const previewsH = previews.length ? (previews.length * gW + (previews.length - 1) * gGap) : 0;
         const contentH = Math.max(textH, previewsH);
         const boxH = pad + contentH + pad;
@@ -2163,6 +2183,13 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                 if (p === 'compass') drawMiniCompass(gx, gy, gW, m.aspectDeg); else drawMiniSlope(gx, gy, gW, m.slope);
                 gy += gW + gGap;
             });
+        }
+        if (copyText) { // 2026.07.0022: Copyright-Fußzeile unten links
+            const cy = y0 + boxH - pad - 12;
+            ctx.strokeStyle = '#ECEFF1'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(x0 + pad, cy - 5); ctx.lineTo(x0 + textRight, cy - 5); ctx.stroke();
+            ctx.font = '11px Roboto, sans-serif'; ctx.fillStyle = '#6B6B6B'; ctx.textBaseline = 'top'; ctx.textAlign = 'left';
+            ctx.fillText(copyText, x0 + pad, cy);
         }
         ctx.restore();
     }
