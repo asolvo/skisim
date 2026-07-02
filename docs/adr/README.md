@@ -36,9 +36,10 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0025](0025-versionsschema-jahr-monat-nummer.md) | Versionsschema JJJJ.MM.NNNN mit monatlichem Reset (verfeinert 0008) | Akzeptiert | 2026-07-01 |
 | [0026](0026-barrierefreiheit-wcag-aa.md) | Barrierefreiheit — Ziel WCAG 2.1 Level AA | Akzeptiert | 2026-07-01 |
 | [0027](0027-datei-ausgabe-und-namensschema.md) | Datei-Ausgabe via File System Access API + Dateinamens-Schema | Akzeptiert | 2026-07-02 |
+| [0028](0028-mehrfachauswahl-marquee.md) | Mehrfachauswahl per Aufziehrechteck + gemeinsames Verschieben | Akzeptiert | 2026-07-02 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **2026.07.0019** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **2026.07.0020** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
@@ -55,5 +56,6 @@ Import-Validierung (v132), Typografie/Link-Stil an alpinesicherheit.com angeglic
 (v135–v137), Szenario-Metadaten & Canvas-Legende (v138/v139), Versionsschema auf
 JJJJ.MM.NNNN umgestellt (2026.07.0011), diverse Legenden-/Layout-Feinschliffe
 (2026.07.0012–0014), Barrierefreiheit WCAG 2.1 Level A und AA (2026.07.0015–0018),
-Datei-Ausgabe mit Ordnerwahl & sprechenden Dateinamen (2026.07.0019).
+Datei-Ausgabe mit Ordnerwahl & sprechenden Dateinamen (2026.07.0019),
+Mehrfachauswahl per Aufziehrechteck & gemeinsames Verschieben (2026.07.0020).
 Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.

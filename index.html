@@ -1,9 +1,20 @@
-<!-- Skisim 2026.07.0019 -->
-<!-- Ausgabe: Ordnerwahl (Speichern-Dialog) + aussagekräftige Dateinamen
+<!-- Skisim 2026.07.0020 -->
+<!-- Mehrfachauswahl per Aufziehrechteck + gemeinsames Verschieben
 
 Apache V2 License
-2026-07-01
+2026-07-02
 Christian Klingler, asolvo
+
+Neu in 2026.07.0020 (Mehrfachauswahl):
+- Mit der Maus lässt sich im leeren Bereich ein Auswahlrechteck (Marquee)
+  aufziehen; alle berührten Objekte werden ausgewählt (Berühren genügt).
+- Umschalt+Klick ergänzt/entfernt einzelne Objekte aus der Auswahl.
+- Mehrere ausgewählte Objekte lassen sich gemeinsam ziehen (gemeinsamer, an den
+  Canvas-Rändern begrenzter Versatz) sowie mit den Pfeiltasten bewegen; Entf
+  löscht die ganze Auswahl. Drehen/Zoom bleiben einzelobjekt-bezogen.
+- Auswahl-Ring wird für jedes ausgewählte Objekt gezeichnet. Marquee vorerst
+  Maus-only; die bestehende Touch-Gestik (1 Finger ziehen, 2 Finger zoom/dreh)
+  bleibt unverändert.
 
 Neu in 2026.07.0019 (Ausgabefunktionen):
 - PNG-Export und JSON-Speichern öffnen jetzt einen echten "Speichern unter"-
@@ -226,7 +237,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0019</title>
+    <title>Ski-Simulation 2026.07.0020</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -611,7 +622,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0019</div>
+        <div class="popup-version">2026.07.0020</div>
     </div>
 </div>
 
@@ -717,6 +728,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         <ul id="instrList" style="margin:0; padding-left: 20px;">
             <li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
+            <li><strong>Mehrfachauswahl:</strong> Rechteck aufziehen; <span class="key-badge">Umschalt</span>+Klick ergänzt. Ausgewählte gemeinsam ziehen.</li>
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
             <li><strong>Text/Vektor/Bemaßung:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Farbleiste (bei Auswahl).</li>
@@ -818,14 +830,15 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
-        a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0019",
+        a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0020",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
         objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
         instructions: `<li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
+            <li><strong>Mehrfachauswahl:</strong> Rechteck aufziehen; <span class="key-badge">Umschalt</span>+Klick ergänzt. Ausgewählte gemeinsam ziehen.</li>
             <li><strong>Touch:</strong> 2 Finger zum Zoomen & Drehen.</li>
             <li><strong>Text/Vektor/Bemaßung:</strong> <span class="key-badge">Enter</span> oder <strong>Doppelklick</strong>.</li>
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Farbleiste (bei Auswahl).</li>
@@ -853,14 +866,15 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
-        a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0019",
+        a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0020",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
         objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
         instructions: `<li><strong>Objects:</strong> Drag (mouse) or tap (touch).</li>
             <li><strong>Focus:</strong> Click empty area to deselect.</li>
+            <li><strong>Multi-select:</strong> drag a rectangle; <span class="key-badge">Shift</span>+click adds. Drag the selection together.</li>
             <li><strong>Touch:</strong> 2 fingers to zoom & rotate.</li>
             <li><strong>Text/Vector/Dimension:</strong> <span class="key-badge">Enter</span> or <strong>double-click</strong>.</li>
             <li><strong>Color:</strong> key <span class="key-badge">c</span> or color bar (when selected).</li>
@@ -1137,7 +1151,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const obj = createObject(tpl, nx, ny);
         activeObjects.push(obj);
         checkBounds(obj);
-        activePlayerIndex = activeObjects.length - 1;
+        selectSingle(activeObjects.length - 1); // 2026.07.0020: Einzelauswahl auf das neue Objekt
         renderDock();
         announce(t('a11yAdded') + ' ' + getGermanLabel(obj)); // 2026.07.0015: Barrierefreiheit
     }
@@ -1160,10 +1174,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             if (e.shiftKey) { canvas.blur(); return; } // Shift+Tab verlässt die Leinwand rückwärts (garantierter Fluchtweg)
             e.preventDefault();
             if(activeObjects.length > 0) {
-                if (activePlayerIndex === -1) activePlayerIndex = 0;
+                if (activePlayerIndex === -1) selectSingle(0);
                 else {
-                    activePlayerIndex++;
-                    if(activePlayerIndex >= activeObjects.length) { activePlayerIndex = -1; canvas.blur(); announce(t('a11yNone')); return; } // Zyklus-Ende: Fokus regulär weitergeben
+                    selectSingle(activePlayerIndex + 1);
+                    if(activePlayerIndex >= activeObjects.length) { selectSingle(-1); canvas.blur(); announce(t('a11yNone')); return; } // Zyklus-Ende: Fokus regulär weitergeben
                 }
                 announce(t('a11ySelected') + ' ' + getGermanLabel(activeObjects[activePlayerIndex]));
             } else { canvas.blur(); }
@@ -1172,7 +1186,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (activePlayerIndex === -1) return;
         if (e.key==='Enter') { openTextEditor(activeObjects[activePlayerIndex]); return; }
         if (e.key === 'c' || e.key === 'C') { cycleColor(activePlayerIndex); return; }
-        if (e.key === 'Delete' || e.key === 'Del') { returnToDock(activePlayerIndex); return; }
+        if (e.key === 'Delete' || e.key === 'Del') { if (selectedIndices.length > 1) returnGroupToDock(); else returnToDock(activePlayerIndex); return; } // 2026.07.0020: ganze Auswahl löschen
         if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
         // v114: Drehen via ö/ä (DE) oder , / . (layoutunabhängig)
         if(e.key==='ö'||e.key==='Ö'||e.key===',') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä'||e.key==='.') keys['RotateRight']=true;
@@ -1310,9 +1324,14 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     let activeObjects = [], dockedObjects = [], activePlayerIndex = -1; 
     let draggingPlayerIndex = -1, rotatingPlayerIndex = -1, dragOffset = { x: 0, y: 0 };
-    let isSnapping = false, snappingPlayerIndex = -1, targetRotation = 0, dragFromDockItem = null; 
+    let isSnapping = false, snappingPlayerIndex = -1, targetRotation = 0, dragFromDockItem = null;
     let lastTapTime = 0;
     let _legendRect = null; let _lastLegendTap = 0; // 2026.07.0012: klickbare Szenario-Legende
+    // 2026.07.0020: Mehrfachauswahl per Aufziehrechteck + gemeinsames Verschieben
+    let selectedIndices = [];   // Einzelauswahl = [activePlayerIndex]; enthält immer den Primär-Index
+    let marquee = null;         // aktives Aufziehrechteck {x0,y0,x1,y1}
+    let _pendingMarquee = null; // Startpunkt der Maustaste, bis die Klick-vs-Ziehen-Schwelle überschritten ist
+    let groupDrag = null;       // {offsets:[{i,ox,oy}]} während des gemeinsamen Verschiebens
 
     function isInfiniteResource(obj) {
         if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect', 'bemassung'].includes(obj.type)) return true;
@@ -1514,7 +1533,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             if (!isInfiniteResource(dragFromDockItem.tpl)) {
                 dockedObjects.splice(dragFromDockItem.index, 1);
             }
-            renderDock(); activePlayerIndex = activeObjects.length - 1;
+            renderDock(); selectSingle(activeObjects.length - 1); // 2026.07.0020: Einzelauswahl auf das neue Objekt
             announce(t('a11yAdded') + ' ' + getGermanLabel(obj)); // 2026.07.0015: Barrierefreiheit
         }
         dragFromDockItem = null;
@@ -1533,9 +1552,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const pos = dockedObjects.findIndex(function (d) { return (d.dockOrder === undefined ? Number.MAX_SAFE_INTEGER : d.dockOrder) > ord; });
             if (pos === -1) dockedObjects.push(ni); else dockedObjects.splice(pos, 0, ni);
         }
-        activeObjects.splice(index, 1); 
+        activeObjects.splice(index, 1);
         renderDock();
-        activePlayerIndex = -1; draggingPlayerIndex = -1; rotatingPlayerIndex = -1;
+        activePlayerIndex = -1; selectedIndices = []; draggingPlayerIndex = -1; rotatingPlayerIndex = -1;
     }
 
     function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > canvas.width - p.width) p.x = canvas.width - p.width; if (p.y < 0) p.y = 0; if (p.y > canvas.height - p.height) p.y = canvas.height - p.height; }
@@ -1560,6 +1579,31 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     function getPlayerUnderMouse(mx, my) {
         for (let i = activeObjects.length - 1; i >= 0; i--) { const p = activeObjects[i]; if (mx > p.x && mx < p.x + p.width && my > p.y && my < p.y + p.height) return i; } return -1;
+    }
+
+    // 2026.07.0020: Helfer für Mehrfachauswahl / Gruppen-Verschieben
+    function selectSingle(idx) { activePlayerIndex = idx; selectedIndices = (idx === -1) ? [] : [idx]; }
+    function announceSelectionCount() { announce(selectedIndices.length + ' ' + t('a11yObjects') + ' ' + t('a11ySelectedSuffix')); }
+    function marqueeSelect() {
+        const ax = Math.min(marquee.x0, marquee.x1), ay = Math.min(marquee.y0, marquee.y1);
+        const bx = Math.max(marquee.x0, marquee.x1), by = Math.max(marquee.y0, marquee.y1);
+        const sel = [];
+        activeObjects.forEach(function (p, i) { if (p.x < bx && p.x + p.width > ax && p.y < by && p.y + p.height > ay) sel.push(i); }); // Berühren genügt (AABB-Überschneidung)
+        selectedIndices = sel;
+        activePlayerIndex = sel.length ? sel[sel.length - 1] : -1;
+        announceSelectionCount();
+    }
+    function moveGroup(x, y) {
+        // gemeinsamen Versatz an den Canvas-Grenzen begrenzen, damit die relativen Abstände erhalten bleiben
+        let leftV = 0, rightV = 0, topV = 0, botV = 0;
+        groupDrag.offsets.forEach(function (o) { const p = activeObjects[o.i]; if (!p) return; const dx = x - o.ox, dy = y - o.oy; leftV = Math.max(leftV, -dx); rightV = Math.max(rightV, dx - (canvas.width - p.width)); topV = Math.max(topV, -dy); botV = Math.max(botV, dy - (canvas.height - p.height)); });
+        const corrX = leftV > 0 ? leftV : (rightV > 0 ? -rightV : 0);
+        const corrY = topV > 0 ? topV : (botV > 0 ? -botV : 0);
+        groupDrag.offsets.forEach(function (o) { const p = activeObjects[o.i]; if (!p) return; p.x = x - o.ox + corrX; p.y = y - o.oy + corrY; p.dx = 0; p.dy = 0; });
+    }
+    function returnGroupToDock() {
+        selectedIndices.slice().sort(function (a, b) { return b - a; }).forEach(function (i) { returnToDock(i); }); // absteigend, damit die Indizes beim Splicen gültig bleiben
+        selectedIndices = []; activePlayerIndex = -1;
     }
 
     function getLayer(p) {
@@ -1626,11 +1670,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function getTouchDist(t1, t2) { return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY); }
     function getTouchAngle(t1, t2) { return Math.atan2(t1.clientY - t2.clientY, t1.clientX - t2.clientX); }
 
-    function handleStart(x, y, isRight) {
+    function handleStart(x, y, isRight, shiftKey, allowMarquee) {
         const idx = getPlayerUnderMouse(x, y);
         const now = Date.now();
 
-        // 2026.07.0012: Klick auf die Szenario-Legende — Doppelklick/-tap öffnet den Dialog
+        // 2026.07.0012: Klick auf die Szenario-Legende — Doppelklick/-tap öffnet den Dialog (hat Vorrang vor dem Marquee)
         if (_legendRect && x >= _legendRect.x && x <= _legendRect.x + _legendRect.w && y >= _legendRect.y && y <= _legendRect.y + _legendRect.h) {
             if (now - _lastLegendTap < 300) { _lastLegendTap = 0; openSceneDialog(); }
             else { _lastLegendTap = now; }
@@ -1639,19 +1683,36 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
         if (idx !== -1) {
             const p = activeObjects[idx];
-            if (activePlayerIndex !== idx) announce(t('a11ySelected') + ' ' + getGermanLabel(p)); // 2026.07.0015: Barrierefreiheit
-            activePlayerIndex = idx;
-            if ((p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung' || p.type === 'sign') && (now - lastTapTime < 300)) { openTextEditor(p); lastTapTime = 0; return; }
+            if ((p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung' || p.type === 'sign') && (now - lastTapTime < 300)) { selectSingle(idx); openTextEditor(p); lastTapTime = 0; return; }
             lastTapTime = now;
-            if (isRight) { rotatingPlayerIndex = idx; isSnapping = false; }
-            else { draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0; }
+            if (isRight) { selectSingle(idx); rotatingPlayerIndex = idx; isSnapping = false; return true; } // Drehen wirkt nur auf ein Objekt
+            if (shiftKey) { // 2026.07.0020: Umschalt+Klick ergänzt/entfernt ein Objekt (kein Drag)
+                const at = selectedIndices.indexOf(idx);
+                if (at === -1) { selectedIndices.push(idx); activePlayerIndex = idx; }
+                else { selectedIndices.splice(at, 1); if (activePlayerIndex === idx) activePlayerIndex = selectedIndices.length ? selectedIndices[selectedIndices.length - 1] : -1; }
+                draggingPlayerIndex = -1; groupDrag = null; announceSelectionCount(); return true;
+            }
+            if (selectedIndices.length > 1 && selectedIndices.indexOf(idx) !== -1) { // 2026.07.0020: gemeinsames Verschieben der Auswahl
+                activePlayerIndex = idx; draggingPlayerIndex = idx; p.dx = 0; p.dy = 0;
+                groupDrag = { offsets: selectedIndices.map(function (i) { return { i: i, ox: x - activeObjects[i].x, oy: y - activeObjects[i].y }; }) };
+                return true;
+            }
+            if (activePlayerIndex !== idx) announce(t('a11ySelected') + ' ' + getGermanLabel(p)); // 2026.07.0015: Barrierefreiheit
+            selectSingle(idx); groupDrag = null; draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0;
             return true;
         } else {
-            activePlayerIndex = -1; draggingPlayerIndex = -1; rotatingPlayerIndex = -1; return false;
+            selectSingle(-1); draggingPlayerIndex = -1; rotatingPlayerIndex = -1; groupDrag = null;
+            marquee = null; _pendingMarquee = allowMarquee ? { x0: x, y0: y } : null; // 2026.07.0020: Marquee nur mit Maus (Touch unverändert)
+            return false;
         }
     }
     
     function handleMove(x, y) {
+        if (_pendingMarquee) { // 2026.07.0020: Aufziehrechteck erst ab kleiner Bewegungsschwelle aktivieren (Klick = abwählen)
+            if (!marquee && (Math.abs(x - _pendingMarquee.x0) > 4 || Math.abs(y - _pendingMarquee.y0) > 4)) marquee = { x0: _pendingMarquee.x0, y0: _pendingMarquee.y0, x1: x, y1: y };
+            if (marquee) { marquee.x1 = x; marquee.y1 = y; canvas.style.cursor = 'crosshair'; return; }
+        }
+        if (groupDrag) { moveGroup(x, y); canvas.style.cursor = 'grabbing'; return; } // 2026.07.0020: gemeinsames Verschieben
         const idx = getPlayerUnderMouse(x, y);
         if (draggingPlayerIndex !== -1) canvas.style.cursor = 'grabbing'; else if (idx !== -1) canvas.style.cursor = 'grab'; else canvas.style.cursor = 'default';
         if (draggingPlayerIndex !== -1) { const p = activeObjects[draggingPlayerIndex]; p.x = x - dragOffset.x; p.y = y - dragOffset.y; checkBounds(p); }
@@ -1666,18 +1727,17 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         let mx = e.clientX, my = e.clientY;
         if (e.changedTouches && e.changedTouches.length > 0) { mx = e.changedTouches[0].clientX; my = e.changedTouches[0].clientY; }
         const isRight = (e.button === 2);
-        if (draggingPlayerIndex !== -1) {
-            const dr = dockContainer.getBoundingClientRect();
-            if (mx >= dr.left - 20 && mx <= dr.right + 20 && my >= dr.top - 20 && my <= dr.bottom + 20) {
-                returnToDock(draggingPlayerIndex);
-                return;
-            }
-        }
+        if (marquee) { marqueeSelect(); marquee = null; _pendingMarquee = null; canvas.style.cursor = 'default'; return; } // 2026.07.0020: Auswahl aus Aufziehrechteck
+        _pendingMarquee = null;
+        const dr = dockContainer.getBoundingClientRect();
+        const overDock = (mx >= dr.left - 20 && mx <= dr.right + 20 && my >= dr.top - 20 && my <= dr.bottom + 20);
+        if (groupDrag) { if (overDock) returnGroupToDock(); groupDrag = null; draggingPlayerIndex = -1; return; } // 2026.07.0020: Gruppe über dem Dock loslassen -> alle zurück
+        if (draggingPlayerIndex !== -1 && overDock) { returnToDock(draggingPlayerIndex); return; }
         draggingPlayerIndex = -1;
         if (isRight && rotatingPlayerIndex !== -1) { triggerSnap(rotatingPlayerIndex); rotatingPlayerIndex = -1; }
     }
 
-    canvas.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY, e.button === 2));
+    canvas.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY, e.button === 2, e.shiftKey, true));
     canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
     window.addEventListener('mouseup', e => handleEnd(e));
     canvas.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
@@ -1693,7 +1753,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             gestureStart.width = p.width; gestureStart.height = p.height; gestureStart.rotation = p.rotation;
             return;
         }
-        handleStart(e.touches[0].clientX, e.touches[0].clientY, false); 
+        handleStart(e.touches[0].clientX, e.touches[0].clientY, false, false, false); // 2026.07.0020: kein Marquee per Touch (Touch-Gestik unverändert)
     }, { passive: false });
 
     canvas.addEventListener('touchmove', e => { 
@@ -2247,6 +2307,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                     sceneMeta = sanitizeScene(data.scene || {}); // v138: Szenario-Metadaten laden
                     // Reset State
                     activePlayerIndex = -1;
+                    selectedIndices = []; // 2026.07.0020: Mehrfachauswahl nach Import zurücksetzen
                     draggingPlayerIndex = -1;
                     rotatingPlayerIndex = -1;
                     console.log("Import: " + raw + " gelesen, " + afterSanitize + " gueltig, " + activeObjects.length + " uebernommen.");
@@ -2280,10 +2341,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if(isSnapping && snappingPlayerIndex !== -1) { const p = activeObjects[snappingPlayerIndex], diff = targetRotation - p.rotation; if(Math.abs(diff) < 3.1) { p.rotation = targetRotation; isSnapping = false; snappingPlayerIndex = -1; } else { p.rotation += (diff > 0 ? 3 : -3); } }
         const ap = activeObjects[activePlayerIndex];
         if (ap && draggingPlayerIndex !== activePlayerIndex) {
-            if(keys['ArrowLeft']) ap.dx = -ap.speed; else if(keys['ArrowRight']) ap.dx = ap.speed; else ap.dx *= 0.85; 
-            if(keys['ArrowUp']) ap.dy = -ap.speed; else if(keys['ArrowDown']) ap.dy = ap.speed; else ap.dy *= 0.85; 
-            ap.x += ap.dx; ap.y += ap.dy;
-            if(keys['RotateLeft']) ap.rotation -= 3; if(keys['RotateRight']) ap.rotation += 3;
+            if(keys['ArrowLeft']) ap.dx = -ap.speed; else if(keys['ArrowRight']) ap.dx = ap.speed; else ap.dx *= 0.85;
+            if(keys['ArrowUp']) ap.dy = -ap.speed; else if(keys['ArrowDown']) ap.dy = ap.speed; else ap.dy *= 0.85;
+            if (selectedIndices.length > 1) { // 2026.07.0020: gesamte Auswahl gemeinsam mit den Pfeiltasten bewegen
+                selectedIndices.forEach(function (i) { const q = activeObjects[i]; if (!q) return; q.x += ap.dx; q.y += ap.dy; checkBounds(q); });
+            } else { ap.x += ap.dx; ap.y += ap.dy; }
+            if(keys['RotateLeft']) ap.rotation -= 3; if(keys['RotateRight']) ap.rotation += 3; // Drehen/Zoom weiterhin nur auf das Primärobjekt
             if(keys['ZoomIn']) performZoom(ap, 1.02); if(keys['ZoomOut']) performZoom(ap, 0.98);
             checkBounds(ap);
         }
@@ -2358,9 +2421,16 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         activeObjects.forEach(p => { if(getLayer(p) === 1) drawObject(p); });
         activeObjects.forEach(p => { if(getLayer(p) === 2) drawObject(p); });
         activeObjects.forEach(p => { if(getLayer(p) === 3) drawObject(p); });
-        if(activeObjects.length > 0 && activePlayerIndex !== -1) {
-            const p = activeObjects[activePlayerIndex];
-            if(p) { ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2); ctx.beginPath(); ctx.arc(0, 0, Math.max(p.width, p.height)/1.4, 0, Math.PI*2); ctx.strokeStyle = '#007C89'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.restore(); } /* v129: Auswahl-Ring in Teal */
+        if(activeObjects.length > 0 && selectedIndices.length > 0) { // v129/2026.07.0020: Auswahl-Ring in Teal für jedes ausgewählte Objekt
+            selectedIndices.forEach(function (si) {
+                const p = activeObjects[si];
+                if(p) { ctx.save(); ctx.translate(p.x + p.width/2, p.y + p.height/2); ctx.beginPath(); ctx.arc(0, 0, Math.max(p.width, p.height)/1.4, 0, Math.PI*2); ctx.strokeStyle = '#007C89'; ctx.lineWidth = 4; ctx.setLineDash([10, 5]); ctx.stroke(); ctx.restore(); }
+            });
+        }
+        if(marquee) { // 2026.07.0020: Aufziehrechteck
+            const rx = Math.min(marquee.x0, marquee.x1), ry = Math.min(marquee.y0, marquee.y1);
+            const rw = Math.abs(marquee.x1 - marquee.x0), rh = Math.abs(marquee.y1 - marquee.y0);
+            ctx.save(); ctx.fillStyle = 'rgba(0,124,137,0.10)'; ctx.fillRect(rx, ry, rw, rh); ctx.setLineDash([6, 4]); ctx.lineWidth = 1.5; ctx.strokeStyle = '#007C89'; ctx.strokeRect(rx, ry, rw, rh); ctx.restore();
         }
         drawSceneLegend(); // v138: Szenario-Legende (Ort/UTM/Exposition/Neigung)
         updateColorBar(); // v117: Farbleiste an Auswahl/Farbe anpassen
