@@ -31,9 +31,14 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0020](0020-eisblau-standardfarbe-figuren.md) | Eisblau als einheitliche Standardfarbe aller Personen-Figuren (verfeinert 0017) | Akzeptiert | 2026-06-29 |
 | [0021](0021-material-design-3-ui.md) | UI im Material Design 3 mit tonalem Token-Farbsystem | Akzeptiert | 2026-06-29 |
 | [0022](0022-import-validierung.md) | Validierung importierter Projektdateien (Sicherheit, CWE-20/502) | Akzeptiert | 2026-06-29 |
+| [0023](0023-schild-konfigurierbar.md) | Schild als konfigurierbares Objekt (Form + editierbare Beschriftung) | Akzeptiert | 2026-06-29 |
+| [0024](0024-szenario-metadaten-legende.md) | Szenario-Metadaten (UTM/WGS84, Exposition, Neigung …) und Legende auf der Zeichenfläche | Akzeptiert | 2026-06-29 |
+| [0025](0025-versionsschema-jahr-monat-nummer.md) | Versionsschema JJJJ.MM.NNNN mit monatlichem Reset (verfeinert 0008) | Akzeptiert | 2026-07-01 |
+| [0026](0026-barrierefreiheit-wcag-aa.md) | Barrierefreiheit — Ziel WCAG 2.1 Level AA | Akzeptiert | 2026-07-01 |
+| [0027](0027-datei-ausgabe-und-namensschema.md) | Datei-Ausgabe via File System Access API + Dateinamens-Schema | Akzeptiert | 2026-07-02 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **v134** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **2026.07.0019** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
@@ -46,4 +51,9 @@ Position (v126), Eisblau als einheitliche Standardfarbe aller Figuren (v126/v127
 UI-Überarbeitung im Material Design 3 (v128), MD3-Feinschliff & Warnschild-Gelb
 (v129), Rodler-Grafik gedreht (v130), Box-Drag-Vorschau (v131), Security-Fix
 Import-Validierung (v132), Typografie/Link-Stil an alpinesicherheit.com angeglichen
-(v133). Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.
+(v133/v134), Schild konfigurierbar mit Formen & editierbarer Beschriftung inkl. Raute
+(v135–v137), Szenario-Metadaten & Canvas-Legende (v138/v139), Versionsschema auf
+JJJJ.MM.NNNN umgestellt (2026.07.0011), diverse Legenden-/Layout-Feinschliffe
+(2026.07.0012–0014), Barrierefreiheit WCAG 2.1 Level A und AA (2026.07.0015–0018),
+Datei-Ausgabe mit Ordnerwahl & sprechenden Dateinamen (2026.07.0019).
+Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.
