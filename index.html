@@ -1,9 +1,17 @@
-<!-- Skisim 2026.07.0020 -->
-<!-- Mehrfachauswahl per Aufziehrechteck + gemeinsames Verschieben
+<!-- Skisim 2026.07.0021 -->
+<!-- Bugfix: kein horizontaler Scrollbalken mehr im Dock (Desktop)
 
 Apache V2 License
 2026-07-02
 Christian Klingler, asolvo
+
+Neu in 2026.07.0021 (Bugfix):
+- Das Objekt-Dock zeigte auf dem Desktop einen unerwünschten horizontalen
+  Scrollbalken: der vertikale Scrollbalken (~15 px) verkleinerte die Innenbreite
+  unter die Item-Breite (68 px), wodurch overflow-x automatisch scrollbar wurde.
+  Fix: overflow-x:hidden am Dock + schmaleres Seitenpadding (14px 7px), damit das
+  Item auch neben dem vertikalen Scrollbalken vollständig passt. Das Mobil-Layout
+  (untere, horizontal scrollbare Leiste) bleibt unverändert.
 
 Neu in 2026.07.0020 (Mehrfachauswahl):
 - Mit der Maus lässt sich im leeren Bereich ein Auswahlrechteck (Marquee)
@@ -237,7 +245,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0020</title>
+    <title>Ski-Simulation 2026.07.0021</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -374,11 +382,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         /* Dock — MD3 Navigation-Rail-Stil */
         #dock {
             position: absolute; top: 16px; right: 16px; width: 100px; box-sizing: border-box; /* 2026.07.0018: border-box -> vorhersagbarer Footprint */
-            background: var(--md-surface-container); border-radius: 20px; padding: 14px 11px;
+            background: var(--md-surface-container); border-radius: 20px; padding: 14px 7px; /* 2026.07.0021: schmaleres Seitenpadding, damit das 68px-Item auch neben dem vertikalen Scrollbalken passt */
             display: flex; flex-direction: column; gap: 12px; align-items: center;
             box-shadow: var(--md-elev-2); z-index: 20;
             transition: background 0.2s;
-            max-height: 82vh; overflow-y: auto; touch-action: pan-y;
+            max-height: 82vh; overflow-y: auto; overflow-x: hidden; touch-action: pan-y; /* 2026.07.0021: kein horizontaler Scrollbalken mehr im Dock */
         }
 
         .dock-title {
@@ -622,7 +630,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0020</div>
+        <div class="popup-version">2026.07.0021</div>
     </div>
 </div>
 
@@ -831,7 +839,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0020",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0021",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -867,7 +875,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0020",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0021",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
