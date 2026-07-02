@@ -1,9 +1,23 @@
-<!-- Skisim 2026.07.0016 -->
-<!-- Barrierefreiheit: 3 Kontrastfehler behoben (WCAG 1.4.3, Level AA)
+<!-- Skisim 2026.07.0017 -->
+<!-- Barrierefreiheit: WCAG 2.1 Level AA komplettiert (Kontrast, Fokus, Rahmen)
 
 Apache V2 License
 2026-07-01
 Christian Klingler, asolvo
+
+Neu in 2026.07.0017 (Barrierefreiheit, Ziel WCAG 2.1 Level AA):
+- Text-Links (Lizenz aktivieren, Impressum-Link, Abbrechen-Button): eigene
+  Link-Farbe #006A75 statt #007C89, damit auch auf grauen Dialog-/Panel-Flächen
+  >=4.5:1 erreicht wird (1.4.3; vorher 4.06–4.49:1).
+- Platzhaltertext in Eingabefeldern: #6B6B6B (hell) / #9AA0A6 (dunkel) statt
+  Browser-Default (1.4.3).
+- Eingabefeld-Rahmen (--md-outline) von #C2C7CE auf #868D93 gedunkelt -> 3.25:1
+  für erkennbare Feldgrenzen (1.4.11 Nicht-Text-Kontrast).
+- Durchgängig sichtbarer Tastatur-Fokus (:focus-visible-Ring) auf allen
+  Bedienelementen: Toolbar-Buttons, Dialog-Buttons, Button-Groups, Farb-/
+  Form-Swatches, Links, Schließen-Buttons, Expositions-Kompass (2.4.7).
+- Hinweis: Toolbar-Icon-Buttons (heller Teal-Kreis auf Weiß) sind über ihr
+  kontraststarkes dunkles Icon eindeutig erkennbar (1.4.11-konform).
 
 Neu in 2026.07.0016 (Barrierefreiheit, Kontrast):
 - Legenden-Label ("Exposition" etc.) und "N" im Mini-Kompass: #888888 -> #6B6B6B
@@ -192,7 +206,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0016</title>
+    <title>Ski-Simulation 2026.07.0017</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -207,8 +221,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             --md-surface-container-low: #F2F4F6; --md-surface-container: #ECEFF1;
             --md-surface-container-high: #E6E9EC; --md-surface-container-highest: #E0E4E7;
             --md-on-surface: #1A1C1E; --md-on-surface-variant: #41484D;
-            --md-outline: #C2C7CE; --md-outline-variant: #DBE0E4; --md-seg-hover: #DADDE4;
-            --md-error: #BA1A1A;
+            --md-outline: #868D93; --md-outline-variant: #DBE0E4; --md-seg-hover: #DADDE4; /* 2026.07.0017: outline auf 3:1 (1.4.11) */
+            --md-error: #BA1A1A; --md-link: #006A75; --md-success: #1B6E2E; /* 2026.07.0017: Link-/Erfolg-Farben >=4.5:1 auf grauen Flaechen (1.4.3) */
             --md-elev-1: 0 1px 3px rgba(0,0,0,0.12);
             --md-elev-2: 0 2px 10px rgba(0,0,0,0.13);
             --md-elev-3: 0 8px 24px rgba(0,0,0,0.22);
@@ -221,7 +235,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             --md-surface-container-high: #2A2F33; --md-surface-container-highest: #31373B;
             --md-on-surface: #E6E8EB; --md-on-surface-variant: #BFC8CD;
             --md-outline: #8B9398; --md-outline-variant: #41484D; --md-seg-hover: #343A44;
-            --md-error: #FFB4AB;
+            --md-error: #FFB4AB; --md-link: #4FD8E0; --md-success: #6FD089;
             --md-elev-1: 0 1px 3px rgba(0,0,0,0.5);
             --md-elev-2: 0 2px 10px rgba(0,0,0,0.5);
             --md-elev-3: 0 8px 24px rgba(0,0,0,0.6);
@@ -288,13 +302,14 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         #versionTrigger:hover { color: var(--md-on-surface); }
 
         #loginTrigger, #licenseTrigger {
-            color: var(--md-primary);
+            color: var(--md-link);
             cursor: pointer;
             font-weight: 500;
             text-decoration: underline;
             text-underline-offset: 2px;
         }
         #loginTrigger:hover, #licenseTrigger:hover { color: var(--md-primary-hover); text-decoration: underline; }
+        #licenseTrigger.is-licensed { color: var(--md-success); } /* 2026.07.0017: lizenziert = kontrastsicheres Gruen */
 
 
         /* HEADER BUTTONS — MD3 filled-tonal Icon-Buttons */
@@ -408,7 +423,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
         .modal-link {
             display: block; margin-top: 20px; text-align: center;
-            color: var(--md-primary);
+            color: var(--md-link);
             text-decoration: underline; text-underline-offset: 2px; font-weight: 500; border-top: 1px solid var(--md-outline-variant); padding-top: 15px;
         }
         .modal-link:hover { color: var(--md-primary-hover); }
@@ -424,6 +439,16 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         .form-group input:focus { border-color: var(--md-primary); outline: none; box-shadow: 0 0 0 2px var(--md-primary); }
         .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--md-outline); border-radius: 8px; font-family: 'Roboto', sans-serif; font-size: 14px; box-sizing: border-box; background: var(--md-surface); color: var(--md-on-surface); resize: vertical; }
         .form-group textarea:focus { border-color: var(--md-primary); outline: none; box-shadow: 0 0 0 2px var(--md-primary); }
+        /* 2026.07.0017: Platzhalter mit ausreichendem Kontrast (1.4.3) */
+        .form-group input::placeholder, .form-group textarea::placeholder { color: #6B6B6B; opacity: 1; }
+        body.theme-dark .form-group input::placeholder, body.theme-dark .form-group textarea::placeholder { color: #9AA0A6; }
+        /* 2026.07.0017: durchgaengig sichtbarer Tastatur-Fokus auf allen Bedienelementen (2.4.7) */
+        .header-btn:focus-visible, .footer-icon-btn:focus-visible, .btn-primary:focus-visible, .btn-secondary:focus-visible,
+        .btn-group .seg:focus-visible, .dir-btn:focus-visible, .color-swatch:focus-visible, .shape-swatch:focus-visible,
+        .close-btn:focus-visible, #licenseTrigger:focus-visible, #loginTrigger:focus-visible, .modal-link:focus-visible,
+        #aspectCompass svg:focus-visible, .modal-content input[type=checkbox]:focus-visible {
+            outline: 3px solid var(--md-primary); outline-offset: 2px; border-radius: 6px;
+        }
 
         .login-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
@@ -438,7 +463,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
         /* MD3 Text Button */
         .btn-secondary {
-            background-color: transparent; color: var(--md-primary); border: none; padding: 10px 18px;
+            background-color: transparent; color: var(--md-link); border: none; padding: 10px 18px;
             border-radius: 20px; cursor: pointer; font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 14px;
         }
         .btn-secondary:hover { background-color: var(--md-primary-container); color: var(--md-on-primary-container); }
@@ -566,7 +591,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0016</div>
+        <div class="popup-version">2026.07.0017</div>
     </div>
 </div>
 
@@ -774,7 +799,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", closeDialog: "Schließen",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0016",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0017",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -809,7 +834,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", closeDialog: "Close",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0016",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0017",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1004,14 +1029,14 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const popupActivate = document.getElementById("popupActivateBtn");
         if (license) {
             trig.innerText = "✓ " + String(license.name || "Lizenziert").split(" ")[0];
-            trig.style.color = "#28a745";
+            trig.classList.add('is-licensed'); trig.style.color = ''; // 2026.07.0017: Farbe via CSS-Token (theme-/kontrastsicher)
             nameEl.innerText = (license.name || "Lizenz") + (license.tier ? " (" + license.tier + ")" : "");
             expEl.innerText = license.vu ? fmtIsoDate(license.vu) : fmtDate(license.exp);
             logoutBtn.style.display = "inline";
             if (popupActivate) popupActivate.style.display = "none";
         } else {
             trig.innerText = t('activateLicense');
-            trig.style.color = "#007C89";
+            trig.classList.remove('is-licensed'); trig.style.color = ''; // 2026.07.0017: nutzt --md-link aus CSS
             nameEl.innerText = t('guestStatus');
             expEl.innerText = "-";
             logoutBtn.style.display = "none";
