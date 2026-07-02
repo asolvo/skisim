@@ -1,9 +1,19 @@
-<!-- Skisim 2026.07.0015 -->
-<!-- Barrierefreiheit: WCAG Level A (Tastatur-Fokus, Dock per Tastatur, Statusmeldungen)
+<!-- Skisim 2026.07.0016 -->
+<!-- Barrierefreiheit: 3 Kontrastfehler behoben (WCAG 1.4.3, Level AA)
 
 Apache V2 License
 2026-07-01
 Christian Klingler, asolvo
+
+Neu in 2026.07.0016 (Barrierefreiheit, Kontrast):
+- Legenden-Label ("Exposition" etc.) und "N" im Mini-Kompass: #888888 -> #6B6B6B
+  (3.54:1 -> 5.33:1).
+- Versionsnummer im Info-Popup: Opacity-Dimmung (0.7) entfernt, volle
+  Sekundärfarbe genutzt (3.18:1 -> 7.63:1); dadurch auch im Dark Mode korrekt.
+- Geschwindigkeits-Vektor-Vorschau im Dock: altes Rot #d9534f durch den
+  bestehenden Fehler-Farbtoken var(--md-error) ersetzt (3.82:1 -> 6.24:1 hell,
+  10.67:1 dunkel).
+Damit sind die drei im Barrierefreiheits-Audit gefundenen Kontrastfehler behoben.
 
 Neu in 2026.07.0015 (Barrierefreiheit, Ziel WCAG 2.1 Level A):
 - Tab kapert nicht mehr global die Fokus-Reihenfolge: Das Durchschalten
@@ -182,7 +192,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0015</title>
+    <title>Ski-Simulation 2026.07.0016</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -346,7 +356,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         .dock-item img { pointer-events: none; width: 100%; height: 100%; object-fit: contain; }
         .color-box { width: 40px !important; height: 50px !important; display: block; margin: auto; border: 1px solid var(--md-outline); }
         .text-preview { font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 20px; color: var(--md-on-surface); pointer-events: none; }
-        .vector-preview { font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 12px; color: #d9534f; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+        .vector-preview { font-family: 'Roboto', sans-serif; font-weight: 500; font-size: 12px; color: var(--md-error); display: flex; flex-direction: column; align-items: center; pointer-events: none; }
 
         #ghost-drag { position: absolute; pointer-events: none; opacity: 0.8; z-index: 100; display: none; width: 80px; height: 80px; object-fit: contain; }
 
@@ -484,7 +494,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         .btn-group .seg.is-selected { background: var(--md-primary); color: var(--md-on-primary); border-radius: 18px; }
         .btn-group .seg .seg-check { width: 0; overflow: hidden; opacity: 0; transition: width .12s, opacity .12s; }
         .btn-group .seg.is-selected .seg-check { width: 15px; opacity: 1; }
-        .popup-version { text-align: right; font-size: 11px; color: var(--md-on-surface-variant); opacity: 0.7; margin-top: 8px; }
+        .popup-version { text-align: right; font-size: 11px; color: var(--md-on-surface-variant); margin-top: 8px; }
 
         /* ===== v127: Dark Mode läuft vollständig über die Token-Overrides in body.theme-dark
            (oben definiert) — keine separaten per-Element-Dark-Regeln mehr nötig.
@@ -556,7 +566,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0015</div>
+        <div class="popup-version">2026.07.0016</div>
     </div>
 </div>
 
@@ -764,7 +774,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", closeDialog: "Schließen",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0015",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0016",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -799,7 +809,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", closeDialog: "Close",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0015",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0016",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1933,7 +1943,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function drawMiniCompass(px, py, size, deg) {
         const cxp = px + size / 2, cyp = py + size / 2, R = size / 2 - 1;
         ctx.beginPath(); ctx.arc(cxp, cyp, R, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.fill(); ctx.strokeStyle = '#C2C7CE'; ctx.lineWidth = 1.5; ctx.stroke();
-        ctx.fillStyle = '#888888'; ctx.font = '8px Roboto, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('N', cxp, cyp - R + 5);
+        ctx.fillStyle = '#6B6B6B'; ctx.font = '8px Roboto, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('N', cxp, cyp - R + 5); // 2026.07.0016: Kontrast (AA)
         const a = normDeg(deg) * Math.PI / 180;
         const ex = cxp + Math.sin(a) * (R - 4), ey = cyp - Math.cos(a) * (R - 4);
         ctx.beginPath(); ctx.moveTo(cxp, cyp); ctx.lineTo(ex, ey); ctx.strokeStyle = '#007C89'; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
@@ -2024,7 +2034,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         }
         rows.forEach(function (r) {
             drawLegendIcon(r.icon, x0 + pad, ty + 1, iconS, '#5f6368');
-            ctx.font = '12px Roboto, sans-serif'; ctx.fillStyle = '#888888'; ctx.fillText(r.label, x0 + labelX, ty + 1);
+            ctx.font = '12px Roboto, sans-serif'; ctx.fillStyle = '#6B6B6B'; ctx.fillText(r.label, x0 + labelX, ty + 1); // 2026.07.0016: Kontrast (AA)
             ctx.fillStyle = '#1A1C1E'; ctx.fillText(r.value, x0 + valueX, ty + 1);
             ty += rowH;
         });
