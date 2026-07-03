@@ -63,6 +63,8 @@ Dock-Vorschau-SVG je Objekt), beide unbegrenzt platzierbar und import-validiert
 - **Böschung** (`type: 'boeschung'`): Oberkante-Linie mit Schraffur-Strichen „/"
   nach unten, feste Strichstärke (nur länger/gedreht, nicht dicker — analog
   V-Form). **Einfärbbar** (Standard Schwarz), Gelände-Ebene (unter den Figuren).
-- **Liftstütze** (`type: 'liftpole'`): Top-Down-Pylon als dunkle Scheibe mit hellem
-  Innenring und Mittelpunkt, dezenter Schatten. **Feste Farbe** (nicht einfärbbar,
-  wie Baum/Verletzter), Struktur-Ebene (wie Fangzaun/Baum/Schild).
+  Standardlänge 100 px (2026.07.0025 von 200 halbiert).
+- **Liftstütze** (`type: 'liftpole'`): Top-Down-Pylon als graue Scheibe mit
+  hellgrauer Innenscheibe (`#E6E6E6`), dezenter Schatten. **Einfärbbar**, Standard
+  Grau `#A6A6A6` wie das Box-/Hindernis-Objekt (2026.07.0025; zuvor feste dunkle
+  Farbe). Struktur-Ebene (wie Fangzaun/Baum/Schild).

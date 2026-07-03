@@ -1,9 +1,14 @@
-<!-- Skisim 2026.07.0024 -->
-<!-- Zwei neue Objekte: Böschung und Liftstütze
+<!-- Skisim 2026.07.0025 -->
+<!-- Feinschliff Böschung (kürzer) und Liftstütze (grau, einfärbbar)
 
 Apache V2 License
 2026-07-02
 Christian Klingler, asolvo
+
+Neu in 2026.07.0025 (Feinschliff neue Objekte):
+- Böschung: Standardlänge halbiert (200 -> 100 px), sonst unverändert.
+- Liftstütze: nicht mehr schwarz, sondern grau (Standard #A6A6A6, wie Box/
+  Hindernis) mit hellgrauer Innenscheibe; jetzt einfärbbar wie die Box.
 
 Neu in 2026.07.0024 (neue Objekte):
 - Böschung: Vektorobjekt (Oberkante-Linie mit Schraffur "/" nach unten),
@@ -264,7 +269,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0024</title>
+    <title>Ski-Simulation 2026.07.0025</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -649,7 +654,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0024</div>
+        <div class="popup-version">2026.07.0025</div>
     </div>
 </div>
 
@@ -861,7 +866,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0024",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0025",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -897,7 +902,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0024",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0025",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1247,7 +1252,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     const SVG_BEMASSUNG_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50"><text x="100" y="16" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold" fill="#83898F">5,0 m</text><line x1="12" y1="24" x2="12" y2="46" stroke="#83898F" stroke-width="2"/><line x1="188" y1="24" x2="188" y2="46" stroke="#83898F" stroke-width="2"/><line x1="12" y1="35" x2="188" y2="35" stroke="#83898F" stroke-width="2"/><path d="M12,35 L26,30 L26,40 Z" fill="#83898F"/><path d="M188,35 L174,30 L174,40 Z" fill="#83898F"/></svg>`);
     // 2026.07.0024: Böschung (Linie mit Schraffur "/" nach unten) und Liftstütze (Top-Down-Pylon)
     const SVG_BOESCHUNG_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="26" viewBox="0 0 200 26"><g stroke="#2B2B2B" stroke-width="3" stroke-linecap="round" fill="none"><line x1="5" y1="7" x2="195" y2="7"/><line x1="22" y1="7" x2="13" y2="22"/><line x1="46" y1="7" x2="37" y2="22"/><line x1="70" y1="7" x2="61" y2="22"/><line x1="94" y1="7" x2="85" y2="22"/><line x1="118" y1="7" x2="109" y2="22"/><line x1="142" y1="7" x2="133" y2="22"/><line x1="166" y1="7" x2="157" y2="22"/><line x1="190" y1="7" x2="181" y2="22"/></g></svg>`);
-    const SVG_LIFTPOLE_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#3A3A3A"/><circle cx="20" cy="20" r="10" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/><circle cx="20" cy="20" r="3" fill="rgba(255,255,255,0.5)"/></svg>`);
+    const SVG_LIFTPOLE_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#A6A6A6"/><circle cx="20" cy="20" r="9.6" fill="#E6E6E6"/></svg>`);
     // v124: Drag-Vorschau für Text & Geschwindigkeits-Vektor (zuvor leeres <img>)
     const SVG_TEXT_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="48" viewBox="0 0 80 48"><text x="40" y="37" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="#1A1B1F">T</text></svg>`);
     const SVG_VELOCITY_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="48" viewBox="0 0 120 48"><text x="58" y="14" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#D9343B">km/h</text><line x1="8" y1="32" x2="100" y2="32" stroke="#D9343B" stroke-width="6" stroke-linecap="round"/><path d="M 114 32 L 92 21 L 92 43 Z" fill="#D9343B"/></svg>`);
@@ -1344,8 +1349,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { type: 'arrow', color: '#2C7FB8', width: 100, height: 40, rotation: 0 },
         { type: 'vshape', color: '#A6A6A6', width: 100, height: 60, rotation: 0 },
         { type: 'rect', color: '#A6A6A6', width: 80, height: 120, rotation: 0 },
-        { type: 'boeschung', color: '#2B2B2B', width: 200, height: 16, rotation: 0 }, // 2026.07.0024: Böschung (Schraffur-Linie)
-        { type: 'liftpole', color: '#3A3A3A', width: 40, height: 40, rotation: 0 }    // 2026.07.0024: Liftstütze (Pylon)
+        { type: 'boeschung', color: '#2B2B2B', width: 100, height: 16, rotation: 0 }, // 2026.07.0024/0025: Böschung (Schraffur-Linie), Standardlänge halbiert
+        { type: 'liftpole', color: '#A6A6A6', width: 40, height: 40, rotation: 0 }     // 2026.07.0024/0025: Liftstütze (Pylon), grau wie Box/Hindernis
     ];
     TEMPLATES.forEach(function (t, i) { t.dockOrder = i; }); // v126: stabile Dock-Reihenfolge für Rückkehr an ursprünglichen Platz
 
@@ -1656,7 +1661,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         return 0; 
     }
 
-    function isColorable(p) { return !!(p && (['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign', 'bemassung', 'boeschung'].includes(p.type) || isFigure(p))); }
+    function isColorable(p) { return !!(p && (['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign', 'bemassung', 'boeschung', 'liftpole'].includes(p.type) || isFigure(p))); }
     function cycleColor(index) {
         const p = activeObjects[index];
         if (isColorable(p)) {
@@ -2424,14 +2429,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             ctx.beginPath(); ctx.moveTo(-half, 0); ctx.lineTo(half, 0); ctx.stroke();
             ctx.beginPath(); for (let x = -half + 6; x <= half - 2; x += 20) { ctx.moveTo(x, 0); ctx.lineTo(x - tick * 0.55, tick); } ctx.stroke();
         }
-        else if (p.type === 'liftpole') { // 2026.07.0024: Liftstütze — Top-Down-Pylon (dunkle Scheibe, heller Innenring)
+        else if (p.type === 'liftpole') { // 2026.07.0024/0025: Liftstütze — Top-Down-Pylon (graue Scheibe, helles Grau innen)
             const r = Math.min(p.width, p.height) / 2;
             ctx.shadowColor = 'rgba(0,0,0,0.25)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
             ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
             ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-            ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.lineWidth = Math.max(1.5, r * 0.12);
-            ctx.beginPath(); ctx.arc(0, 0, r * 0.62, 0, Math.PI * 2); ctx.stroke();
-            ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(0, 0, r * 0.18, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#E6E6E6'; ctx.beginPath(); ctx.arc(0, 0, r * 0.6, 0, Math.PI * 2); ctx.fill(); // helles Grau innen
         }
         else if (p.type === 'arrow') { const headLen = p.width * 0.2; const bodyH = p.height * 0.2; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = bodyH; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -p.height/2); ctx.lineTo(p.width/2 - headLen, p.height/2); ctx.fill(); }
         else if (p.type === 'velocity') { const headLen = p.width * 0.15; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -8); ctx.lineTo(p.width/2 - headLen, 8); ctx.fill(); ctx.save(); ctx.translate(0, -15); ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); }
