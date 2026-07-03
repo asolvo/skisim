@@ -1,9 +1,16 @@
-<!-- Skisim 2026.07.0025 -->
-<!-- Feinschliff Böschung (kürzer) und Liftstütze (grau, einfärbbar)
+<!-- Skisim 2026.07.0026 -->
+<!-- Neues Objekt: Schneemobil-Zweisitzer (Ski-Doo-Stil, Aufsicht)
 
 Apache V2 License
-2026-07-02
+2026-07-03
 Christian Klingler, asolvo
+
+Neu in 2026.07.0026 (neues Objekt):
+- Schneemobil (Zweisitzer, Ski-Doo-Stil) in Aufsicht: zwei Frontskier, Haube mit
+  Scheinwerfer/Windschild, Lenker, Fahrer (Helm/Brille), lange Raupe mit zweiter
+  Sitzbank, Haltegriffen und angedeuteter Ladefläche.
+- Einfärbbare Figur (Standard Ski-Doo-Gelb #F2C200, per Farbleiste umfärbbar),
+  unbegrenzt platzierbar wie Baum/Zaun (kein Personen-Limit für Gäste).
 
 Neu in 2026.07.0025 (Feinschliff neue Objekte):
 - Böschung: Standardlänge halbiert (200 -> 100 px), sonst unverändert.
@@ -269,7 +276,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0025</title>
+    <title>Ski-Simulation 2026.07.0026</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -654,7 +661,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0025</div>
+        <div class="popup-version">2026.07.0026</div>
     </div>
 </div>
 
@@ -866,11 +873,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0025",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0026",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
-        objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objBoeschung: "Böschung", objLiftpole: "Liftstütze", objDefault: "Objekt",
+        objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objSnowmobile: "Schneemobil", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objBoeschung: "Böschung", objLiftpole: "Liftstütze", objDefault: "Objekt",
         instructions: `<li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
             <li><strong>Mehrfachauswahl:</strong> Rechteck aufziehen; <span class="key-badge">Umschalt</span>+Klick ergänzt. Ausgewählte gemeinsam ziehen.</li>
@@ -902,11 +909,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0025",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0026",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
-        objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objBoeschung: "Embankment", objLiftpole: "Lift pylon", objDefault: "Object",
+        objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objSnowmobile: "Snowmobile", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objBoeschung: "Embankment", objLiftpole: "Lift pylon", objDefault: "Object",
         instructions: `<li><strong>Objects:</strong> Drag (mouse) or tap (touch).</li>
             <li><strong>Focus:</strong> Click empty area to deselect.</li>
             <li><strong>Multi-select:</strong> drag a rectangle; <span class="key-badge">Shift</span>+click adds. Drag the selection together.</li>
@@ -1253,6 +1260,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // 2026.07.0024: Böschung (Linie mit Schraffur "/" nach unten) und Liftstütze (Top-Down-Pylon)
     const SVG_BOESCHUNG_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="26" viewBox="0 0 200 26"><g stroke="#2B2B2B" stroke-width="3" stroke-linecap="round" fill="none"><line x1="5" y1="7" x2="195" y2="7"/><line x1="22" y1="7" x2="13" y2="22"/><line x1="46" y1="7" x2="37" y2="22"/><line x1="70" y1="7" x2="61" y2="22"/><line x1="94" y1="7" x2="85" y2="22"/><line x1="118" y1="7" x2="109" y2="22"/><line x1="142" y1="7" x2="133" y2="22"/><line x1="166" y1="7" x2="157" y2="22"/><line x1="190" y1="7" x2="181" y2="22"/></g></svg>`);
     const SVG_LIFTPOLE_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#A6A6A6"/><circle cx="20" cy="20" r="9.6" fill="#E6E6E6"/></svg>`);
+    // 2026.07.0026: Schneemobil-Zweisitzer (Ski-Doo-Stil), Aufsicht — einfärbbare Figur (jacket #F2C200 / stroke #B8940A)
+    const SVG_SNOWMOBILE = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="210" viewBox="0 0 120 210"><ellipse cx="60" cy="122" rx="40" ry="84" fill="rgba(0,0,0,0.08)"/><rect x="28" y="12" width="15" height="50" rx="7.5" fill="#333333"/><rect x="77" y="12" width="15" height="50" rx="7.5" fill="#333333"/><rect x="32" y="18" width="7" height="40" rx="3" fill="#4d4d4d"/><rect x="81" y="18" width="7" height="40" rx="3" fill="#4d4d4d"/><g stroke="#4a4a4a" stroke-width="5" stroke-linecap="round"><line x1="35.5" y1="58" x2="52" y2="74"/><line x1="84.5" y1="58" x2="68" y2="74"/></g><rect x="45" y="92" width="30" height="108" rx="6" fill="#232323"/><g stroke="#565656" stroke-width="2"><line x1="48" y1="99" x2="72" y2="99"/><line x1="48" y1="106" x2="72" y2="106"/><line x1="48" y1="113" x2="72" y2="113"/><line x1="48" y1="120" x2="72" y2="120"/><line x1="48" y1="127" x2="72" y2="127"/><line x1="48" y1="134" x2="72" y2="134"/><line x1="48" y1="141" x2="72" y2="141"/><line x1="48" y1="148" x2="72" y2="148"/><line x1="48" y1="155" x2="72" y2="155"/><line x1="48" y1="162" x2="72" y2="162"/><line x1="48" y1="169" x2="72" y2="169"/></g><rect x="40" y="100" width="6" height="72" rx="3" fill="#F2C200" stroke="#B8940A" stroke-width="1.2"/><rect x="74" y="100" width="6" height="72" rx="3" fill="#F2C200" stroke="#B8940A" stroke-width="1.2"/><rect x="43" y="174" width="34" height="24" rx="4" fill="#3a3a3a" stroke="#5a5a5a" stroke-width="1.2"/><g stroke="#6f6f6f" stroke-width="2"><line x1="46" y1="180" x2="74" y2="180"/><line x1="46" y1="186" x2="74" y2="186"/><line x1="46" y1="192" x2="74" y2="192"/></g><path d="M60,58 C47,58 40,68 40,86 L80,86 C80,68 73,58 60,58 Z" fill="#F2C200" stroke="#B8940A" stroke-width="2"/><ellipse cx="60" cy="69" rx="8" ry="5.5" fill="#FFF3B0" stroke="#B8940A" stroke-width="1.2"/><path d="M49,88 Q60,80 71,88 L69,95 Q60,89 51,95 Z" fill="#cfe9f5" opacity="0.9"/><line x1="36" y1="92" x2="84" y2="92" stroke="#222222" stroke-width="4" stroke-linecap="round"/><circle cx="36" cy="92" r="4.5" fill="#111111"/><circle cx="84" cy="92" r="4.5" fill="#111111"/><rect x="47" y="112" width="26" height="30" rx="10" fill="#2a2a2a"/><rect x="49" y="139" width="22" height="7" rx="3" fill="#1e1e1e"/><rect x="47" y="146" width="26" height="28" rx="10" fill="#2a2a2a"/><rect x="41" y="150" width="4" height="18" rx="2" fill="#333333"/><rect x="75" y="150" width="4" height="18" rx="2" fill="#333333"/><rect x="54" y="193" width="12" height="4" rx="2" fill="#c0392b"/><g stroke="#F2C200" stroke-width="8" stroke-linecap="round"><line x1="53" y1="108" x2="39" y2="93"/><line x1="67" y1="108" x2="81" y2="93"/></g><circle cx="38" cy="93" r="4" fill="#333333"/><circle cx="82" cy="93" r="4" fill="#333333"/><rect x="47" y="102" width="26" height="30" rx="12" fill="#F2C200" stroke="#B8940A" stroke-width="2"/><circle cx="60" cy="110" r="15" fill="#808080"/><rect x="50" y="103" width="20" height="9" rx="4" fill="#333333"/><rect x="52" y="105" width="16" height="5" rx="2" fill="#87ceeb"/></svg>`);
     // v124: Drag-Vorschau für Text & Geschwindigkeits-Vektor (zuvor leeres <img>)
     const SVG_TEXT_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="48" viewBox="0 0 80 48"><text x="40" y="37" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="#1A1B1F">T</text></svg>`);
     const SVG_VELOCITY_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="48" viewBox="0 0 120 48"><text x="58" y="14" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#D9343B">km/h</text><line x1="8" y1="32" x2="100" y2="32" stroke="#D9343B" stroke-width="6" stroke-linecap="round"/><path d="M 114 32 L 92 21 L 92 43 Z" fill="#D9343B"/></svg>`);
@@ -1310,7 +1319,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         skiRightShoulder: { src: SVG_SKI_RIGHT_SHOULDER, jacket: '#669966', stroke: '#228B22' },
         boarder:          { src: SVG_BOARDER,            jacket: '#826dff', stroke: '#544bb3' },
         skiPlow:          { src: SVG_SKI_PLOW,           jacket: '#826dff', stroke: '#544bb3' },
-        sled:             { src: SVG_SLED,               jacket: '#e67e22', stroke: '#c4621a' }
+        sled:             { src: SVG_SLED,               jacket: '#e67e22', stroke: '#c4621a' },
+        snowmobile:       { src: SVG_SNOWMOBILE,         jacket: '#F2C200', stroke: '#B8940A' } // 2026.07.0026: einfärbbares Schneemobil
     };
     const _spriteCache = {};
     function isFigure(p) { return !!(p && p.type === 'sprite' && FIGURES[p.assetKey]); }
@@ -1337,7 +1347,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { type: 'sprite', assetKey: 'skiPlow', color: '#6FB7E0', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'boarder', color: '#6FB7E0', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'sled', color: '#6FB7E0', width: 80, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 }, 
+        { type: 'sprite', assetKey: 'snowmobile', color: '#F2C200', width: 84, height: 147, rotation: 0 }, // 2026.07.0026: Schneemobil-Zweisitzer (Ski-Doo-Gelb), einfärbbar, unbegrenzt
+        { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 },
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
         { type: 'sign', color: '#F2C200', width: 80, height: 80, rotation: 0, shape: 'triangle', text: '!' },
         // NEW: Fence Template
@@ -1377,7 +1388,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function isInfiniteResource(obj) {
         if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect', 'bemassung', 'boeschung', 'liftpole'].includes(obj.type)) return true;
         // UPDATED: added fence to infinite resources
-        if ((obj.type === 'sprite' && (obj.assetKey === 'tree' || obj.assetKey === 'fence')) || obj.type === 'sign') return true; 
+        if ((obj.type === 'sprite' && (obj.assetKey === 'tree' || obj.assetKey === 'fence' || obj.assetKey === 'snowmobile')) || obj.type === 'sign') return true;
         return false;
     }
 
@@ -1400,6 +1411,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                 case 'skiPlow': return t('objPlow');
                 case 'boarder': return t('objBoarder');
                 case 'sled': return t('objSled');
+                case 'snowmobile': return t('objSnowmobile');
                 case 'injured': return t('objInjured');
                 case 'tree': return t('objTree');
                 case 'fence': return t('objFence');
@@ -1657,7 +1669,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (p.type === 'rect') return 1;
         // UPDATED LAYER LOGIC: Fence is on layer 1
         if (p.type === 'sign' || p.type === 'liftpole' || ['tree', 'injured', 'fence'].includes(p.assetKey)) return 1;
-        if (['skiBlue', 'skiGreen', 'skiLeftShoulder', 'skiRightShoulder', 'skiPlow', 'boarder', 'sled'].includes(p.assetKey)) return 2;
+        if (['skiBlue', 'skiGreen', 'skiLeftShoulder', 'skiRightShoulder', 'skiPlow', 'boarder', 'sled', 'snowmobile'].includes(p.assetKey)) return 2;
         return 0; 
     }
 
@@ -2305,7 +2317,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // Objekte werden gegen eine Whitelist geprueft und Felder validiert/geklammert,
     // bevor sie in den Live-Zustand uebernommen werden (CWE-20 / CWE-502).
     const IMPORT_TYPES = ['sprite','text','velocity','bemassung','line','arrow','vshape','rect','sign','boeschung','liftpole'];
-    const IMPORT_ASSETS = ['skiBlue','skiLeftShoulder','skiRightShoulder','skiPlow','boarder','sled','injured','tree','fence'];
+    const IMPORT_ASSETS = ['skiBlue','skiLeftShoulder','skiRightShoulder','skiPlow','boarder','sled','snowmobile','injured','tree','fence'];
     function _numClamp(v, def, min, max) {
         let n = (typeof v === 'number' && isFinite(v)) ? v : def;
         return Math.min(max, Math.max(min, n));

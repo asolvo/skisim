@@ -140,7 +140,8 @@ const SPRITES = [
   ['01-skifahrer-gerade', 'SVG_SKI_BLUE'], ['02-skifahrer-schulter-vor', 'SVG_SKI_LEFT_SHOULDER'],
   ['03-skifahrer-schulter-zurueck', 'SVG_SKI_RIGHT_SHOULDER'], ['04-pflugfahrer', 'SVG_SKI_PLOW'],
   ['05-snowboarder', 'SVG_BOARDER'], ['06-rodler', 'SVG_SLED'], ['07-verletzte-person', 'SVG_INJURED_CUSTOM'],
-  ['08-baum', 'SVG_TREE'], ['10-fangzaun', 'SVG_FENCE']
+  ['08-baum', 'SVG_TREE'], ['10-fangzaun', 'SVG_FENCE'],
+  ['20-schneemobil', 'SVG_SNOWMOBILE']
 ];
 const VECTORS = [
   ['09-schild', { type: 'sign', color: '#F2C200', width: 80, height: 80, rotation: 0, shape: 'triangle', text: '!', x: 0, y: 0 }],

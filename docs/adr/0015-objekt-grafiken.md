@@ -68,3 +68,15 @@ Dock-Vorschau-SVG je Objekt), beide unbegrenzt platzierbar und import-validiert
   hellgrauer Innenscheibe (`#E6E6E6`), dezenter Schatten. **Einfärbbar**, Standard
   Grau `#A6A6A6` wie das Box-/Hindernis-Objekt (2026.07.0025; zuvor feste dunkle
   Farbe). Struktur-Ebene (wie Fangzaun/Baum/Schild).
+
+Zusätzlich (2026.07.0026):
+
+- **Schneemobil** (`sprite`/`assetKey: 'snowmobile'`): Zweisitzer im Ski-Doo-Stil in
+  Aufsicht (zwei Frontskier, Haube mit Scheinwerfer/Windschild, Lenker, Fahrer mit
+  Helm/Brille, lange Raupe mit zweiter Sitzbank, Haltegriffen und angedeuteter
+  Ladefläche). Umgesetzt als **einfärbbare Figur** über das Recolor-System
+  ([ADR-0017](0017-einfaerbbare-figuren-skimode-palette.md)): `FIGURES`-Eintrag mit
+  `jacket '#F2C200'` / `stroke '#B8940A'`, Standardfarbe **Ski-Doo-Gelb** `#F2C200`.
+  Abweichend von den Personen-Figuren **unbegrenzt platzierbar** (`isInfiniteResource`,
+  wie Baum/Zaun) und **ohne Gast-Personenlimit** (nicht in `PERSON_ASSETS`).
+  Fahrzeug-Ebene wie die übrigen Fahrer.
