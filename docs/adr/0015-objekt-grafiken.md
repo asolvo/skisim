@@ -53,3 +53,16 @@ und Details (`#333`). SVGs bleiben skalierbar und (wo vorgesehen) einfärbbar.
 
 - Skifahrer „Schulter vor/zurück" deutlicher unterscheidbar machen.
 - Fangzaun-Farben an die Objekt-Palette angleichen (statt CSS-Namen/Alt-Rot).
+
+## Nachtrag (2026.07.0024): zwei neue Objekte
+
+Ergänzt um zwei prozedural gezeichnete Vektorobjekte (kein SVG-Sprite, nur eine
+Dock-Vorschau-SVG je Objekt), beide unbegrenzt platzierbar und import-validiert
+([ADR-0022](0022-import-validierung.md)):
+
+- **Böschung** (`type: 'boeschung'`): Oberkante-Linie mit Schraffur-Strichen „/"
+  nach unten, feste Strichstärke (nur länger/gedreht, nicht dicker — analog
+  V-Form). **Einfärbbar** (Standard Schwarz), Gelände-Ebene (unter den Figuren).
+- **Liftstütze** (`type: 'liftpole'`): Top-Down-Pylon als dunkle Scheibe mit hellem
+  Innenring und Mittelpunkt, dezenter Schatten. **Feste Farbe** (nicht einfärbbar,
+  wie Baum/Verletzter), Struktur-Ebene (wie Fangzaun/Baum/Schild).

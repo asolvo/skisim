@@ -1,9 +1,15 @@
-<!-- Skisim 2026.07.0023 -->
-<!-- Bugfix: Neigungs-Vorschau (Dreieck) direkt unter den Expositions-Kreis
+<!-- Skisim 2026.07.0024 -->
+<!-- Zwei neue Objekte: Böschung und Liftstütze
 
 Apache V2 License
 2026-07-02
 Christian Klingler, asolvo
+
+Neu in 2026.07.0024 (neue Objekte):
+- Böschung: Vektorobjekt (Oberkante-Linie mit Schraffur "/" nach unten),
+  einfärbbar (Standard Schwarz), unbegrenzt, Gelände-Ebene.
+- Liftstütze: Top-Down-Pylon (dunkle Scheibe mit hellem Innenring), feste Farbe,
+  unbegrenzt, auf Struktur-Ebene. Beide im Dock, Export und Import (validiert).
 
 Neu in 2026.07.0023 (Bugfix):
 - Die Neigungs-Vorschau (Dreieck) in der Legende klebte am unteren Rand ihrer
@@ -258,7 +264,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0023</title>
+    <title>Ski-Simulation 2026.07.0024</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -643,7 +649,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0023</div>
+        <div class="popup-version">2026.07.0024</div>
     </div>
 </div>
 
@@ -855,11 +861,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0023",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0024",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
-        objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objDefault: "Objekt",
+        objSkiBlue: "Skifahrer (gerade)", objSkiGreen: "Skifahrer", objSkiLeft: "Skifahrer (Schulter vor)", objSkiRight: "Skifahrer (Schulter zurück)", objPlow: "Pflugfahrer", objBoarder: "Snowboarder", objSled: "Rodler", objInjured: "Verletzte Person", objTree: "Baum", objFence: "Fangzaun", objBoeschung: "Böschung", objLiftpole: "Liftstütze", objDefault: "Objekt",
         instructions: `<li><strong>Objekte:</strong> Ziehen (Maus) oder Antippen (Touch).</li>
             <li><strong>Fokus:</strong> Klick auf leerem Bereich entfernt Fokus.</li>
             <li><strong>Mehrfachauswahl:</strong> Rechteck aufziehen; <span class="key-badge">Umschalt</span>+Klick ergänzt. Ausgewählte gemeinsam ziehen.</li>
@@ -891,11 +897,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0023",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0024",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
-        objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objDefault: "Object",
+        objSkiBlue: "Skier (straight)", objSkiGreen: "Skier", objSkiLeft: "Skier (shoulder forward)", objSkiRight: "Skier (shoulder back)", objPlow: "Snowplow skier", objBoarder: "Snowboarder", objSled: "Sledder", objInjured: "Injured person", objTree: "Tree", objFence: "Safety net", objBoeschung: "Embankment", objLiftpole: "Lift pylon", objDefault: "Object",
         instructions: `<li><strong>Objects:</strong> Drag (mouse) or tap (touch).</li>
             <li><strong>Focus:</strong> Click empty area to deselect.</li>
             <li><strong>Multi-select:</strong> drag a rectangle; <span class="key-badge">Shift</span>+click adds. Drag the selection together.</li>
@@ -1239,6 +1245,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     const SVG_ARROW_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 100 40"><line x1="5" y1="20" x2="85" y2="20" stroke="#2C7FB8" stroke-width="6" stroke-linecap="round"/><path d="M 95 20 L 75 10 L 75 30 Z" fill="#2C7FB8" /></svg>`);
     const SVG_V_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="60" viewBox="0 0 100 60"><path d="M 5 5 L 50 50 L 95 5" stroke="#A6A6A6" stroke-width="4" stroke-linecap="round" fill="none"/></svg>`);
     const SVG_BEMASSUNG_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50"><text x="100" y="16" text-anchor="middle" font-family="Arial" font-size="13" font-weight="bold" fill="#83898F">5,0 m</text><line x1="12" y1="24" x2="12" y2="46" stroke="#83898F" stroke-width="2"/><line x1="188" y1="24" x2="188" y2="46" stroke="#83898F" stroke-width="2"/><line x1="12" y1="35" x2="188" y2="35" stroke="#83898F" stroke-width="2"/><path d="M12,35 L26,30 L26,40 Z" fill="#83898F"/><path d="M188,35 L174,30 L174,40 Z" fill="#83898F"/></svg>`);
+    // 2026.07.0024: Böschung (Linie mit Schraffur "/" nach unten) und Liftstütze (Top-Down-Pylon)
+    const SVG_BOESCHUNG_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="200" height="26" viewBox="0 0 200 26"><g stroke="#2B2B2B" stroke-width="3" stroke-linecap="round" fill="none"><line x1="5" y1="7" x2="195" y2="7"/><line x1="22" y1="7" x2="13" y2="22"/><line x1="46" y1="7" x2="37" y2="22"/><line x1="70" y1="7" x2="61" y2="22"/><line x1="94" y1="7" x2="85" y2="22"/><line x1="118" y1="7" x2="109" y2="22"/><line x1="142" y1="7" x2="133" y2="22"/><line x1="166" y1="7" x2="157" y2="22"/><line x1="190" y1="7" x2="181" y2="22"/></g></svg>`);
+    const SVG_LIFTPOLE_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="#3A3A3A"/><circle cx="20" cy="20" r="10" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2"/><circle cx="20" cy="20" r="3" fill="rgba(255,255,255,0.5)"/></svg>`);
     // v124: Drag-Vorschau für Text & Geschwindigkeits-Vektor (zuvor leeres <img>)
     const SVG_TEXT_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="80" height="48" viewBox="0 0 80 48"><text x="40" y="37" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="#1A1B1F">T</text></svg>`);
     const SVG_VELOCITY_PREVIEW = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="48" viewBox="0 0 120 48"><text x="58" y="14" text-anchor="middle" font-family="Arial, sans-serif" font-size="13" font-weight="bold" fill="#D9343B">km/h</text><line x1="8" y1="32" x2="100" y2="32" stroke="#D9343B" stroke-width="6" stroke-linecap="round"/><path d="M 114 32 L 92 21 L 92 43 Z" fill="#D9343B"/></svg>`);
@@ -1263,7 +1272,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         skiLeftShoulder: new Image(), skiRightShoulder: new Image(),
         boarder: new Image(), tree: new Image(),
         skiPlow: new Image(), injured: new Image(), sled: new Image(), sign: new Image(), fence: new Image(), // Added fence
-        linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image(), bemassungPreview: new Image()
+        linePreview: new Image(), arrowPreview: new Image(), vPreview: new Image(), bemassungPreview: new Image(),
+        boeschungPreview: new Image(), liftpolePreview: new Image() // 2026.07.0024
     };
     
     // COLORS for Cycle
@@ -1333,7 +1343,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { type: 'line', color: '#A6A6A6', width: 200, height: 20, rotation: 0 },
         { type: 'arrow', color: '#2C7FB8', width: 100, height: 40, rotation: 0 },
         { type: 'vshape', color: '#A6A6A6', width: 100, height: 60, rotation: 0 },
-        { type: 'rect', color: '#A6A6A6', width: 80, height: 120, rotation: 0 }
+        { type: 'rect', color: '#A6A6A6', width: 80, height: 120, rotation: 0 },
+        { type: 'boeschung', color: '#2B2B2B', width: 200, height: 16, rotation: 0 }, // 2026.07.0024: Böschung (Schraffur-Linie)
+        { type: 'liftpole', color: '#3A3A3A', width: 40, height: 40, rotation: 0 }    // 2026.07.0024: Liftstütze (Pylon)
     ];
     TEMPLATES.forEach(function (t, i) { t.dockOrder = i; }); // v126: stabile Dock-Reihenfolge für Rückkehr an ursprünglichen Platz
 
@@ -1358,7 +1370,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     let groupDrag = null;       // {offsets:[{i,ox,oy}]} während des gemeinsamen Verschiebens
 
     function isInfiniteResource(obj) {
-        if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect', 'bemassung'].includes(obj.type)) return true;
+        if (['text', 'velocity', 'line', 'arrow', 'vshape', 'rect', 'bemassung', 'boeschung', 'liftpole'].includes(obj.type)) return true;
         // UPDATED: added fence to infinite resources
         if ((obj.type === 'sprite' && (obj.assetKey === 'tree' || obj.assetKey === 'fence')) || obj.type === 'sign') return true; 
         return false;
@@ -1373,6 +1385,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (tpl.type === 'vshape') return t('objVshape');
         if (tpl.type === 'rect') return t('objRect');
         if (tpl.type === 'sign') return t('objSign');
+        if (tpl.type === 'boeschung') return t('objBoeschung');
+        if (tpl.type === 'liftpole') return t('objLiftpole');
         if (tpl.type === 'sprite') {
             switch(tpl.assetKey) {
                 case 'skiBlue': return t('objSkiBlue');
@@ -1404,6 +1418,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         ASSETS.fence.src = SVG_FENCE; // Load fence
         ASSETS.linePreview.src = SVG_LINE_PREVIEW; ASSETS.arrowPreview.src = SVG_ARROW_PREVIEW; ASSETS.vPreview.src = SVG_V_PREVIEW;
         ASSETS.bemassungPreview.src = SVG_BEMASSUNG_PREVIEW;
+        ASSETS.boeschungPreview.src = SVG_BOESCHUNG_PREVIEW; ASSETS.liftpolePreview.src = SVG_LIFTPOLE_PREVIEW; // 2026.07.0024
         setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
 
@@ -1450,6 +1465,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (tpl.type === 'arrow') return ASSETS.arrowPreview;
         if (tpl.type === 'vshape') return ASSETS.vPreview;
         if (tpl.type === 'bemassung') return ASSETS.bemassungPreview;
+        if (tpl.type === 'boeschung') return ASSETS.boeschungPreview;
+        if (tpl.type === 'liftpole') return ASSETS.liftpolePreview;
         return null;
     }
 
@@ -1634,12 +1651,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung') return 3;
         if (p.type === 'rect') return 1;
         // UPDATED LAYER LOGIC: Fence is on layer 1
-        if (p.type === 'sign' || ['tree', 'injured', 'fence'].includes(p.assetKey)) return 1;
+        if (p.type === 'sign' || p.type === 'liftpole' || ['tree', 'injured', 'fence'].includes(p.assetKey)) return 1;
         if (['skiBlue', 'skiGreen', 'skiLeftShoulder', 'skiRightShoulder', 'skiPlow', 'boarder', 'sled'].includes(p.assetKey)) return 2;
         return 0; 
     }
 
-    function isColorable(p) { return !!(p && (['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign', 'bemassung'].includes(p.type) || isFigure(p))); }
+    function isColorable(p) { return !!(p && (['rect', 'line', 'arrow', 'vshape', 'velocity', 'sign', 'bemassung', 'boeschung'].includes(p.type) || isFigure(p))); }
     function cycleColor(index) {
         const p = activeObjects[index];
         if (isColorable(p)) {
@@ -2282,7 +2299,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // v132 (Security): importierte Projektdateien sind nicht vertrauenswuerdig.
     // Objekte werden gegen eine Whitelist geprueft und Felder validiert/geklammert,
     // bevor sie in den Live-Zustand uebernommen werden (CWE-20 / CWE-502).
-    const IMPORT_TYPES = ['sprite','text','velocity','bemassung','line','arrow','vshape','rect','sign'];
+    const IMPORT_TYPES = ['sprite','text','velocity','bemassung','line','arrow','vshape','rect','sign','boeschung','liftpole'];
     const IMPORT_ASSETS = ['skiBlue','skiLeftShoulder','skiRightShoulder','skiPlow','boarder','sled','injured','tree','fence'];
     function _numClamp(v, def, min, max) {
         let n = (typeof v === 'number' && isFinite(v)) ? v : def;
@@ -2401,6 +2418,21 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         else if (p.type === 'rect') { ctx.fillStyle = p.color; ctx.shadowColor = 'rgba(0,0,0,0.2)'; ctx.shadowBlur = 10; ctx.shadowOffsetY = 5; ctx.fillRect(-p.width/2, -p.height/2, p.width, p.height); }
         else if (p.type === 'line') { ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2, 0); ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(4, p.height/5); ctx.lineCap = 'round'; ctx.stroke(); }
         else if (p.type === 'vshape') { ctx.beginPath(); ctx.moveTo(-p.width/2, -p.height/2); ctx.lineTo(0, p.height/2); ctx.lineTo(p.width/2, -p.height/2); ctx.strokeStyle = p.color; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.stroke(); } /* v120: feste Linienstärke (nur länger, nicht dicker) */
+        else if (p.type === 'boeschung') { // 2026.07.0024: Böschung — Oberkante-Linie mit Schraffur "/" nach unten (feste Strichstärke)
+            const half = p.width / 2; const tick = Math.max(8, p.height);
+            ctx.strokeStyle = p.color; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+            ctx.beginPath(); ctx.moveTo(-half, 0); ctx.lineTo(half, 0); ctx.stroke();
+            ctx.beginPath(); for (let x = -half + 6; x <= half - 2; x += 20) { ctx.moveTo(x, 0); ctx.lineTo(x - tick * 0.55, tick); } ctx.stroke();
+        }
+        else if (p.type === 'liftpole') { // 2026.07.0024: Liftstütze — Top-Down-Pylon (dunkle Scheibe, heller Innenring)
+            const r = Math.min(p.width, p.height) / 2;
+            ctx.shadowColor = 'rgba(0,0,0,0.25)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+            ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+            ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.lineWidth = Math.max(1.5, r * 0.12);
+            ctx.beginPath(); ctx.arc(0, 0, r * 0.62, 0, Math.PI * 2); ctx.stroke();
+            ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.beginPath(); ctx.arc(0, 0, r * 0.18, 0, Math.PI * 2); ctx.fill();
+        }
         else if (p.type === 'arrow') { const headLen = p.width * 0.2; const bodyH = p.height * 0.2; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = bodyH; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -p.height/2); ctx.lineTo(p.width/2 - headLen, p.height/2); ctx.fill(); }
         else if (p.type === 'velocity') { const headLen = p.width * 0.15; ctx.fillStyle = p.color; ctx.strokeStyle = p.color; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-p.width/2, 0); ctx.lineTo(p.width/2 - headLen, 0); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.width/2, 0); ctx.lineTo(p.width/2 - headLen, -8); ctx.lineTo(p.width/2 - headLen, 8); ctx.fill(); ctx.save(); ctx.translate(0, -15); ctx.font = 'bold 14px Arial'; ctx.fillStyle = '#000'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(p.text, 0, 0); ctx.restore(); }
         else if (p.type === 'bemassung') {

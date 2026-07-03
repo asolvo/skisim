@@ -39,7 +39,7 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0028](0028-mehrfachauswahl-marquee.md) | Mehrfachauswahl per Aufziehrechteck + gemeinsames Verschieben | Akzeptiert | 2026-07-02 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **2026.07.0022** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **2026.07.0024** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
@@ -59,5 +59,6 @@ JJJJ.MM.NNNN umgestellt (2026.07.0011), diverse Legenden-/Layout-Feinschliffe
 Datei-Ausgabe mit Ordnerwahl & sprechenden Dateinamen (2026.07.0019),
 Mehrfachauswahl per Aufziehrechteck & gemeinsames Verschieben (2026.07.0020),
 Dock-Scrollbalken-Fix (2026.07.0021), optionale Copyright-Fußzeile in der Legende
-(2026.07.0022, Nachtrag zu ADR-0024).
+(2026.07.0022, Nachtrag zu ADR-0024), Fix Neigungs-Vorschau (2026.07.0023), zwei
+neue Objekte Böschung & Liftstütze (2026.07.0024, Nachtrag zu ADR-0015).
 Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.
