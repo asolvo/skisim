@@ -80,3 +80,10 @@ Zusätzlich (2026.07.0026):
   Abweichend von den Personen-Figuren **unbegrenzt platzierbar** (`isInfiniteResource`,
   wie Baum/Zaun) und **ohne Gast-Personenlimit** (nicht in `PERSON_ASSETS`).
   Fahrzeug-Ebene wie die übrigen Fahrer.
+- **Pistenraupe** (`sprite`/`assetKey: 'groomer'`, 2026.07.0027): Snow Groomer im
+  PistenBully-Stil in Aufsicht — dunkles V-Frontschild, zwei breite Raupenketten,
+  Kabine mit großer dunkel getönter Frontscheibe, graue Transportfläche und
+  gerippte Heckfräse hinter dem Fahrzeug. Ebenfalls **einfärbbare Figur**
+  (`FIGURES`: `jacket '#D9342B'` / `stroke '#A02A22'`, Standard **PistenBully-Rot**),
+  **unbegrenzt** und **ohne Gast-Personenlimit** wie das Schneemobil. Einfärbbar sind
+  nur Chassis und Kabine; Schild, Ketten, Scheiben, Transportfläche und Fräse fix.
