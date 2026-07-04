@@ -1,9 +1,13 @@
-<!-- Skisim 2026.07.0027 -->
-<!-- Neues Objekt: Pistenraupe (PistenBully-Stil, Aufsicht)
+<!-- Skisim 2026.07.0028 -->
+<!-- Dock-Reihenfolge: Schneemobil und Pistenraupe ans Ende verschoben
 
 Apache V2 License
 2026-07-03
 Christian Klingler, asolvo
+
+Neu in 2026.07.0028 (Dock-Reihenfolge):
+- Schneemobil und Pistenraupe stehen jetzt am Ende des Objekt-Docks
+  (zuvor bei den Fahrer-Figuren nach dem Rodler).
 
 Neu in 2026.07.0027 (neues Objekt):
 - Pistenraupe (PistenBully-Stil) in Aufsicht: dunkles V-Frontschild, zwei breite
@@ -283,7 +287,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0027</title>
+    <title>Ski-Simulation 2026.07.0028</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -668,7 +672,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0027</div>
+        <div class="popup-version">2026.07.0028</div>
     </div>
 </div>
 
@@ -880,7 +884,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0027",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0028",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -916,7 +920,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0027",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0028",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1357,8 +1361,6 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { type: 'sprite', assetKey: 'skiPlow', color: '#6FB7E0', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'boarder', color: '#6FB7E0', width: 100, height: 100, rotation: 0 },
         { type: 'sprite', assetKey: 'sled', color: '#6FB7E0', width: 80, height: 100, rotation: 0 },
-        { type: 'sprite', assetKey: 'snowmobile', color: '#F2C200', width: 84, height: 147, rotation: 0 }, // 2026.07.0026: Schneemobil-Zweisitzer (Ski-Doo-Gelb), einfärbbar, unbegrenzt
-        { type: 'sprite', assetKey: 'groomer', color: '#D9342B', width: 98, height: 147, rotation: 0 }, // 2026.07.0027: Pistenraupe (PistenBully-Rot), einfärbbar, unbegrenzt
         { type: 'sprite', assetKey: 'injured', width: 100, height: 80, rotation: 0 },
         { type: 'sprite', assetKey: 'tree', width: 120, height: 120, rotation: 0 }, 
         { type: 'sign', color: '#F2C200', width: 80, height: 80, rotation: 0, shape: 'triangle', text: '!' },
@@ -1372,7 +1374,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         { type: 'vshape', color: '#A6A6A6', width: 100, height: 60, rotation: 0 },
         { type: 'rect', color: '#A6A6A6', width: 80, height: 120, rotation: 0 },
         { type: 'boeschung', color: '#2B2B2B', width: 100, height: 16, rotation: 0 }, // 2026.07.0024/0025: Böschung (Schraffur-Linie), Standardlänge halbiert
-        { type: 'liftpole', color: '#A6A6A6', width: 40, height: 40, rotation: 0 }     // 2026.07.0024/0025: Liftstütze (Pylon), grau wie Box/Hindernis
+        { type: 'liftpole', color: '#A6A6A6', width: 40, height: 40, rotation: 0 },    // 2026.07.0024/0025: Liftstütze (Pylon), grau wie Box/Hindernis
+        { type: 'sprite', assetKey: 'snowmobile', color: '#F2C200', width: 84, height: 147, rotation: 0 }, // 2026.07.0028: ans Dock-Ende verschoben
+        { type: 'sprite', assetKey: 'groomer', color: '#D9342B', width: 98, height: 147, rotation: 0 }     // 2026.07.0028: ans Dock-Ende verschoben
     ];
     TEMPLATES.forEach(function (t, i) { t.dockOrder = i; }); // v126: stabile Dock-Reihenfolge für Rückkehr an ursprünglichen Platz
 
