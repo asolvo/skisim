@@ -1,9 +1,15 @@
-<!-- Skisim 2026.07.0029 -->
-<!-- Personen-Figuren mehrfach platzierbar (bleiben im Dock)
+<!-- Skisim 2026.07.0030 -->
+<!-- Lizenz-Popup: Erklärtext zu Einschränkung/Voll-Lizenz + Anforderungs-Link
 
 Apache V2 License
 2026-07-06
 Christian Klingler, asolvo
+
+Neu in 2026.07.0030 (Lizenz-Popup):
+- Im Popup "Lizenz aktivieren" erklärt ein kurzer Text (4 Zeilen zwischen Titel und
+  Eingabefeld), was ohne Lizenz eingeschränkt ist (nur 1 Personen-Figur; kein
+  Speichern/Bild-Export/Teilen) und was die Voll-Lizenz ermöglicht.
+- Zusätzlich Zeile "Lizenz anfordern:" mit Link auf alpinesicherheit.com/skisim.
 
 Neu in 2026.07.0029 (Mehrfach-Instanzen):
 - Personen-Figuren (Skifahrer-Varianten, Snowboarder, Rodler, Verletzte Person)
@@ -297,7 +303,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0029</title>
+    <title>Ski-Simulation 2026.07.0030</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -682,7 +688,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0029</div>
+        <div class="popup-version">2026.07.0030</div>
     </div>
 </div>
 
@@ -691,6 +697,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         <button type="button" class="close-btn" id="close-license" aria-label="Schließen" onclick="closeModal('licenseModal')">&times;</button>
         <h3 id="lm-title">Lizenz aktivieren</h3>
         <div class="modal-body">
+            <p id="lm-info" style="font-size:13px; line-height:1.55; color:var(--md-on-surface-variant); margin:4px 0 10px;">Ohne Lizenz: nur 1 Personen-Figur platzierbar.<br>Speichern, Bild-Export und Teilen sind gesperrt.<br>Mit Voll-Lizenz: beliebig viele Figuren &amp; Objekte,<br>Projekte speichern/laden, PNG-Export und Teilen.</p>
+            <p style="font-size:13px; margin:0 0 16px;"><span id="lm-request-label">Lizenz anfordern:</span> <a id="lm-request-link" href="https://alpinesicherheit.com/skisim" target="_blank" rel="noopener" style="color:var(--md-link); text-decoration:underline;">alpinesicherheit.com/skisim</a></p>
             <div class="form-group">
                 <label id="lm-label" for="licenseKey">Lizenzschlüssel eingeben:</label>
                 <input type="text" id="licenseKey" placeholder="z.B. ASI-XXXX-XXXX" autocomplete="off">
@@ -883,6 +891,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         responsible: "Verantwortlich für die Skisimulation (App):",
         settings: "Einstellungen", appearance: "Darstellung", themeLight: "Hell", themeDark: "Dunkel", themeAuto: "Auto", language: "Sprache",
         activateLicense: "Lizenz aktivieren", enterKey: "Lizenzschlüssel eingeben:", keyPlaceholder: "z.B. ASI-XXXX-XXXX", cancel: "Abbrechen", activate: "Aktivieren", checking: "Prüfe...",
+        lmInfo: "Ohne Lizenz: nur 1 Personen-Figur platzierbar.<br>Speichern, Bild-Export und Teilen sind gesperrt.<br>Mit Voll-Lizenz: beliebig viele Figuren &amp; Objekte,<br>Projekte speichern/laden, PNG-Export und Teilen.", lmRequest: "Lizenz anfordern:",
         edit: "Bearbeiten", ok: "OK", color: "Farbe",
         guestStatus: "Gast (keine Lizenz)",
         editText: "Text ändern:", editSpeed: "Geschwindigkeit in km/h:", editDim: "Maß / Beschriftung:",
@@ -894,7 +903,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0029",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0030",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -919,6 +928,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         responsible: "Responsible for the ski simulation (app):",
         settings: "Settings", appearance: "Appearance", themeLight: "Light", themeDark: "Dark", themeAuto: "Auto", language: "Language",
         activateLicense: "Activate license", enterKey: "Enter license key:", keyPlaceholder: "e.g. ASI-XXXX-XXXX", cancel: "Cancel", activate: "Activate", checking: "Checking...",
+        lmInfo: "Without a license: only 1 person figure.<br>Saving, image export and sharing are locked.<br>With a full license: unlimited figures &amp; objects,<br>save/load projects, PNG export and sharing.", lmRequest: "Request a license:",
         edit: "Edit", ok: "OK", color: "Color",
         guestStatus: "Guest (no license)",
         editText: "Change text:", editSpeed: "Speed in km/h:", editDim: "Measurement / label:",
@@ -930,7 +940,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0029",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0030",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -992,6 +1002,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setText('opt-light', t('themeLight')); setText('opt-dark', t('themeDark')); setText('opt-auto', t('themeAuto'));
         setText('popupActivateBtn', t('activateLicense'));
         setText('lm-title', t('activateLicense')); setText('lm-label', t('enterKey'));
+        const lmi = document.getElementById('lm-info'); if (lmi) lmi.innerHTML = t('lmInfo'); setText('lm-request-label', t('lmRequest'));
         const lk = document.getElementById('licenseKey'); if (lk) lk.placeholder = t('keyPlaceholder');
         setText('lm-cancel', t('cancel')); setText('activateBtn', t('activate'));
         setText('em-title', t('edit')); setText('em-cancel', t('cancel')); setText('editOkBtn', t('ok'));
