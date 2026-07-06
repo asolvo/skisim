@@ -39,7 +39,7 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0028](0028-mehrfachauswahl-marquee.md) | Mehrfachauswahl per Aufziehrechteck + gemeinsames Verschieben | Akzeptiert | 2026-07-02 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **2026.07.0027** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **2026.07.0029** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
@@ -63,5 +63,7 @@ Dock-Scrollbalken-Fix (2026.07.0021), optionale Copyright-Fußzeile in der Legen
 neue Objekte Böschung & Liftstütze (2026.07.0024, Nachtrag zu ADR-0015),
 Feinschliff dieser Objekte — Böschung kürzer, Liftstütze grau & einfärbbar (2026.07.0025),
 neues Objekt Schneemobil-Zweisitzer (Ski-Doo-Stil, einfärbbar, 2026.07.0026, Nachtrag zu ADR-0015),
-neues Objekt Pistenraupe (PistenBully-Stil, einfärbbar, 2026.07.0027).
+neues Objekt Pistenraupe (PistenBully-Stil, einfärbbar, 2026.07.0027),
+Fahrzeuge ans Dock-Ende (2026.07.0028), Personen-Figuren mehrfach platzierbar —
+alle Objekte unendlich, Gast-Limit unverändert (2026.07.0029, Nachtrag zu ADR-0019).
 Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.

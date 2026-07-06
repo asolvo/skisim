@@ -53,3 +53,15 @@ platziert und gelöscht werden.
 - **Dock bei jeder Änderung komplett aus `TEMPLATES` neu aufbauen:** verworfen —
   würde die Mengen-/Gast-Logik (welche Figur ist bereits platziert) verkomplizieren;
   die `dockOrder`-Einsortierung ist lokaler und einfacher.
+
+## Nachtrag (2026.07.0029): alle Objekte unendlich — Mechanik ruht
+
+Auch die Personen-Figuren (Skifahrer-Varianten, Snowboarder, Rodler, Verletzte
+Person) sind jetzt **unendliche Dock-Ressourcen**: Sie verschwinden beim Platzieren
+nicht mehr aus dem Dock, mehrere Instanzen pro Typ sind möglich; das Dock zeigt
+stets das volle Sortiment (`dockedObjects = TEMPLATES.slice()`). Damit ist
+`isInfiniteResource()` für **alle** Objekte wahr und die hier beschriebene
+Einsortier-Mechanik wird zur Laufzeit nicht mehr erreicht — sie bleibt als
+Absicherung im Code. Das **Gast-Limit** (max. 1 Personen-Figur ohne Lizenz,
+[ADR-0012](0012-gast-einschraenkungen.md)) besteht unverändert weiter und wird
+über das Sperren der Dock-Einträge durchgesetzt.
