@@ -37,9 +37,10 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0026](0026-barrierefreiheit-wcag-aa.md) | Barrierefreiheit — Ziel WCAG 2.1 Level AA | Akzeptiert | 2026-07-01 |
 | [0027](0027-datei-ausgabe-und-namensschema.md) | Datei-Ausgabe via File System Access API + Dateinamens-Schema | Akzeptiert | 2026-07-02 |
 | [0028](0028-mehrfachauswahl-marquee.md) | Mehrfachauswahl per Aufziehrechteck + gemeinsames Verschieben | Akzeptiert | 2026-07-02 |
+| [0029](0029-ki-fernsteuerung-mcp.md) | KI-Fernsteuerung über MCP-Server (Stufe 1, lokal) | Akzeptiert | 2026-07-06 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **2026.07.0029** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **2026.07.0031** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
@@ -65,5 +66,7 @@ Feinschliff dieser Objekte — Böschung kürzer, Liftstütze grau & einfärbbar
 neues Objekt Schneemobil-Zweisitzer (Ski-Doo-Stil, einfärbbar, 2026.07.0026, Nachtrag zu ADR-0015),
 neues Objekt Pistenraupe (PistenBully-Stil, einfärbbar, 2026.07.0027),
 Fahrzeuge ans Dock-Ende (2026.07.0028), Personen-Figuren mehrfach platzierbar —
-alle Objekte unendlich, Gast-Limit unverändert (2026.07.0029, Nachtrag zu ADR-0019).
+alle Objekte unendlich, Gast-Limit unverändert (2026.07.0029, Nachtrag zu ADR-0019),
+Lizenz-Popup mit Erklärtext & Anforderungs-Link (2026.07.0030), KI-Fernsteuerung
+über MCP-Server (2026.07.0031, ADR-0029).
 Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.

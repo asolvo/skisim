@@ -1,9 +1,20 @@
-<!-- Skisim 2026.07.0030 -->
-<!-- Lizenz-Popup: Erklärtext zu Einschränkung/Voll-Lizenz + Anforderungs-Link
+<!-- Skisim 2026.07.0031 -->
+<!-- KI-Fernsteuerung über MCP-Server (Stufe 1, lokal)
 
 Apache V2 License
 2026-07-06
 Christian Klingler, asolvo
+
+Neu in 2026.07.0031 (KI-Fernsteuerung):
+- Die Skizze lässt sich optional von einem KI-Assistenten (MCP-Client wie Claude
+  Desktop/Code) fernsteuern. Einstellungen → KI-Assistent → Verbinden zeigt einen
+  6-stelligen Kopplungscode; die App verbindet sich per WebSocket mit dem lokalen
+  MCP-Server (Ordner mcp-server/). Nur bei aktiver Lizenz.
+- Werkzeugkatalog: list_objects, get_project, load_project, add_object,
+  move_object, rotate_object, scale_object, set_color, set_text, delete_object,
+  set_scene, get_screenshot. Jeder Befehl wird validiert (Whitelist/Clamping wie
+  beim Import, ADR-0022); kein eval. Objekte haben nun stabile IDs.
+- Gast-Limit und Feature-Gating bleiben unverändert.
 
 Neu in 2026.07.0030 (Lizenz-Popup):
 - Im Popup "Lizenz aktivieren" erklärt ein kurzer Text (4 Zeilen zwischen Titel und
@@ -303,7 +314,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0030</title>
+    <title>Ski-Simulation 2026.07.0031</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -685,10 +696,18 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                         <button type="button" class="seg" data-val="en"><span class="seg-check">✓</span><span>English</span></button>
                     </div>
                 </div>
+                <div class="setting-row" id="aiRow" style="display:none; align-items:flex-start;">
+                    <label id="lbl-ai">KI-Assistent</label>
+                    <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+                        <button type="button" id="aiToggleBtn" class="btn-secondary" style="padding:6px 14px;">Verbinden</button>
+                        <span id="aiStatus" style="font-size:12px; color:var(--md-on-surface-variant);">Nicht verbunden</span>
+                        <span id="aiCode" style="display:none; font-size:15px; font-weight:600; letter-spacing:3px; color:var(--md-on-surface);"></span>
+                    </div>
+                </div>
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0030</div>
+        <div class="popup-version">2026.07.0031</div>
     </div>
 </div>
 
@@ -890,6 +909,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         licensedFor: "Lizenziert für:", validUntil: "Gültig bis:", removeLicense: "Lizenz entfernen",
         responsible: "Verantwortlich für die Skisimulation (App):",
         settings: "Einstellungen", appearance: "Darstellung", themeLight: "Hell", themeDark: "Dunkel", themeAuto: "Auto", language: "Sprache",
+        aiLabel: "KI-Assistent", aiConnect: "Verbinden", aiDisconnect: "Trennen", aiOff: "Nicht verbunden", aiConnecting: "Verbinde…", aiWaiting: "Warte auf Assistent…", aiPaired: "Gekoppelt – Assistent aktiv", aiReconnect: "Verbindung verloren, neuer Versuch…", aiError: "Kein lokaler MCP-Server erreichbar", aiDenied: "Nur mit aktiver Lizenz", aiCodeLabel: "Kopplungscode:",
         activateLicense: "Lizenz aktivieren", enterKey: "Lizenzschlüssel eingeben:", keyPlaceholder: "z.B. ASI-XXXX-XXXX", cancel: "Abbrechen", activate: "Aktivieren", checking: "Prüfe...",
         lmInfo: "Ohne Lizenz: nur 1 Personen-Figur platzierbar.<br>Speichern, Bild-Export und Teilen sind gesperrt.<br>Mit Voll-Lizenz: beliebig viele Figuren &amp; Objekte,<br>Projekte speichern/laden, PNG-Export und Teilen.", lmRequest: "Lizenz anfordern:",
         edit: "Bearbeiten", ok: "OK", color: "Farbe",
@@ -903,7 +923,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0030",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0031",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -927,6 +947,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         licensedFor: "Licensed to:", validUntil: "Valid until:", removeLicense: "Remove license",
         responsible: "Responsible for the ski simulation (app):",
         settings: "Settings", appearance: "Appearance", themeLight: "Light", themeDark: "Dark", themeAuto: "Auto", language: "Language",
+        aiLabel: "AI assistant", aiConnect: "Connect", aiDisconnect: "Disconnect", aiOff: "Not connected", aiConnecting: "Connecting…", aiWaiting: "Waiting for assistant…", aiPaired: "Paired – assistant active", aiReconnect: "Connection lost, retrying…", aiError: "No local MCP server reachable", aiDenied: "Requires an active license", aiCodeLabel: "Pairing code:",
         activateLicense: "Activate license", enterKey: "Enter license key:", keyPlaceholder: "e.g. ASI-XXXX-XXXX", cancel: "Cancel", activate: "Activate", checking: "Checking...",
         lmInfo: "Without a license: only 1 person figure.<br>Saving, image export and sharing are locked.<br>With a full license: unlimited figures &amp; objects,<br>save/load projects, PNG export and sharing.", lmRequest: "Request a license:",
         edit: "Edit", ok: "OK", color: "Color",
@@ -940,7 +961,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0030",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0031",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -999,6 +1020,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setText('lbl-licensedFor', t('licensedFor')); setText('lbl-validUntil', t('validUntil')); setText('lbl-removeLicense', t('removeLicense'));
         setText('lbl-responsible', t('responsible'));
         setText('lbl-settings', t('settings')); setText('lbl-appearance', t('appearance')); setText('lbl-language', t('language'));
+        setText('lbl-ai', t('aiLabel')); if (typeof aiSetStatus === 'function') aiSetStatus(aiState); // 2026.07.0031
         setText('opt-light', t('themeLight')); setText('opt-dark', t('themeDark')); setText('opt-auto', t('themeAuto'));
         setText('popupActivateBtn', t('activateLicense'));
         setText('lm-title', t('activateLicense')); setText('lm-label', t('enterKey'));
@@ -1154,6 +1176,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setGate("exportBtn", hasFeature("export"), t('tExport'), t('offExport'));
         setGate("saveBtn",   hasFeature("save"),   t('tSave'),   t('offSave'));
         setGate("shareBtn",  hasFeature("share"),  t('tShare'),  t('offShare'));
+        // 2026.07.0031: KI-Assistent-Zeile nur bei aktiver Lizenz; bei Lizenzverlust bestehende Verbindung trennen
+        const aiRow = document.getElementById('aiRow');
+        if (aiRow) aiRow.style.display = license ? 'flex' : 'none';
+        if (!license && typeof aiWantConnected !== 'undefined' && aiWantConnected) aiDisconnect();
         renderDock(); // v110: Dock-Limit (Gast = 1 Personen-Figur) aktualisieren
     }
     async function initLicense() {
@@ -1199,6 +1225,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // v116: Settings-Verdrahtung + Initialisierung (Theme/Sprache)
     document.getElementById("grpTheme").addEventListener("click", function (e) { const b = e.target.closest(".seg"); if (b) applyTheme(b.getAttribute("data-val")); });
     document.getElementById("grpLang").addEventListener("click", function (e) { const b = e.target.closest(".seg"); if (b) applyLanguage(b.getAttribute("data-val")); });
+    (function () { const ab = document.getElementById('aiToggleBtn'); if (ab) ab.addEventListener('click', aiToggle); })(); // 2026.07.0031: KI-Assistent verbinden/trennen
     if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { if (themeMode === "auto") applyTheme("auto"); }); } catch (e) {} }
 
     window.onclick = function (event) {
@@ -1495,7 +1522,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     function createObject(tpl, x, y) {
-        let obj = { type: tpl.type, x: x, y: y, width: tpl.width, height: tpl.height, rotation: tpl.rotation, speed: 7, dx: 0, dy: 0 };
+        let obj = { type: tpl.type, x: x, y: y, width: tpl.width, height: tpl.height, rotation: tpl.rotation, speed: 7, dx: 0, dy: 0, id: nextObjId() }; // 2026.07.0031: stabile ID (für KI-Fernsteuerung)
         if (tpl.dockOrder !== undefined) obj.dockOrder = tpl.dockOrder; // v126: ursprüngliche Dock-Position merken
         if(tpl.type === 'sprite') {
             obj.assetKey = tpl.assetKey;
@@ -2411,20 +2438,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             try {
                 const data = JSON.parse(e.target.result);
                 if (data && data.objects && Array.isArray(data.objects)) {
-                    // v132 (Security): Fremd-Eingaben validieren + Gast-Limit durchsetzen
-                    const raw = data.objects.length;
-                    let objs = sanitizeImportedObjects(data.objects);
-                    const afterSanitize = objs.length;
-                    objs = enforceGuestPersonLimit(objs);
-                    activeObjects = objs;
-                    sceneMeta = sanitizeScene(data.scene || {}); // v138: Szenario-Metadaten laden
-                    // Reset State
-                    activePlayerIndex = -1;
-                    selectedIndices = []; // 2026.07.0020: Mehrfachauswahl nach Import zurücksetzen
-                    draggingPlayerIndex = -1;
-                    rotatingPlayerIndex = -1;
-                    console.log("Import: " + raw + " gelesen, " + afterSanitize + " gueltig, " + activeObjects.length + " uebernommen.");
-                    renderDock(); // v110: Dock-Limit nach Import aktualisieren
+                    // v132 (Security): Fremd-Eingaben validieren + Gast-Limit durchsetzen; 2026.07.0031: gemeinsame Lade-Routine (vergibt auch Objekt-IDs)
+                    const r = applyLoadedProject(data);
+                    console.log("Import: " + r.raw + " gelesen, " + r.loaded + " uebernommen.");
                     announce(t('a11yImportOk') + ' ' + activeObjects.length + ' ' + t('a11yObjects')); // 2026.07.0015: Barrierefreiheit
                 } else {
                     alert(t('importBadFormat'));
@@ -2438,6 +2454,141 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         };
         reader.readAsText(file);
     }
+
+    // ================= 2026.07.0031: KI-Fernsteuerung über MCP-Brücke =================
+    // Opt-in, nur bei aktiver Lizenz. Die App verbindet sich per WebSocket mit dem lokalen
+    // MCP-Server (mcp-server/) und führt ausschließlich den validierten Befehlskatalog unten
+    // aus (kein eval, keine Freiform-Ausführung). Jeder Befehl wird mit Import-Strenge geprüft
+    // (Geist von ADR-0022); Gast-Limit und Feature-Gating bleiben aktiv.
+    let _objIdSeq = 1;
+    function nextObjId() { return _objIdSeq++; }
+    function aiAllowed() { return !!license; } // "Voll-Lizenz" = aktive Lizenz; später ggf. auf hasFeature('ai') verengen
+    function findObjById(id) { for (let i = 0; i < activeObjects.length; i++) if (activeObjects[i].id === id) return i; return -1; }
+
+    const AI_COLOR_NAMES = { rot:'#D9343B', red:'#D9343B', blau:'#2C7FB8', blue:'#2C7FB8', gruen:'#5BA86B', 'grün':'#5BA86B', green:'#5BA86B', schwarz:'#2B2B2B', black:'#2B2B2B', braun:'#9C6B43', brown:'#9C6B43', gelb:'#F2C200', yellow:'#F2C200', grau:'#A6A6A6', gray:'#A6A6A6', grey:'#A6A6A6', weiss:'#ECECE6', 'weiß':'#ECECE6', white:'#ECECE6', eisblau:'#6FB7E0', iceblue:'#6FB7E0' };
+    function aiResolveColor(s) { if (typeof s !== 'string') return null; const v = s.trim(); if (/^#?[0-9a-fA-F]{6}$/.test(v)) return v[0] === '#' ? v : '#' + v; if (/^#?[0-9a-fA-F]{3}$/.test(v)) return v[0] === '#' ? v : '#' + v; return AI_COLOR_NAMES[v.toLowerCase()] || null; }
+    const AI_ADD_ASSET = { skier:'skiBlue', skier_straight:'skiBlue', skier_shoulder_front:'skiLeftShoulder', skier_shoulder_back:'skiRightShoulder', snowplow:'skiPlow', plow:'skiPlow', snowboarder:'boarder', sled:'sled', snowmobile:'snowmobile', groomer:'groomer', snowcat:'groomer', injured:'injured', tree:'tree', fence:'fence' };
+    const AI_ADD_TYPE = { sign:'sign', text:'text', velocity:'velocity', dimension:'bemassung', line:'line', arrow:'arrow', vshape:'vshape', rect:'rect', box:'rect', embankment:'boeschung', boeschung:'boeschung', liftpole:'liftpole' };
+    function aiFindTemplate(key) { key = String(key || '').toLowerCase(); if (AI_ADD_ASSET[key]) return TEMPLATES.find(t => t.assetKey === AI_ADD_ASSET[key]) || null; if (AI_ADD_TYPE[key]) return TEMPLATES.find(t => t.type === AI_ADD_TYPE[key]) || null; return null; }
+    function aiObjDTO(p) { const d = { id: p.id, type: p.type, x: Math.round(p.x + p.width / 2), y: Math.round(p.y + p.height / 2), width: Math.round(p.width), height: Math.round(p.height), rotation: Math.round(p.rotation) }; if (p.assetKey) d.assetKey = p.assetKey; if (p.color) d.color = p.color; if (p.text !== undefined) d.text = p.text; if (p.shape) d.shape = p.shape; d.label = getGermanLabel(p); return d; }
+
+    // Projekt-JSON (objects+scene) validiert übernehmen — genutzt von Datei-Import UND load_project
+    function applyLoadedProject(data) {
+        const raw = (data && Array.isArray(data.objects)) ? data.objects.length : 0;
+        let objs = sanitizeImportedObjects((data && data.objects) || []);
+        objs = enforceGuestPersonLimit(objs);
+        objs.forEach(function (o) { o.id = nextObjId(); });
+        activeObjects = objs;
+        sceneMeta = sanitizeScene((data && data.scene) || {});
+        activePlayerIndex = -1; selectedIndices = []; draggingPlayerIndex = -1; rotatingPlayerIndex = -1;
+        renderDock();
+        return { raw: raw, loaded: activeObjects.length };
+    }
+
+    function applyAiCommand(tool, args) {
+        args = args || {};
+        try {
+            switch (tool) {
+                case 'list_objects':
+                    return { ok: true, canvas: { width: canvas.width, height: canvas.height }, objects: activeObjects.map(aiObjDTO) };
+                case 'get_project':
+                    return { ok: true, canvas: { width: canvas.width, height: canvas.height }, project: { objects: activeObjects.map(aiObjDTO), scene: sceneMeta } };
+                case 'load_project': {
+                    if (!args.project || typeof args.project !== 'object') return { ok: false, error: 'project (objects/scene) fehlt' };
+                    const r = applyLoadedProject(args.project);
+                    announce(t('a11yImportOk') + ' ' + r.loaded + ' ' + t('a11yObjects'));
+                    return { ok: true, loaded: r.loaded, dropped: r.raw - r.loaded };
+                }
+                case 'add_object': {
+                    const tpl = aiFindTemplate(args.object);
+                    if (!tpl) return { ok: false, error: 'unbekannter Objekttyp: ' + args.object };
+                    if (isPersonTpl(tpl) && guestPersonLimitReached()) return { ok: false, error: 'Gast-Limit: ohne Lizenz nur 1 Personen-Figur' };
+                    const obj = createObject(tpl, 0, 0);
+                    const w = obj.width, h = obj.height;
+                    const cx = _numClamp(args.x, canvas.width / 2, -100000, 100000);
+                    const cy = _numClamp(args.y, canvas.height / 2, -100000, 100000);
+                    obj.x = cx - w / 2; obj.y = cy - h / 2;
+                    if (args.rotation !== undefined) obj.rotation = _numClamp(args.rotation, 0, -100000, 100000);
+                    if (args.color !== undefined && isColorable(obj)) { const c = aiResolveColor(args.color); if (c) obj.color = c; }
+                    if (args.text !== undefined && (obj.type === 'text' || obj.type === 'velocity' || obj.type === 'bemassung' || obj.type === 'sign')) obj.text = String(args.text).slice(0, 500);
+                    if (args.shape !== undefined && obj.type === 'sign' && SHAPE_KEYS.indexOf(args.shape) !== -1) obj.shape = args.shape;
+                    activeObjects.push(obj); checkBounds(obj); renderDock();
+                    announce(t('a11yAdded') + ' ' + getGermanLabel(obj));
+                    return { ok: true, id: obj.id };
+                }
+                case 'move_object': {
+                    const i = findObjById(args.id); if (i < 0) return { ok: false, error: 'ID nicht gefunden: ' + args.id };
+                    const p = activeObjects[i];
+                    if (args.x !== undefined) p.x = _numClamp(args.x, canvas.width / 2, -100000, 100000) - p.width / 2;
+                    if (args.y !== undefined) p.y = _numClamp(args.y, canvas.height / 2, -100000, 100000) - p.height / 2;
+                    checkBounds(p); return { ok: true, id: p.id };
+                }
+                case 'rotate_object': {
+                    const i = findObjById(args.id); if (i < 0) return { ok: false, error: 'ID nicht gefunden: ' + args.id };
+                    activeObjects[i].rotation = _numClamp(args.rotation, 0, -100000, 100000); return { ok: true, id: args.id };
+                }
+                case 'scale_object': {
+                    const i = findObjById(args.id); if (i < 0) return { ok: false, error: 'ID nicht gefunden: ' + args.id };
+                    performZoom(activeObjects[i], _numClamp(args.factor, 1, 0.05, 20)); return { ok: true, id: args.id };
+                }
+                case 'set_color': {
+                    const i = findObjById(args.id); if (i < 0) return { ok: false, error: 'ID nicht gefunden: ' + args.id };
+                    const p = activeObjects[i]; if (!isColorable(p)) return { ok: false, error: 'Objekt ist nicht einfärbbar' };
+                    const c = aiResolveColor(args.color); if (!c) return { ok: false, error: 'ungültige Farbe: ' + args.color };
+                    p.color = c; return { ok: true, id: p.id, color: c };
+                }
+                case 'set_text': {
+                    const i = findObjById(args.id); if (i < 0) return { ok: false, error: 'ID nicht gefunden: ' + args.id };
+                    const p = activeObjects[i]; if (!(p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung' || p.type === 'sign')) return { ok: false, error: 'Objekt hat keinen Text' };
+                    p.text = String(args.text == null ? '' : args.text).slice(0, 500);
+                    if (p.type === 'text') { ctx.font = 'bold ' + p.height + 'px Arial'; p.width = ctx.measureText(p.text).width + 20; }
+                    return { ok: true, id: p.id };
+                }
+                case 'delete_object': {
+                    const i = findObjById(args.id); if (i < 0) return { ok: false, error: 'ID nicht gefunden: ' + args.id };
+                    const lbl = getGermanLabel(activeObjects[i]); returnToDock(i); announce(t('a11yRemoved') + ' ' + lbl); return { ok: true };
+                }
+                case 'set_scene': {
+                    sceneMeta = sanitizeScene(Object.assign({}, sceneMeta, args.scene || args || {})); return { ok: true, scene: sceneMeta }; // tolerant: Felder unter args.scene ODER flach
+                }
+                case 'get_screenshot':
+                    return { ok: true, image: { mime: 'image/png', dataUrl: canvas.toDataURL('image/png') } };
+                default:
+                    return { ok: false, error: 'unbekanntes Tool: ' + tool };
+            }
+        } catch (e) { return { ok: false, error: String(e && e.message || e) }; }
+    }
+
+    // --- WebSocket-Brücke zum lokalen MCP-Server ---
+    let aiSocket = null, aiPairCode = null, aiWantConnected = false, aiReconnectTimer = null, aiState = 'off';
+    function aiGenCode() { return String(Math.floor(100000 + Math.random() * 900000)); }
+    function aiSetStatus(state) {
+        aiState = state;
+        const s = document.getElementById('aiStatus'), c = document.getElementById('aiCode'), b = document.getElementById('aiToggleBtn');
+        const map = { off: t('aiOff'), connecting: t('aiConnecting'), waiting: t('aiWaiting'), paired: t('aiPaired'), reconnect: t('aiReconnect'), error: t('aiError'), denied: t('aiDenied') };
+        if (s) s.textContent = map[state] || state;
+        if (c) { const show = (state === 'connecting' || state === 'waiting' || state === 'paired' || state === 'reconnect') && aiPairCode; c.textContent = show ? (t('aiCodeLabel') + ' ' + aiPairCode) : ''; c.style.display = show ? 'block' : 'none'; }
+        if (b) b.textContent = aiWantConnected ? t('aiDisconnect') : t('aiConnect');
+    }
+    function aiConnect() {
+        if (!aiAllowed()) { aiSetStatus('denied'); return; }
+        aiWantConnected = true; aiPairCode = aiGenCode();
+        try { aiSocket = new WebSocket('ws://127.0.0.1:4877'); } catch (e) { aiSetStatus('error'); return; }
+        aiSetStatus('connecting');
+        aiSocket.onopen = function () { try { aiSocket.send(JSON.stringify({ type: 'hello', role: 'app', code: aiPairCode, app: 'skisim', version: '2026.07.0031' })); } catch (e) {} aiSetStatus('waiting'); };
+        aiSocket.onmessage = function (ev) {
+            let msg; try { msg = JSON.parse(ev.data); } catch (e) { return; }
+            if (msg.type === 'paired') { aiSetStatus('paired'); announce(t('aiPaired')); return; }
+            if (msg.type === 'cmd') {
+                const res = aiAllowed() ? applyAiCommand(msg.tool, msg.args) : { ok: false, error: 'keine aktive Lizenz' };
+                try { aiSocket.send(JSON.stringify({ type: 'result', id: msg.id, result: res })); } catch (e) {}
+            }
+        };
+        aiSocket.onclose = function () { aiSocket = null; if (aiWantConnected) { aiSetStatus('reconnect'); aiReconnectTimer = setTimeout(aiConnect, 2500); } else aiSetStatus('off'); };
+        aiSocket.onerror = function () { aiSetStatus('error'); };
+    }
+    function aiDisconnect() { aiWantConnected = false; if (aiReconnectTimer) { clearTimeout(aiReconnectTimer); aiReconnectTimer = null; } if (aiSocket) { try { aiSocket.close(); } catch (e) {} aiSocket = null; } aiSetStatus('off'); }
+    function aiToggle() { if (aiWantConnected) aiDisconnect(); else aiConnect(); }
 
     // Event Listeners for Buttons
     document.getElementById('exportBtn').addEventListener('click', exportImage);
