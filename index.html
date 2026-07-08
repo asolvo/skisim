@@ -1,9 +1,17 @@
-<!-- Skisim 2026.07.0033 -->
-<!-- Schärferes Rendering (HiDPI), rotations-/ebenen-genauer Treffertest, Hilfe-Box
+<!-- Skisim 2026.07.0034 -->
+<!-- Dirty-Flag-Rendering, MCP-Code stabil, Vektor-Limit, checkBounds rotationsecht
 
 Apache V2 License
 2026-07-06
 Christian Klingler, asolvo
+
+Neu in 2026.07.0034 (Effizienz & Feinschliff):
+- Dirty-Flag-Rendering: im Ruhezustand wird nicht mehr durchgehend neu gezeichnet
+  (nur nach Eingabe/Bewegung/Änderung bzw. bei Tab-Rückkehr) — spart CPU/Akku.
+- MCP-Kopplungscode bleibt über Reconnects stabil (nur bei echtem Verbinden neu).
+- Geschwindigkeits-Vektor: Eingabe auf max. 4 Stellen (9999 km/h) begrenzt, Breite
+  (Klickfläche) passt sich dem Text an.
+- checkBounds hält jetzt die tatsächliche gedrehte Bounding-Box im Bild.
 
 Neu in 2026.07.0033 (Render-/Treffer-Qualität):
 - Scharfes Rendering auf HiDPI-/Retina-Displays: Zeichenfläche nutzt jetzt
@@ -331,7 +339,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0033</title>
+    <title>Ski-Simulation 2026.07.0034</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -729,7 +737,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0033</div>
+        <div class="popup-version">2026.07.0034</div>
     </div>
 </div>
 
@@ -971,7 +979,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0033",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0034",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -1011,7 +1019,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0033",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0034",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1087,6 +1095,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setGroupSel('grpLang', lang);
         if (typeof updateLicenseUI === 'function') updateLicenseUI();
         if (typeof renderDock === 'function') renderDock();
+        if (typeof requestRender === 'function') requestRender(); // 2026.07.0034: Legende-Text ist lokalisiert -> neu zeichnen
         const swWrap = document.getElementById('colorSwatches'); // v125: Farbnamen-Tooltips an Sprache anpassen
         if (swWrap) Array.prototype.forEach.call(swWrap.children, function (b) { b.title = colorName(b.dataset.color); });
         const shWrap = document.getElementById('shapeSwatches'); // v135: Form-Tooltips an Sprache anpassen
@@ -1322,6 +1331,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (e.key === 'Escape') { closeModal('impressumModal'); closeModal('licenseModal'); closeModal('sceneModal'); closeEdit(); return; } // v114/2026.07.0015: Esc schließt Dialoge (inkl. Szenario)
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
+        requestRender(); // 2026.07.0034: Tastatureingabe -> neu zeichnen (Auswahl/Bewegung)
         // 2026.07.0032: Rückgängig/Wiederholen (Strg+Z, Strg+Y, Strg+Umschalt+Z)
         if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
         if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); redo(); return; }
@@ -1365,6 +1375,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     window.addEventListener('keyup', e => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
+        requestRender(); // 2026.07.0034
         if (activePlayerIndex === -1) return;
         if ((e.key==='ö'||e.key==='Ö') || (e.key==='ä'||e.key==='Ä') || e.key===',' || e.key==='.') triggerSnap(activePlayerIndex);
         if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
@@ -1466,6 +1477,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const raw = decodeURIComponent(cfg.src.split(',').slice(1).join(','));
             const svg = raw.split(cfg.jacket).join(color).split(cfg.stroke).join(darken(color));
             const im = new Image();
+            im.onload = function () { if (typeof requestRender === 'function') requestRender(); }; // 2026.07.0034: nach asynchronem Laden neu zeichnen
             im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
             _spriteCache[key] = im;
         }
@@ -1582,6 +1594,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         canvas.width = Math.round(CW * dpr); canvas.height = Math.round(CH * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // im logischen Koordinatensystem zeichnen; Setzen von canvas.width setzt die Transform zurück
         activeObjects.forEach(p => checkBounds(p));
+        if (typeof requestRender === 'function') requestRender(); // 2026.07.0034: nach Größenänderung neu zeichnen
     }
     window.addEventListener('resize', resize);
 
@@ -1599,6 +1612,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (window.innerWidth <= 760 || window.innerHeight <= 500) document.getElementById('instructionBox').classList.add('collapsed'); // v113/v114: Panel auf Mobil/Querformat eingeklappt starten
         updateUndoRedoButtons(); // 2026.07.0032
         maybeOfferRestore();     // 2026.07.0032: letzte Sitzung anbieten (falls Autosave vorhanden)
+        requestRender(2000);     // 2026.07.0034: Erstdarstellung sicherstellen (auch während Assets nachladen)
         requestAnimationFrame(drawLoop);
     }
 
@@ -1762,7 +1776,17 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         activePlayerIndex = -1; selectedIndices = []; draggingPlayerIndex = -1; rotatingPlayerIndex = -1;
     }
 
-    function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > CW - p.width) p.x = CW - p.width; if (p.y < 0) p.y = 0; if (p.y > CH - p.height) p.y = CH - p.height; }
+    function checkBounds(p) {
+        // 2026.07.0034: rotations-korrekt — die tatsächliche (gedrehte) Bounding-Box im Bild halten
+        const a = (p.rotation || 0) * Math.PI / 180;
+        const cs = Math.abs(Math.cos(a)), sn = Math.abs(Math.sin(a));
+        const hw = (p.width / 2) * cs + (p.height / 2) * sn; // halbe Breite der gedrehten AABB
+        const hh = (p.width / 2) * sn + (p.height / 2) * cs; // halbe Höhe der gedrehten AABB
+        let cx = p.x + p.width / 2, cy = p.y + p.height / 2;
+        cx = (2 * hw <= CW) ? Math.min(CW - hw, Math.max(hw, cx)) : CW / 2; // größer als Canvas -> zentrieren
+        cy = (2 * hh <= CH) ? Math.min(CH - hh, Math.max(hh, cy)) : CH / 2;
+        p.x = cx - p.width / 2; p.y = cy - p.height / 2;
+    }
     
     function performZoom(p, factor) {
         const minSize = 20;
@@ -1854,7 +1878,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const input = document.getElementById('editInput');
         if (p.type === 'velocity') {
             label.innerText = 'Geschwindigkeit in km/h:';
-            input.type = 'number'; input.value = '';
+            input.type = 'number'; input.value = ''; input.min = '0'; input.max = '9999'; // 2026.07.0034: max. 4 Stellen (9999 km/h)
         } else {
             label.innerText = (p.type === 'bemassung') ? 'Maß / Beschriftung:' : (p.type === 'sign' ? 'Beschriftung (\\n = neue Zeile):' : 'Text ändern:');
             input.type = 'text'; input.value = p.text || '';
@@ -1876,9 +1900,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             editTarget.text = val; // v135: Schrift passt sich beim Zeichnen der Schildgröße an
         } else if (editTarget && editMode === 'velocity') {
             if (val !== '' && !isNaN(parseFloat(val))) {
-                const kmh = parseFloat(val);
+                const kmh = Math.min(9999, Math.max(0, parseFloat(val))); // 2026.07.0034: auf 4 Stellen (9999 km/h) begrenzt
                 const ms = (kmh / 3.6).toFixed(1).replace('.', ',');
                 editTarget.text = kmh + " km/h (" + ms + " m/s)";
+                ctx.font = 'bold 14px Arial'; editTarget.width = Math.max(120, ctx.measureText(editTarget.text).width + 24); // Breite (Klickfläche) an den Text anpassen
             }
         }
         closeEdit();
@@ -1891,6 +1916,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function getTouchAngle(t1, t2) { return Math.atan2(t1.clientY - t2.clientY, t1.clientX - t2.clientX); }
 
     function handleStart(x, y, isRight, shiftKey, allowMarquee) {
+        requestRender(); // 2026.07.0034
         const idx = getPlayerUnderMouse(x, y);
         const now = Date.now();
 
@@ -1932,12 +1958,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function handleMove(x, y) {
         if (_pendingMarquee) { // 2026.07.0020: Aufziehrechteck erst ab kleiner Bewegungsschwelle aktivieren (Klick = abwählen)
             if (!marquee && (Math.abs(x - _pendingMarquee.x0) > 4 || Math.abs(y - _pendingMarquee.y0) > 4)) marquee = { x0: _pendingMarquee.x0, y0: _pendingMarquee.y0, x1: x, y1: y };
-            if (marquee) { marquee.x1 = x; marquee.y1 = y; canvas.style.cursor = 'crosshair'; return; }
+            if (marquee) { marquee.x1 = x; marquee.y1 = y; canvas.style.cursor = 'crosshair'; requestRender(); return; }
         }
-        if (groupDrag) { moveGroup(x, y); canvas.style.cursor = 'grabbing'; return; } // 2026.07.0020: gemeinsames Verschieben
+        if (groupDrag) { moveGroup(x, y); canvas.style.cursor = 'grabbing'; requestRender(); return; } // 2026.07.0020: gemeinsames Verschieben
         const idx = getPlayerUnderMouse(x, y);
         if (draggingPlayerIndex !== -1) canvas.style.cursor = 'grabbing'; else if (idx !== -1) canvas.style.cursor = 'grab'; else canvas.style.cursor = 'default';
-        if (draggingPlayerIndex !== -1) { const p = activeObjects[draggingPlayerIndex]; p.x = x - dragOffset.x; p.y = y - dragOffset.y; checkBounds(p); }
+        if (draggingPlayerIndex !== -1) { const p = activeObjects[draggingPlayerIndex]; p.x = x - dragOffset.x; p.y = y - dragOffset.y; checkBounds(p); requestRender(); } // 2026.07.0034
     }
     
     function triggerSnap(index) {
@@ -1946,6 +1972,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     function handleEnd(e) {
+        requestRender(); // 2026.07.0034
         let mx = e.clientX, my = e.clientY;
         if (e.changedTouches && e.changedTouches.length > 0) { mx = e.changedTouches[0].clientX; my = e.changedTouches[0].clientY; }
         const isRight = (e.button === 2);
@@ -1964,7 +1991,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
     window.addEventListener('mouseup', e => handleEnd(e));
     canvas.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
-    canvas.addEventListener('wheel', e => { e.preventDefault(); if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) { const now = Date.now(); if (now - _lastWheelHist > 600) pushHistory(); _lastWheelHist = now; performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9); } }, { passive: false }); // 2026.07.0032: History pro Zoom-Burst
+    canvas.addEventListener('wheel', e => { e.preventDefault(); if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) { const now = Date.now(); if (now - _lastWheelHist > 600) pushHistory(); _lastWheelHist = now; performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9); requestRender(); } }, { passive: false }); // 2026.07.0032/0035
     
     // TOUCH HANDLER
     canvas.addEventListener('touchstart', e => { 
@@ -1989,6 +2016,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const scale = dist / gestureStart.dist;
             p.width = gestureStart.width * scale; if (p.type !== 'bemassung') p.height = gestureStart.height * scale; // v112: Bemaßung nur in der Länge
             p.rotation = gestureStart.rotation + (angle - gestureStart.angle) * (180/Math.PI);
+            requestRender(); // 2026.07.0034
             return;
         }
         handleMove(e.touches[0].clientX, e.touches[0].clientY); 
@@ -2676,7 +2704,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
     function aiConnect() {
         if (!aiAllowed()) { aiSetStatus('denied'); return; }
-        aiWantConnected = true; aiPairCode = aiGenCode();
+        aiWantConnected = true; if (!aiPairCode) aiPairCode = aiGenCode(); // 2026.07.0034: Code nur bei frischem Verbinden erzeugen, über Reconnects hinweg beibehalten
         try { aiSocket = new WebSocket('ws://127.0.0.1:4877'); } catch (e) { aiSetStatus('error'); return; }
         aiSetStatus('connecting');
         aiSocket.onopen = function () { try { aiSocket.send(JSON.stringify({ type: 'hello', role: 'app', code: aiPairCode, app: 'skisim', version: '2026.07.0031' })); } catch (e) {} aiSetStatus('waiting'); };
@@ -2699,7 +2727,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         aiSocket.onclose = function () { aiSocket = null; if (aiWantConnected) { aiSetStatus('reconnect'); aiReconnectTimer = setTimeout(aiConnect, 2500); } else aiSetStatus('off'); };
         aiSocket.onerror = function () { aiSetStatus('error'); };
     }
-    function aiDisconnect() { aiWantConnected = false; if (aiReconnectTimer) { clearTimeout(aiReconnectTimer); aiReconnectTimer = null; } if (aiSocket) { try { aiSocket.close(); } catch (e) {} aiSocket = null; } aiSetStatus('off'); }
+    function aiDisconnect() { aiWantConnected = false; aiPairCode = null; if (aiReconnectTimer) { clearTimeout(aiReconnectTimer); aiReconnectTimer = null; } if (aiSocket) { try { aiSocket.close(); } catch (e) {} aiSocket = null; } aiSetStatus('off'); } // 2026.07.0034: Code beim echten Trennen verwerfen (frischer Code beim nächsten Verbinden)
     function aiToggle() { if (aiWantConnected) aiDisconnect(); else aiConnect(); }
 
     // ================= 2026.07.0032: Datensicherheit — Undo/Redo, Autosave, Verlustschutz =================
@@ -2729,7 +2757,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (_autosaveTimer) return;
         _autosaveTimer = setTimeout(function () { _autosaveTimer = null; try { localStorage.setItem(LS_AUTOSAVE, JSON.stringify({ o: activeObjects, s: sceneMeta, ts: Date.now() })); } catch (e) {} }, 1200);
     }
-    function markDirty() { _dirty = true; scheduleAutosave(); }
+    function markDirty() { _dirty = true; scheduleAutosave(); requestRender(); } // 2026.07.0034: jede persistente Änderung -> neu zeichnen
     function pushHistory() { undoStack.push(_histSnapshot()); if (undoStack.length > _histMax) undoStack.shift(); redoStack.length = 0; markDirty(); updateUndoRedoButtons(); }
     function armHistory() { if (_pendingHist === null) _pendingHist = _histSnapshot(); }
     function commitHistory() { if (_pendingHist !== null) { if (_pendingHist !== _histSnapshot()) { undoStack.push(_pendingHist); if (undoStack.length > _histMax) undoStack.shift(); redoStack.length = 0; markDirty(); updateUndoRedoButtons(); } _pendingHist = null; } }
@@ -2745,11 +2773,15 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (info) { const dt = new Date(saved.ts || Date.now()); info.textContent = t('restoreWhen') + ' ' + dt.toLocaleString(lang === 'en' ? 'en-GB' : 'de-AT') + ' · ' + saved.o.length + ' ' + t('a11yObjects'); }
         openModal('restoreModal');
     }
-    function doRestore() { if (_restorePayload) { _histRestore(JSON.stringify({ o: _restorePayload.o, s: _restorePayload.s })); undoStack.length = 0; redoStack.length = 0; updateUndoRedoButtons(); _dirty = true; announce(t('a11yImportOk') + ' ' + activeObjects.length + ' ' + t('a11yObjects')); } _restorePayload = null; closeModal('restoreModal'); }
+    function doRestore() { if (_restorePayload) { _histRestore(JSON.stringify({ o: _restorePayload.o, s: _restorePayload.s })); undoStack.length = 0; redoStack.length = 0; updateUndoRedoButtons(); _dirty = true; requestRender(); announce(t('a11yImportOk') + ' ' + activeObjects.length + ' ' + t('a11yObjects')); } _restorePayload = null; closeModal('restoreModal'); }
     function dismissRestore() { _restorePayload = null; clearAutosave(); closeModal('restoreModal'); }
 
     // Verlustschutz beim Schließen/Neuladen (nur bei ungespeicherten Änderungen)
     window.addEventListener('beforeunload', function (e) { if (_dirty) { e.preventDefault(); e.returnValue = ''; return ''; } });
+    // 2026.07.0034: Beim Zurückkehren zum Tab/Fokus neu zeichnen (rAF pausiert in Hintergrund-Tabs -> Render-Fenster wäre abgelaufen)
+    document.addEventListener('visibilitychange', function () { if (!document.hidden) requestRender(); });
+    window.addEventListener('focus', function () { requestRender(); });
+    window.addEventListener('pageshow', function () { requestRender(); });
 
     // Event Listeners for Buttons
     document.getElementById('exportBtn').addEventListener('click', exportImage);
@@ -2761,11 +2793,13 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
-        if(activePlayerIndex >= activeObjects.length) activePlayerIndex = -1; 
-        if(rotatingPlayerIndex !== -1) activeObjects[rotatingPlayerIndex].rotation += 3;
-        if(isSnapping && snappingPlayerIndex !== -1) { const p = activeObjects[snappingPlayerIndex], diff = targetRotation - p.rotation; if(Math.abs(diff) < 3.1) { p.rotation = targetRotation; isSnapping = false; snappingPlayerIndex = -1; } else { p.rotation += (diff > 0 ? 3 : -3); } }
+        if(activePlayerIndex >= activeObjects.length) activePlayerIndex = -1;
+        let moved = false; // 2026.07.0034: Bewegung erkennen -> Render anfordern
+        if(rotatingPlayerIndex !== -1) { activeObjects[rotatingPlayerIndex].rotation += 3; moved = true; }
+        if(isSnapping && snappingPlayerIndex !== -1) { const p = activeObjects[snappingPlayerIndex], diff = targetRotation - p.rotation; if(Math.abs(diff) < 3.1) { p.rotation = targetRotation; isSnapping = false; snappingPlayerIndex = -1; } else { p.rotation += (diff > 0 ? 3 : -3); } moved = true; }
         const ap = activeObjects[activePlayerIndex];
         if (ap && draggingPlayerIndex !== activePlayerIndex) {
+            const anyKey = keys['ArrowLeft']||keys['ArrowRight']||keys['ArrowUp']||keys['ArrowDown']||keys['RotateLeft']||keys['RotateRight']||keys['ZoomIn']||keys['ZoomOut'];
             if(keys['ArrowLeft']) ap.dx = -ap.speed; else if(keys['ArrowRight']) ap.dx = ap.speed; else ap.dx *= 0.85;
             if(keys['ArrowUp']) ap.dy = -ap.speed; else if(keys['ArrowDown']) ap.dy = ap.speed; else ap.dy *= 0.85;
             if (selectedIndices.length > 1) { // 2026.07.0020: gesamte Auswahl gemeinsam mit den Pfeiltasten bewegen
@@ -2774,7 +2808,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             if(keys['RotateLeft']) ap.rotation -= 3; if(keys['RotateRight']) ap.rotation += 3; // Drehen/Zoom weiterhin nur auf das Primärobjekt
             if(keys['ZoomIn']) performZoom(ap, 1.02); if(keys['ZoomOut']) performZoom(ap, 0.98);
             checkBounds(ap);
+            if (anyKey || Math.abs(ap.dx) > 0.05 || Math.abs(ap.dy) > 0.05) moved = true;
         }
+        if (moved) requestRender(120);
     }
 
     function drawObject(p) {
@@ -2850,8 +2886,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         ctx.restore(); 
     }
 
-    function drawLoop() {
-        update();
+    // 2026.07.0034: Dirty-Flag-Rendering — nur zeichnen, wenn im Render-Fenster (nach Eingabe/Bewegung/Änderung).
+    // Spart im Ruhezustand die komplette Neuzeichnung + Farb-/Formleisten-DOM-Arbeit (Akku/CPU).
+    let _renderUntil = 0, _renderCount = 0;
+    function requestRender(ms) { _renderUntil = Math.max(_renderUntil, performance.now() + (ms || 350)); }
+    function renderFrame() {
+        _renderCount++;
         ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, CW, CH);
         let g = ctx.createRadialGradient(CW/2, CH/2, 100, CW/2, CH/2, CW);
         g.addColorStop(0, 'rgba(255,255,255,0.2)'); g.addColorStop(1, '#ebeff5'); ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
@@ -2873,6 +2913,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         drawSceneLegend(); // v138: Szenario-Legende (Ort/UTM/Exposition/Neigung)
         updateColorBar(); // v117: Farbleiste an Auswahl/Farbe anpassen
         updateShapeBar(); // v135: Formleiste (nur bei Schild)
+    }
+    function drawLoop() {
+        update();
+        if (performance.now() < _renderUntil) renderFrame();
         requestAnimationFrame(drawLoop);
     }
     // v116: Theme/Sprache initialisieren (erst hier, nach allen const/let-Deklarationen)
