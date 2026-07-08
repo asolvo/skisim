@@ -1,0 +1,34 @@
+# .gitignore für Skisim
+# Ziel: nur die App + Doku + Werkzeuge versionieren; lokale Historie,
+# Exporte und Umgebungsdateien bleiben außen vor.
+# (skisim-screenshot.png und "user stories.md" sind bewusst versioniert.)
+
+# --- Lokale versionierte Schnappschüsse (ADR-0008) — nur lokale Historie ---
+ski.mvp.*.html
+
+# --- Backups / alte Stände ---
+*.bak.html
+index.v*.html
+
+# --- Exportierte Skizzen & Screenshots (NICHT das README-Bild) ---
+ski-sim-*.png
+ski-szene-*.png
+image_2.png
+skifahrer.png
+verletzter1.svg
+
+# --- Notiz-/Scratch-Dateien ---
+ideen.txt
+ski.svg.txt
+user stories.txt
+user stories.v*.txt
+
+# --- Sensible lokale Daten — gehören NICHT ins öffentliche Repo ---
+benutzerverwaltung.csv
+
+# --- Lokale Werkzeuge / Editor-Umgebung ---
+.claude/
+
+# --- Betriebssystem ---
+.DS_Store
+Thumbs.db
