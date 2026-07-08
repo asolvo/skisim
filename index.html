@@ -1,9 +1,18 @@
-<!-- Skisim 2026.07.0031 -->
-<!-- KI-Fernsteuerung über MCP-Server (Stufe 1, lokal)
+<!-- Skisim 2026.07.0032 -->
+<!-- Datensicherheit: Undo/Redo, Autosave, Verlustschutz beim Schließen
 
 Apache V2 License
 2026-07-06
 Christian Klingler, asolvo
+
+Neu in 2026.07.0032 (Datensicherheit):
+- Rückgängig/Wiederholen (Undo/Redo) mit zwei Toolbar-Buttons und Strg+Z / Strg+Y
+  (bzw. Strg+Umschalt+Z). Deckt Hinzufügen, Löschen, Verschieben, Drehen, Skalieren,
+  Farbe/Text/Form, Szenario, Import und KI-Befehle ab (Snapshot-Verlauf).
+- Autosave der laufenden Skizze im Browser (localStorage); beim Start wird eine
+  nicht gespeicherte letzte Sitzung zur Wiederherstellung angeboten.
+- Warnung vor Datenverlust beim Schließen/Neuladen, solange ungespeicherte
+  Änderungen bestehen (nach JSON-Speichern entschärft).
 
 Neu in 2026.07.0031 (KI-Fernsteuerung):
 - Die Skizze lässt sich optional von einem KI-Assistenten (MCP-Client wie Claude
@@ -314,7 +323,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0031</title>
+    <title>Ski-Simulation 2026.07.0032</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -440,6 +449,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         #exportBtn { right: 252px; }
         #shareBtn { right: 312px; }
         #metaBtn { right: 372px; }
+        #redoBtn { right: 432px; }
+        #undoBtn { right: 492px; }
 
         /* Loader */
         #loader {
@@ -597,6 +608,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             #exportBtn { right: 108px; }
             #shareBtn  { right: 156px; }
             #metaBtn   { right: 204px; }
+            /* 2026.07.0032: Undo/Redo auf Mobil unten links (oberhalb der Dock-Leiste), damit die obere Reihe nicht überläuft */
+            #undoBtn { top: auto; right: auto; left: 12px; bottom: 100px; }
+            #redoBtn { top: auto; right: auto; left: 60px; bottom: 100px; }
 
             /* Dock: untere, horizontal scrollbare Leiste */
             #dock {
@@ -707,7 +721,21 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0031</div>
+        <div class="popup-version">2026.07.0032</div>
+    </div>
+</div>
+
+<div id="restoreModal" class="modal">
+    <div class="modal-content">
+        <h3 id="rs-title">Letzte Sitzung wiederherstellen?</h3>
+        <div class="modal-body">
+            <p id="rs-text" style="font-size:14px; line-height:1.55; margin:4px 0 8px;">Es wurde eine nicht gespeicherte Skizze der letzten Sitzung gefunden.</p>
+            <p id="restoreInfo" style="font-size:13px; color:var(--md-on-surface-variant); margin:0 0 14px;"></p>
+            <div class="login-actions">
+                <button class="btn-secondary" id="restoreNo">Verwerfen</button>
+                <button class="btn-primary" id="restoreYes">Wiederherstellen</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -840,6 +868,16 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 </div>
 
 <!-- 2026.07.0018: DOM-Reihenfolge = visuelle Reihenfolge (links->rechts) fuer korrekte Tab-Reihenfolge (2.4.3) -->
+<button id="undoBtn" class="header-btn" title="Rückgängig (Strg+Z)" disabled>
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path>
+    </svg>
+</button>
+<button id="redoBtn" class="header-btn" title="Wiederholen (Strg+Y)" disabled>
+    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 14 20 9 15 4"></polyline><path d="M4 20v-7a4 4 0 0 1 4-4h12"></path>
+    </svg>
+</button>
 <button id="metaBtn" class="header-btn" title="Szenario">
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z"></path><circle cx="12" cy="11" r="2.5"></circle>
@@ -910,6 +948,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         responsible: "Verantwortlich für die Skisimulation (App):",
         settings: "Einstellungen", appearance: "Darstellung", themeLight: "Hell", themeDark: "Dunkel", themeAuto: "Auto", language: "Sprache",
         aiLabel: "KI-Assistent", aiConnect: "Verbinden", aiDisconnect: "Trennen", aiOff: "Nicht verbunden", aiConnecting: "Verbinde…", aiWaiting: "Warte auf Assistent…", aiPaired: "Gekoppelt – Assistent aktiv", aiReconnect: "Verbindung verloren, neuer Versuch…", aiError: "Kein lokaler MCP-Server erreichbar", aiDenied: "Nur mit aktiver Lizenz", aiCodeLabel: "Kopplungscode:",
+        undone: "Rückgängig gemacht", redone: "Wiederhergestellt", undoTitle: "Rückgängig (Strg+Z)", redoTitle: "Wiederholen (Strg+Y)", restoreTitle: "Letzte Sitzung wiederherstellen?", restoreText: "Es wurde eine nicht gespeicherte Skizze der letzten Sitzung gefunden.", restoreWhen: "Zuletzt bearbeitet:", restoreYes: "Wiederherstellen", restoreNo: "Verwerfen",
         activateLicense: "Lizenz aktivieren", enterKey: "Lizenzschlüssel eingeben:", keyPlaceholder: "z.B. ASI-XXXX-XXXX", cancel: "Abbrechen", activate: "Aktivieren", checking: "Prüfe...",
         lmInfo: "Ohne Lizenz: nur 1 Personen-Figur platzierbar.<br>Speichern, Bild-Export und Teilen sind gesperrt.<br>Mit Voll-Lizenz: beliebig viele Figuren &amp; Objekte,<br>Projekte speichern/laden, PNG-Export und Teilen.", lmRequest: "Lizenz anfordern:",
         edit: "Bearbeiten", ok: "OK", color: "Farbe",
@@ -923,7 +962,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0031",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0032",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -948,6 +987,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         responsible: "Responsible for the ski simulation (app):",
         settings: "Settings", appearance: "Appearance", themeLight: "Light", themeDark: "Dark", themeAuto: "Auto", language: "Language",
         aiLabel: "AI assistant", aiConnect: "Connect", aiDisconnect: "Disconnect", aiOff: "Not connected", aiConnecting: "Connecting…", aiWaiting: "Waiting for assistant…", aiPaired: "Paired – assistant active", aiReconnect: "Connection lost, retrying…", aiError: "No local MCP server reachable", aiDenied: "Requires an active license", aiCodeLabel: "Pairing code:",
+        undone: "Undone", redone: "Redone", undoTitle: "Undo (Ctrl+Z)", redoTitle: "Redo (Ctrl+Y)", restoreTitle: "Restore last session?", restoreText: "An unsaved sketch from your last session was found.", restoreWhen: "Last edited:", restoreYes: "Restore", restoreNo: "Discard",
         activateLicense: "Activate license", enterKey: "Enter license key:", keyPlaceholder: "e.g. ASI-XXXX-XXXX", cancel: "Cancel", activate: "Activate", checking: "Checking...",
         lmInfo: "Without a license: only 1 person figure.<br>Saving, image export and sharing are locked.<br>With a full license: unlimited figures &amp; objects,<br>save/load projects, PNG export and sharing.", lmRequest: "Request a license:",
         edit: "Edit", ok: "OK", color: "Color",
@@ -961,7 +1001,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0031",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0032",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1021,6 +1061,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setText('lbl-responsible', t('responsible'));
         setText('lbl-settings', t('settings')); setText('lbl-appearance', t('appearance')); setText('lbl-language', t('language'));
         setText('lbl-ai', t('aiLabel')); if (typeof aiSetStatus === 'function') aiSetStatus(aiState); // 2026.07.0031
+        setTitleAttr('undoBtn', t('undoTitle')); setTitleAttr('redoBtn', t('redoTitle')); // 2026.07.0032
+        setText('rs-title', t('restoreTitle')); setText('rs-text', t('restoreText')); setText('restoreYes', t('restoreYes')); setText('restoreNo', t('restoreNo'));
         setText('opt-light', t('themeLight')); setText('opt-dark', t('themeDark')); setText('opt-auto', t('themeAuto'));
         setText('popupActivateBtn', t('activateLicense'));
         setText('lm-title', t('activateLicense')); setText('lm-label', t('enterKey'));
@@ -1226,6 +1268,13 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById("grpTheme").addEventListener("click", function (e) { const b = e.target.closest(".seg"); if (b) applyTheme(b.getAttribute("data-val")); });
     document.getElementById("grpLang").addEventListener("click", function (e) { const b = e.target.closest(".seg"); if (b) applyLanguage(b.getAttribute("data-val")); });
     (function () { const ab = document.getElementById('aiToggleBtn'); if (ab) ab.addEventListener('click', aiToggle); })(); // 2026.07.0031: KI-Assistent verbinden/trennen
+    // 2026.07.0032: Undo/Redo-Buttons + Restore-Dialog
+    (function () {
+        const u = document.getElementById('undoBtn'); if (u) u.addEventListener('click', undo);
+        const r = document.getElementById('redoBtn'); if (r) r.addEventListener('click', redo);
+        const rr = document.getElementById('restoreYes'); if (rr) rr.addEventListener('click', doRestore);
+        const rn = document.getElementById('restoreNo'); if (rn) rn.addEventListener('click', dismissRestore);
+    })();
     if (window.matchMedia) { try { window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { if (themeMode === "auto") applyTheme("auto"); }); } catch (e) {} }
 
     window.onclick = function (event) {
@@ -1249,6 +1298,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             tpl = TEMPLATES[0];
             nx = canvas.width / 2 - tpl.width / 2; ny = canvas.height / 2 - tpl.height / 2;
         }
+        pushHistory(); // 2026.07.0032
         const obj = createObject(tpl, nx, ny);
         activeObjects.push(obj);
         checkBounds(obj);
@@ -1260,6 +1310,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     window.addEventListener('keydown', e => {
         if (e.key === 'Escape') { closeModal('impressumModal'); closeModal('licenseModal'); closeModal('sceneModal'); closeEdit(); return; } // v114/2026.07.0015: Esc schließt Dialoge (inkl. Szenario)
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        // 2026.07.0032: Rückgängig/Wiederholen (Strg+Z, Strg+Y, Strg+Umschalt+Z)
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); redo(); return; }
 
         if (e.key==='s'||e.key==='S') { saveProject(); return; }
         if (e.key==='e'||e.key==='E') { exportImage(); return; }
@@ -1286,8 +1340,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         }
         if (activePlayerIndex === -1) return;
         if (e.key==='Enter') { openTextEditor(activeObjects[activePlayerIndex]); return; }
-        if (e.key === 'c' || e.key === 'C') { cycleColor(activePlayerIndex); return; }
-        if (e.key === 'Delete' || e.key === 'Del') { if (selectedIndices.length > 1) returnGroupToDock(); else returnToDock(activePlayerIndex); return; } // 2026.07.0020: ganze Auswahl löschen
+        if (e.key === 'c' || e.key === 'C') { pushHistory(); cycleColor(activePlayerIndex); return; } // 2026.07.0032
+        if (e.key === 'Delete' || e.key === 'Del') { pushHistory(); if (selectedIndices.length > 1) returnGroupToDock(); else returnToDock(activePlayerIndex); return; } // 2026.07.0020/0032: ganze Auswahl löschen
+        // 2026.07.0032: Bewegen/Drehen/Zoomen per Tastatur = eine Geste → History beim ersten Tastendruck armen
+        const _mv = keys.hasOwnProperty(e.code) || e.key==='ö'||e.key==='Ö'||e.key===','||e.key==='ä'||e.key==='Ä'||e.key==='.'||e.key==='+'||e.key==='-';
+        if (_mv && !e.repeat) armHistory();
         if(keys.hasOwnProperty(e.code)) keys[e.code]=true;
         // v114: Drehen via ö/ä (DE) oder , / . (layoutunabhängig)
         if(e.key==='ö'||e.key==='Ö'||e.key===',') keys['RotateLeft']=true; if(e.key==='ä'||e.key==='Ä'||e.key==='.') keys['RotateRight']=true;
@@ -1302,6 +1359,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if(keys.hasOwnProperty(e.code)) keys[e.code]=false;
         if(e.key==='ö'||e.key==='Ö'||e.key===',') keys['RotateLeft']=false; if(e.key==='ä'||e.key==='Ä'||e.key==='.') keys['RotateRight']=false;
         if(e.key==='+') keys['ZoomIn']=false; if(e.key==='-') keys['ZoomOut']=false;
+        // 2026.07.0032: Geste beendet, sobald keine Bewegungs-/Dreh-/Zoom-Taste mehr gedrückt ist → History committen
+        if (!(keys.ArrowUp||keys.ArrowDown||keys.ArrowLeft||keys.ArrowRight||keys.RotateLeft||keys.RotateRight||keys.ZoomIn||keys.ZoomOut)) commitHistory();
     });
 
     // --- ASSETS & GAME LOOP (unchanged) ---
@@ -1518,6 +1577,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         dockedObjects = TEMPLATES.slice(); // 2026.07.0029: alle Objekte unendlich — Dock zeigt immer das volle Sortiment (auch den Start-Skifahrer)
         renderDock();
         if (window.innerWidth <= 760 || window.innerHeight <= 500) document.getElementById('instructionBox').classList.add('collapsed'); // v113/v114: Panel auf Mobil/Querformat eingeklappt starten
+        updateUndoRedoButtons(); // 2026.07.0032
+        maybeOfferRestore();     // 2026.07.0032: letzte Sitzung anbieten (falls Autosave vorhanden)
         requestAnimationFrame(drawLoop);
     }
 
@@ -1606,6 +1667,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     // v113: Objekt per Tap aus dem Dock in die Canvas-Mitte hinzufügen (Touch)
     function addObjectFromDock(tpl, index) {
+        pushHistory(); // 2026.07.0032
         const x = canvas.width / 2 - tpl.width / 2, y = canvas.height / 2 - tpl.height / 2;
         const obj = createObject(tpl, x, y);
         activeObjects.push(obj);
@@ -1649,6 +1711,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         let pos = getClientPos(e); if (e.changedTouches && e.changedTouches.length > 0) pos = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
         
         if (pos.x < window.innerWidth - 120) {
+            pushHistory(); // 2026.07.0032
             const obj = createObject(dragFromDockItem.tpl, pos.x - 50, pos.y - 50);
             activeObjects.push(obj);
             // Check if infinite
@@ -1768,6 +1831,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function applyEdit() {
         const input = document.getElementById('editInput');
         const val = input.value;
+        if (editTarget) pushHistory(); // 2026.07.0032
         if (editTarget && editMode === 'text') {
             editTarget.text = val;
             ctx.font = 'bold ' + editTarget.height + 'px Arial';
@@ -1807,7 +1871,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const p = activeObjects[idx];
             if ((p.type === 'text' || p.type === 'velocity' || p.type === 'bemassung' || p.type === 'sign') && (now - lastTapTime < 300)) { selectSingle(idx); openTextEditor(p); lastTapTime = 0; return; }
             lastTapTime = now;
-            if (isRight) { selectSingle(idx); rotatingPlayerIndex = idx; isSnapping = false; return true; } // Drehen wirkt nur auf ein Objekt
+            if (isRight) { selectSingle(idx); rotatingPlayerIndex = idx; isSnapping = false; armHistory(); return true; } // Drehen wirkt nur auf ein Objekt; 2026.07.0032: Geste armen
             if (shiftKey) { // 2026.07.0020: Umschalt+Klick ergänzt/entfernt ein Objekt (kein Drag)
                 const at = selectedIndices.indexOf(idx);
                 if (at === -1) { selectedIndices.push(idx); activePlayerIndex = idx; }
@@ -1817,10 +1881,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             if (selectedIndices.length > 1 && selectedIndices.indexOf(idx) !== -1) { // 2026.07.0020: gemeinsames Verschieben der Auswahl
                 activePlayerIndex = idx; draggingPlayerIndex = idx; p.dx = 0; p.dy = 0;
                 groupDrag = { offsets: selectedIndices.map(function (i) { return { i: i, ox: x - activeObjects[i].x, oy: y - activeObjects[i].y }; }) };
+                armHistory(); // 2026.07.0032
                 return true;
             }
             if (activePlayerIndex !== idx) announce(t('a11ySelected') + ' ' + getGermanLabel(p)); // 2026.07.0015: Barrierefreiheit
             selectSingle(idx); groupDrag = null; draggingPlayerIndex = idx; dragOffset.x = x - p.x; dragOffset.y = y - p.y; p.dx = 0; p.dy = 0;
+            armHistory(); // 2026.07.0032
             return true;
         } else {
             selectSingle(-1); draggingPlayerIndex = -1; rotatingPlayerIndex = -1; groupDrag = null;
@@ -1849,21 +1915,22 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         let mx = e.clientX, my = e.clientY;
         if (e.changedTouches && e.changedTouches.length > 0) { mx = e.changedTouches[0].clientX; my = e.changedTouches[0].clientY; }
         const isRight = (e.button === 2);
-        if (marquee) { marqueeSelect(); marquee = null; _pendingMarquee = null; canvas.style.cursor = 'default'; return; } // 2026.07.0020: Auswahl aus Aufziehrechteck
+        if (marquee) { marqueeSelect(); marquee = null; _pendingMarquee = null; _pendingHist = null; canvas.style.cursor = 'default'; return; } // 2026.07.0020: Auswahl aus Aufziehrechteck (keine Zustandsänderung)
         _pendingMarquee = null;
         const dr = dockContainer.getBoundingClientRect();
         const overDock = (mx >= dr.left - 20 && mx <= dr.right + 20 && my >= dr.top - 20 && my <= dr.bottom + 20);
-        if (groupDrag) { if (overDock) returnGroupToDock(); groupDrag = null; draggingPlayerIndex = -1; return; } // 2026.07.0020: Gruppe über dem Dock loslassen -> alle zurück
-        if (draggingPlayerIndex !== -1 && overDock) { returnToDock(draggingPlayerIndex); return; }
+        if (groupDrag) { if (overDock) returnGroupToDock(); groupDrag = null; draggingPlayerIndex = -1; commitHistory(); return; } // 2026.07.0020/0032
+        if (draggingPlayerIndex !== -1 && overDock) { returnToDock(draggingPlayerIndex); commitHistory(); return; }
         draggingPlayerIndex = -1;
         if (isRight && rotatingPlayerIndex !== -1) { triggerSnap(rotatingPlayerIndex); rotatingPlayerIndex = -1; }
+        commitHistory(); // 2026.07.0032: Move/Drehen abschließen (nur bei tatsächlicher Änderung)
     }
 
     canvas.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY, e.button === 2, e.shiftKey, true));
     canvas.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
     window.addEventListener('mouseup', e => handleEnd(e));
     canvas.addEventListener('contextmenu', e => { e.preventDefault(); return false; });
-    canvas.addEventListener('wheel', e => { e.preventDefault(); if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9); }, { passive: false });
+    canvas.addEventListener('wheel', e => { e.preventDefault(); if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) { const now = Date.now(); if (now - _lastWheelHist > 600) pushHistory(); _lastWheelHist = now; performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9); } }, { passive: false }); // 2026.07.0032: History pro Zoom-Burst
     
     // TOUCH HANDLER
     canvas.addEventListener('touchstart', e => { 
@@ -1873,6 +1940,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             gestureStart.dist = getTouchDist(e.touches[0], e.touches[1]);
             gestureStart.angle = getTouchAngle(e.touches[0], e.touches[1]);
             gestureStart.width = p.width; gestureStart.height = p.height; gestureStart.rotation = p.rotation;
+            armHistory(); // 2026.07.0032: Pinch/Dreh-Geste armen
             return;
         }
         handleStart(e.touches[0].clientX, e.touches[0].clientY, false, false, false); // 2026.07.0020: kein Marquee per Touch (Touch-Gestik unverändert)
@@ -1913,7 +1981,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const setC = function (e) {
                 e.preventDefault();
                 const p = (activePlayerIndex !== -1) ? activeObjects[activePlayerIndex] : null;
-                if (isColorable(p)) { p.color = c; _colorBarKey = null; updateColorBar(); }
+                if (isColorable(p)) { pushHistory(); p.color = c; _colorBarKey = null; updateColorBar(); } // 2026.07.0032
             };
             b.addEventListener('click', setC);
             b.addEventListener('touchstart', setC, { passive: false });
@@ -1969,7 +2037,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             const setS = function (e) {
                 e.preventDefault();
                 const p = (activePlayerIndex !== -1) ? activeObjects[activePlayerIndex] : null;
-                if (isShapeChangeable(p)) { p.shape = s.key; _shapeBarKey = null; updateShapeBar(); }
+                if (isShapeChangeable(p)) { pushHistory(); p.shape = s.key; _shapeBarKey = null; updateShapeBar(); } // 2026.07.0032
             };
             b.addEventListener('click', setS);
             b.addEventListener('touchstart', setS, { passive: false });
@@ -2119,6 +2187,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setTimeout(function () { document.getElementById('scName').focus(); }, 30);
     }
     function applyScene() {
+        pushHistory(); // 2026.07.0032
         const gv = function (id) { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
         sceneMeta.name = gv('scName').slice(0, 120);
         sceneMeta.desc = gv('scDesc').slice(0, 400);
@@ -2373,7 +2442,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const name = buildFileName('json', num);
         const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
         const ok = await saveBlob(blob, name, { description: t('fnJson'), mime: 'application/json', ext: '.json' });
-        if (ok) { commitNumber(num); announce(t('a11ySaved') + ' ' + name); }
+        if (ok) { commitNumber(num); _dirty = false; announce(t('a11ySaved') + ' ' + name); } // 2026.07.0032: gespeichert -> Verlustschutz-Warnung entschärft
     }
 
     // --- IMPORT FUNCTIONALITY (JSON) ---
@@ -2439,6 +2508,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                 const data = JSON.parse(e.target.result);
                 if (data && data.objects && Array.isArray(data.objects)) {
                     // v132 (Security): Fremd-Eingaben validieren + Gast-Limit durchsetzen; 2026.07.0031: gemeinsame Lade-Routine (vergibt auch Objekt-IDs)
+                    pushHistory(); // 2026.07.0032: Import ist rückgängig-machbar
                     const r = applyLoadedProject(data);
                     console.log("Import: " + r.raw + " gelesen, " + r.loaded + " uebernommen.");
                     announce(t('a11yImportOk') + ' ' + activeObjects.length + ' ' + t('a11yObjects')); // 2026.07.0015: Barrierefreiheit
@@ -2580,7 +2650,15 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             let msg; try { msg = JSON.parse(ev.data); } catch (e) { return; }
             if (msg.type === 'paired') { aiSetStatus('paired'); announce(t('aiPaired')); return; }
             if (msg.type === 'cmd') {
-                const res = aiAllowed() ? applyAiCommand(msg.tool, msg.args) : { ok: false, error: 'keine aktive Lizenz' };
+                let res;
+                if (!aiAllowed()) { res = { ok: false, error: 'keine aktive Lizenz' }; }
+                else {
+                    // 2026.07.0032: KI-Befehle rückgängig-machbar — vor mutierenden Tools armen, danach nur bei echter Änderung committen
+                    const mut = ['load_project', 'add_object', 'move_object', 'rotate_object', 'scale_object', 'set_color', 'set_text', 'delete_object', 'set_scene'].indexOf(msg.tool) !== -1;
+                    if (mut) armHistory();
+                    res = applyAiCommand(msg.tool, msg.args);
+                    if (mut) { if (res && res.ok) commitHistory(); else _pendingHist = null; }
+                }
                 try { aiSocket.send(JSON.stringify({ type: 'result', id: msg.id, result: res })); } catch (e) {}
             }
         };
@@ -2589,6 +2667,55 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
     function aiDisconnect() { aiWantConnected = false; if (aiReconnectTimer) { clearTimeout(aiReconnectTimer); aiReconnectTimer = null; } if (aiSocket) { try { aiSocket.close(); } catch (e) {} aiSocket = null; } aiSetStatus('off'); }
     function aiToggle() { if (aiWantConnected) aiDisconnect(); else aiConnect(); }
+
+    // ================= 2026.07.0032: Datensicherheit — Undo/Redo, Autosave, Verlustschutz =================
+    // Snapshot = JSON aus activeObjects + sceneMeta. Diskrete Aktionen rufen pushHistory() VOR der
+    // Änderung; Gesten (Ziehen/Drehen/Skalieren, Pfeiltasten) armen beim Start (armHistory) und
+    // committen am Ende (commitHistory, nur wenn sich wirklich etwas geändert hat).
+    let undoStack = [], redoStack = [], _pendingHist = null, _histMax = 40;
+    let _dirty = false, _autosaveTimer = null, _lastWheelHist = 0, _restorePayload = null;
+    const LS_AUTOSAVE = 'skisim_autosave';
+    function _histSnapshot() { return JSON.stringify({ o: activeObjects, s: sceneMeta }); }
+    function _histRestore(str) {
+        let d; try { d = JSON.parse(str); } catch (e) { return; }
+        activeObjects = Array.isArray(d.o) ? d.o : [];
+        let mx = 0;
+        activeObjects.forEach(function (o) { if (o.dx === undefined) o.dx = 0; if (o.dy === undefined) o.dy = 0; if (o.speed === undefined) o.speed = 7; if (typeof o.id === 'number') { if (o.id > mx) mx = o.id; } else { o.id = nextObjId(); } });
+        _objIdSeq = Math.max(_objIdSeq, mx + 1);
+        sceneMeta = sanitizeScene(d.s || {});
+        activePlayerIndex = -1; selectedIndices = []; draggingPlayerIndex = -1; rotatingPlayerIndex = -1;
+        renderDock();
+    }
+    function updateUndoRedoButtons() {
+        const u = document.getElementById('undoBtn'), r = document.getElementById('redoBtn');
+        if (u) u.disabled = undoStack.length === 0;
+        if (r) r.disabled = redoStack.length === 0;
+    }
+    function scheduleAutosave() {
+        if (_autosaveTimer) return;
+        _autosaveTimer = setTimeout(function () { _autosaveTimer = null; try { localStorage.setItem(LS_AUTOSAVE, JSON.stringify({ o: activeObjects, s: sceneMeta, ts: Date.now() })); } catch (e) {} }, 1200);
+    }
+    function markDirty() { _dirty = true; scheduleAutosave(); }
+    function pushHistory() { undoStack.push(_histSnapshot()); if (undoStack.length > _histMax) undoStack.shift(); redoStack.length = 0; markDirty(); updateUndoRedoButtons(); }
+    function armHistory() { if (_pendingHist === null) _pendingHist = _histSnapshot(); }
+    function commitHistory() { if (_pendingHist !== null) { if (_pendingHist !== _histSnapshot()) { undoStack.push(_pendingHist); if (undoStack.length > _histMax) undoStack.shift(); redoStack.length = 0; markDirty(); updateUndoRedoButtons(); } _pendingHist = null; } }
+    function undo() { if (!undoStack.length) return; redoStack.push(_histSnapshot()); _histRestore(undoStack.pop()); markDirty(); updateUndoRedoButtons(); announce(t('undone')); }
+    function redo() { if (!redoStack.length) return; undoStack.push(_histSnapshot()); _histRestore(redoStack.pop()); markDirty(); updateUndoRedoButtons(); announce(t('redone')); }
+
+    function clearAutosave() { try { localStorage.removeItem(LS_AUTOSAVE); } catch (e) {} }
+    function maybeOfferRestore() {
+        let saved; try { saved = JSON.parse(localStorage.getItem(LS_AUTOSAVE) || 'null'); } catch (e) { saved = null; }
+        if (!saved || !Array.isArray(saved.o) || saved.o.length === 0) return;
+        _restorePayload = saved;
+        const info = document.getElementById('restoreInfo');
+        if (info) { const dt = new Date(saved.ts || Date.now()); info.textContent = t('restoreWhen') + ' ' + dt.toLocaleString(lang === 'en' ? 'en-GB' : 'de-AT') + ' · ' + saved.o.length + ' ' + t('a11yObjects'); }
+        openModal('restoreModal');
+    }
+    function doRestore() { if (_restorePayload) { _histRestore(JSON.stringify({ o: _restorePayload.o, s: _restorePayload.s })); undoStack.length = 0; redoStack.length = 0; updateUndoRedoButtons(); _dirty = true; announce(t('a11yImportOk') + ' ' + activeObjects.length + ' ' + t('a11yObjects')); } _restorePayload = null; closeModal('restoreModal'); }
+    function dismissRestore() { _restorePayload = null; clearAutosave(); closeModal('restoreModal'); }
+
+    // Verlustschutz beim Schließen/Neuladen (nur bei ungespeicherten Änderungen)
+    window.addEventListener('beforeunload', function (e) { if (_dirty) { e.preventDefault(); e.returnValue = ''; return ''; } });
 
     // Event Listeners for Buttons
     document.getElementById('exportBtn').addEventListener('click', exportImage);
