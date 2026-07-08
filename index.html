@@ -1,4 +1,4 @@
-<!-- Skisim 2026.07.0035 -->
+<!-- Skisim 2026.07.0036 -->
 <!-- Titel ohne Version, Import-Größenlimit, Release-Skript & Logik-Tests
 
 Apache V2 License
@@ -745,7 +745,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0035</div>
+        <div class="popup-version">2026.07.0036</div>
     </div>
 </div>
 
@@ -951,6 +951,25 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <div id="a11yStatus" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
 <script>
+    // ============================================================
+    // INHALTSVERZEICHNIS (2026.07.0036, ADR-0008 Nachtrag): grobe Gliederung
+    // dieser Datei. Zeilennummern verschieben sich mit jeder Änderung — im
+    // Editor am besten nach dem Marker-Text suchen (z. B. "LIZENZIERUNG").
+    // ------------------------------------------------------------
+    // LIZENZIERUNG            – Tokens, Feature-Gate, Aktivierung, UI (ADR-0001..0006)
+    // Internationalisierung   – DE/EN-Texte + Theme hell/dunkel/auto (ADR-0009/0010)
+    // SHORTCUTS & BUGFIX      – globale Tastaturkürzel
+    // ASSETS & GAME LOOP      – Dock, Objekt-Erzeugung, Zeichnen, Maus-/Touch-
+    //                            Eingabe inkl. Marquee (ADR-0028), Farbleiste,
+    //                            Schilder, Szenario-Dialog
+    // Legende                 – Legende auf der Zeichenfläche/im PNG-Export (ADR-0024)
+    // Dateinamen & Ordnerwahl – sprechende Dateinamen, File System Access API (ADR-0027)
+    // EXPORT FUNCTIONALITY    – PNG-Export
+    // SAVE FUNCTIONALITY      – Projekt als JSON speichern
+    // IMPORT FUNCTIONALITY    – Projekt aus JSON laden
+    // KI-Fernsteuerung        – MCP-Brücke über WebSocket (ADR-0029)
+    // Datensicherheit         – Undo/Redo, Autosave, Verlustschutz (ADR-0030)
+    // ============================================================
     function toggleUI() { document.getElementById('instructionBox').classList.toggle('collapsed'); }
 
     // --- LIZENZIERUNG (v107): signierte Tokens, lokal verifiziert ---
@@ -987,7 +1006,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.", importTooLarge: "Datei zu groß (max. 5 MB).",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0035",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0036",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -1027,7 +1046,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.", importTooLarge: "File too large (max 5 MB).",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0035",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0036",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1958,7 +1977,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             return true;
         } else {
             selectSingle(-1); draggingPlayerIndex = -1; rotatingPlayerIndex = -1; groupDrag = null;
-            marquee = null; _pendingMarquee = allowMarquee ? { x0: x, y0: y } : null; // 2026.07.0020: Marquee nur mit Maus (Touch unverändert)
+            marquee = null; _pendingMarquee = allowMarquee ? { x0: x, y0: y } : null; // 2026.07.0036: Marquee bei Maus immer, bei Touch nur wenn die Geste im leeren Bereich beginnt (siehe Touch-Handler)
             return false;
         }
     }
@@ -2002,8 +2021,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     canvas.addEventListener('wheel', e => { e.preventDefault(); if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) { const now = Date.now(); if (now - _lastWheelHist > 600) pushHistory(); _lastWheelHist = now; performZoom(activeObjects[activePlayerIndex], e.deltaY < 0 ? 1.1 : 0.9); requestRender(); } }, { passive: false }); // 2026.07.0032/0035
     
     // TOUCH HANDLER
-    canvas.addEventListener('touchstart', e => { 
+    canvas.addEventListener('touchstart', e => {
         if(e.target===canvas) e.preventDefault();
+        if (marquee || _pendingMarquee) return; // 2026.07.0036: laufendes Touch-Marquee nicht durch einen weiteren aufsetzenden Finger neu starten
         if (e.touches.length === 2 && activePlayerIndex !== -1) {
             const p = activeObjects[activePlayerIndex];
             gestureStart.dist = getTouchDist(e.touches[0], e.touches[1]);
@@ -2012,7 +2032,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             armHistory(); // 2026.07.0032: Pinch/Dreh-Geste armen
             return;
         }
-        handleStart(e.touches[0].clientX, e.touches[0].clientY, false, false, false); // 2026.07.0020: kein Marquee per Touch (Touch-Gestik unverändert)
+        handleStart(e.touches[0].clientX, e.touches[0].clientY, false, false, true); // 2026.07.0036: Marquee auch per Ein-Finger-Touch, wenn die Geste im leeren Bereich beginnt (spiegelt die Maus; Verschieben eines Objekts bleibt unverändert, da das nur greift, wenn der Touch auf einem Objekt beginnt)
     }, { passive: false });
 
     canvas.addEventListener('touchmove', e => { 

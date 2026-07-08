@@ -73,5 +73,7 @@ Lizenz-Popup mit Erklärtext & Anforderungs-Link (2026.07.0030), KI-Fernsteuerun
 Verlustschutz (2026.07.0032, ADR-0030), HiDPI-Rendering & rotations-/ebenen-genauer
 Treffertest (2026.07.0033), Dirty-Flag-Rendering, stabiler MCP-Code, Vektor-Limit &
 rotations-korrektes checkBounds (2026.07.0034), Titel ohne Version, Import-Größenlimit,
-Release-Skript & Logik-Tests (2026.07.0035, Nachtrag zu ADR-0025).
+Release-Skript & Logik-Tests (2026.07.0035, Nachtrag zu ADR-0025), Marquee auch per
+Ein-Finger-Touch bei leerem Startpunkt (2026.07.0036, Nachtrag zu ADR-0028),
+Inhaltsverzeichnis-Kommentar in `index.html` (2026.07.0036, Nachtrag zu ADR-0008).
 Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.

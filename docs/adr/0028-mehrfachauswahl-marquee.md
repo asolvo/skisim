@@ -60,7 +60,24 @@ Regressionen zu vermeiden.
 - **Referenzen statt Indizes** in der Auswahl: verworfen — der Bestand ist
   durchgängig index-basiert; Rücksetzen bei Strukturänderungen ist einfacher und
   robust.
-- **Marquee auch per Touch (1 Finger):** verworfen für diese Version — kollidiert
-  mit dem bestehenden Ein-Finger-Ziehen; später separat.
 - **Vollständiges Umschließen statt Berühren:** verworfen — der Nutzer wählte
   „Berühren genügt" (schneller, verzeiht ungenaues Aufziehen).
+
+## Nachtrag (2026.07.0036): Marquee auch per Touch
+
+Bei genauerer Betrachtung war die ursprünglich angenommene Kollision mit dem
+Ein-Finger-Ziehen kleiner als gedacht: Das bestehende Ein-Finger-Ziehen bewegt
+ein Objekt **nur**, wenn die Geste auf einem Objekt beginnt (`idx !== -1`-Zweig
+in `handleStart`). Beginnt sie im **leeren** Bereich, passierte auf Touch bisher
+schlicht nichts.
+
+Deshalb erlaubt der Touch-Handler jetzt genau dort ein Marquee — Ein-Finger-Zug
+ab leerem Bereich zieht (wie mit der Maus) ein Aufziehrechteck auf, ab derselben
+~4-px-Bewegungsschwelle. Beginnt die Geste auf einem Objekt, bleibt alles
+unverändert (verschieben). Zwei-Finger-Zoom/-Drehen ist unberührt.
+
+Einzige zusätzliche Randbedingung: Setzt während eines laufenden
+Touch-Marquees (noch keine Auswahl, `activePlayerIndex === -1`) ein zweiter
+Finger auf, ignoriert der `touchstart`-Handler dieses Ereignis, statt die Geste
+über `handleStart` neu zu starten — sonst würde der zweite Finger das Marquee
+aus Sicht des Codes wie einen frischen Klick ins Leere aussehen lassen.
