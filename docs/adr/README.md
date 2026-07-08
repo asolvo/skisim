@@ -41,7 +41,7 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0030](0030-datensicherheit-undo-autosave.md) | Datensicherheit — Undo/Redo, Autosave und Verlustschutz | Akzeptiert | 2026-07-06 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **2026.07.0032** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **2026.07.0035** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
@@ -70,5 +70,8 @@ Fahrzeuge ans Dock-Ende (2026.07.0028), Personen-Figuren mehrfach platzierbar �
 alle Objekte unendlich, Gast-Limit unverändert (2026.07.0029, Nachtrag zu ADR-0019),
 Lizenz-Popup mit Erklärtext & Anforderungs-Link (2026.07.0030), KI-Fernsteuerung
 über MCP-Server (2026.07.0031, ADR-0029), Datensicherheit — Undo/Redo, Autosave &
-Verlustschutz (2026.07.0032, ADR-0030).
+Verlustschutz (2026.07.0032, ADR-0030), HiDPI-Rendering & rotations-/ebenen-genauer
+Treffertest (2026.07.0033), Dirty-Flag-Rendering, stabiler MCP-Code, Vektor-Limit &
+rotations-korrektes checkBounds (2026.07.0034), Titel ohne Version, Import-Größenlimit,
+Release-Skript & Logik-Tests (2026.07.0035, Nachtrag zu ADR-0025).
 Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.

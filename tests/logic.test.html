@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<!--
+  Logik-Testfälle für index.html (reine Kernlogik, kein Netz/Backend).
+  Lädt die echte index.html in ein iframe (gleicher Origin) und treibt die im
+  Skript-Global-Scope liegenden Funktionen über win.eval(). Geprüft werden:
+    - Undo/Redo (Hinzufügen -> undo -> redo)
+    - Treffertest getPlayerUnderMouse: rotations- und ebenen-korrekt
+    - checkBounds: gedrehte Bounding-Box bleibt im Bild
+    - KI-Befehlskatalog applyAiCommand: add/move/set_color/get_project/delete + Validierung
+    - Geschwindigkeits-Vektor: Eingabe auf 9999 km/h begrenzt, Breite passt sich an
+    - sanitizeScene: Klammerung/Whitelist der Szenario-Metadaten
+
+  Ausführen über den lokalen Static-Server, z. B.:
+    http://localhost:8099/tests/logic.test.html
+-->
+<html lang="de">
+<head><meta charset="UTF-8"><title>Logik-Tests — Skisim</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 24px; color: #1a1c1e; }
+  h1 { font-size: 18px; } .row { padding: 6px 10px; border-radius: 6px; margin: 4px 0; font-size: 14px; }
+  .pass { background: #e6f4ea; color: #14532d; } .fail { background: #fdecea; color: #7f1d1d; }
+  code { background: #eee; padding: 1px 5px; border-radius: 4px; }
+  #summary { font-weight: 600; margin: 12px 0; } iframe { width: 1px; height: 1px; border: 0; position: absolute; left: -9999px; }
+</style></head>
+<body>
+  <h1>Logik-Tests — Skisim (Kernfunktionen)</h1>
+  <p>Prüft <code>../index.html</code> über den echten Skript-Scope (<code>win.eval</code>).</p>
+  <div id="summary">Läuft…</div>
+  <div id="results"></div>
+  <iframe id="app" src="../index.html"></iframe>
+
+<script>
+  const results = document.getElementById('results');
+  const summary = document.getElementById('summary');
+  let pass = 0, fail = 0;
+  function report(name, ok, detail) {
+    if (ok) pass++; else fail++;
+    const div = document.createElement('div');
+    div.className = 'row ' + (ok ? 'pass' : 'fail');
+    div.innerHTML = (ok ? '✓ ' : '✗ ') + name + (detail ? ' — <code>' + detail + '</code>' : '');
+    results.appendChild(div);
+  }
+
+  (async function () {
+    const win = document.getElementById('app').contentWindow;
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    const run = (code) => win.eval('(function(){' + code + '})()');
+    // Warten bis die App initialisiert ist (Funktion vorhanden UND startGame gelaufen -> Dock befüllt)
+    for (let i = 0; i < 200 && typeof win.applyAiCommand !== 'function'; i++) await sleep(50);
+    for (let i = 0; i < 200 && !run('return (typeof dockedObjects !== "undefined" && dockedObjects.length > 0)'); i++) await sleep(50);
+    if (typeof win.applyAiCommand !== 'function') { summary.textContent = 'FEHLER: App nicht initialisiert.'; return; }
+    // Feste logische Zeichenflächen-Größe (das Test-iframe ist absichtlich 1×1 px, daher CW/CH direkt setzen)
+    run('CW = 1280; CH = 860; activePlayerIndex = -1; selectedIndices = [];');
+
+    // 1) Undo/Redo
+    try {
+      const r = run("license={name:'t',feat:[]}; const ti=dockedObjects.findIndex(x=>x.assetKey==='tree'); const n0=activeObjects.length; addObjectFromDock(dockedObjects[ti], ti); const n1=activeObjects.length; undo(); const n2=activeObjects.length; redo(); const n3=activeObjects.length; return {n0,n1,n2,n3};");
+      report('Undo/Redo: Hinzufügen rückgängig & wiederherstellbar', r.n1 === r.n0 + 1 && r.n2 === r.n0 && r.n3 === r.n0 + 1, JSON.stringify(r));
+    } catch (e) { report('Undo/Redo', false, String(e)); }
+
+    // 2) Treffertest — Rotation
+    try {
+      const r = run("activeObjects.length=0; activeObjects.push({type:'line',color:'#A6A6A6',x:200,y:290,width:200,height:20,rotation:90,dx:0,dy:0,speed:7,id:1}); return {along:getPlayerUnderMouse(300,380), side:getPlayerUnderMouse(380,300)};");
+      report('Treffertest: gedrehte Linie — Treffer entlang, Miss seitlich', r.along === 0 && r.side === -1, JSON.stringify(r));
+    } catch (e) { report('Treffertest Rotation', false, String(e)); }
+
+    // 3) Treffertest — Ebenen (oberstes gewinnt)
+    try {
+      const r = run("activeObjects.length=0; activeObjects.push({type:'text',text:'T',color:'#000',x:570,y:385,width:60,height:30,rotation:0,dx:0,dy:0,speed:7,id:2}); activeObjects.push({type:'sprite',assetKey:'tree',x:540,y:340,width:120,height:120,rotation:0,dx:0,dy:0,speed:7,id:3}); return getPlayerUnderMouse(600,400);");
+      report('Treffertest: Text (Ebene 3) schlägt Baum (Ebene 1) bei Überlappung', r === 0, 'index=' + r);
+    } catch (e) { report('Treffertest Ebenen', false, String(e)); }
+
+    // 4) checkBounds — gedrehte Bounding-Box im Bild
+    try {
+      const r = run("activeObjects.length=0; const L={type:'line',color:'#A6A6A6',x:CW+50,y:-50,width:200,height:20,rotation:90,dx:0,dy:0,speed:7,id:1}; activeObjects.push(L); checkBounds(L); const cx=L.x+L.width/2, cy=L.y+L.height/2; return {cx:Math.round(cx),cy:Math.round(cy),CW,CH};");
+      report('checkBounds: gedrehte Linie bleibt im Bild', r.cx <= r.CW - 9.5 && r.cx >= 9.5 && r.cy >= 99.5 && r.cy <= r.CH - 99.5, JSON.stringify(r));
+    } catch (e) { report('checkBounds Rotation', false, String(e)); }
+
+    // 5) applyAiCommand — add/move/get_project/delete
+    try {
+      const r = run("activeObjects.length=0; selectSingle(-1); const a=applyAiCommand('add_object',{object:'tree',x:300,y:300}); const mv=applyAiCommand('move_object',{id:a.id,x:500,y:400}); const p=activeObjects[findObjById(a.id)]; const proj=applyAiCommand('get_project',{}); const del=applyAiCommand('delete_object',{id:a.id}); return {addOk:a.ok, hasId: typeof a.id==='number', cx:Math.round(p.x+p.width/2), cy:Math.round(p.y+p.height/2), projCount:proj.project.objects.length, afterDelete:activeObjects.length, delOk:del.ok};");
+      report('applyAiCommand: add/move/get_project/delete', r.addOk && r.hasId && r.cx === 500 && r.cy === 400 && r.projCount === 1 && r.afterDelete === 0 && r.delOk, JSON.stringify(r));
+    } catch (e) { report('applyAiCommand Roundtrip', false, String(e)); }
+
+    // 6) applyAiCommand — Farbe + Validierung
+    try {
+      const r = run("activeObjects.length=0; const a=applyAiCommand('add_object',{object:'rect'}); const ok=applyAiCommand('set_color',{id:a.id,color:'rot'}); const bad=applyAiCommand('set_color',{id:a.id,color:'kein-farbwert'}); const badId=applyAiCommand('move_object',{id:999999,x:1,y:1}); return {color: activeObjects[findObjById(a.id)].color, okOk:ok.ok, badRejected: bad.ok===false, badIdRejected: badId.ok===false};");
+      report('applyAiCommand: Farbe rot -> #D9343B, ungültige Farbe/ID abgelehnt', r.color === '#D9343B' && r.okOk && r.badRejected && r.badIdRejected, JSON.stringify(r));
+    } catch (e) { report('applyAiCommand Farbe/Validierung', false, String(e)); }
+
+    // 7) Geschwindigkeits-Vektor — Clamp + Breite
+    try {
+      const r = run("activeObjects.length=0; const v=createObject(TEMPLATES.find(t=>t.type==='velocity'),200,200); activeObjects.push(v); selectSingle(0); openTextEditor(v); document.getElementById('editInput').value='99999'; applyEdit(); return {text:v.text, width:Math.round(v.width)};");
+      report('Vektor: 99999 -> auf 9999 km/h begrenzt, Breite an Text angepasst', /^9999 km\/h/.test(r.text) && r.width > 120, JSON.stringify(r));
+    } catch (e) { report('Vektor Clamp/Breite', false, String(e)); }
+
+    // 8) sanitizeScene — Klammerung/Whitelist
+    try {
+      const r = run("const s=sanitizeScene({name:'x'.repeat(500), slope:200, crossSlope:-5, coordSys:'weird', aspectDeg:400, visible:false}); return {nameLen:s.name.length, slope:s.slope, cross:s.crossSlope, coordSys:s.coordSys, aspect:Math.round(s.aspectDeg), visible:s.visible};");
+      report('sanitizeScene: Werte geklammert/whitelisted', r.nameLen <= 120 && r.slope === 90 && r.cross === 0 && r.coordSys === 'utm' && r.aspect === 40 && r.visible === false, JSON.stringify(r));
+    } catch (e) { report('sanitizeScene', false, String(e)); }
+
+    summary.textContent = (fail === 0)
+      ? ('Alle ' + pass + ' Tests grün ✓')
+      : (fail + ' von ' + (pass + fail) + ' Tests fehlgeschlagen ✗');
+    summary.className = fail === 0 ? 'pass row' : 'fail row';
+  })();
+</script>
+</body>
+</html>

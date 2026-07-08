@@ -1,9 +1,17 @@
-<!-- Skisim 2026.07.0034 -->
-<!-- Dirty-Flag-Rendering, MCP-Code stabil, Vektor-Limit, checkBounds rotationsecht
+<!-- Skisim 2026.07.0035 -->
+<!-- Titel ohne Version, Import-Größenlimit, Release-Skript & Logik-Tests
 
 Apache V2 License
-2026-07-06
+2026-07-08
 Christian Klingler, asolvo
+
+Neu in 2026.07.0035 (Wartbarkeit & Feinschliff):
+- Website-Titel enthält keine Versionsnummer mehr (nur "Ski-Simulation");
+  die Version steht weiterhin im Popup/Teilen-Text und im Header.
+- Projekt-Import: Dateien über 5 MB werden abgewiesen (schützt vor Tab-Blockade).
+- Neues Release-Skript tools/release.js stempelt die Versionsmarker konsistent und
+  legt die versionierte Kopie an; neue Logik-Tests tests/logic.test.html
+  (Undo/Redo, Treffertest, checkBounds, KI-Befehle, Vektor-Limit, sanitizeScene).
 
 Neu in 2026.07.0034 (Effizienz & Feinschliff):
 - Dirty-Flag-Rendering: im Ruhezustand wird nicht mehr durchgehend neu gezeichnet
@@ -339,7 +347,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0034</title>
+    <title>Ski-Simulation</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -737,7 +745,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0034</div>
+        <div class="popup-version">2026.07.0035</div>
     </div>
 </div>
 
@@ -976,10 +984,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         dockLock: "Als Gast nur 1 Figur möglich – Lizenz aktivieren für mehr",
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
-        importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
+        importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.", importTooLarge: "Datei zu groß (max. 5 MB).",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0034",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0035",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -1016,10 +1024,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         dockLock: "As a guest only 1 figure – activate a license for more",
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
-        importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
+        importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.", importTooLarge: "File too large (max 5 MB).",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0034",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0035",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -2563,7 +2571,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function handleFileSelect(event) {
         const file = event.target.files[0];
         if (!file) return;
-        
+        if (file.size > 5 * 1024 * 1024) { alert(t('importTooLarge')); event.target.value = ''; return; } // 2026.07.0035: defensiv gegen übergroße Dateien (blockiert den Tab beim JSON.parse)
+
         const reader = new FileReader();
         reader.onload = function(e) {
             try {

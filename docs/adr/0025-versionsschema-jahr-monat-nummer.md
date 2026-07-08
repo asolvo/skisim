@@ -42,3 +42,14 @@ Versionsformat: **`JJJJ.MM.NNNN`** — Jahr, Monat, 4-stellige fortlaufende Numm
   monatlichen Reset; `JJJJ.MM` trägt den Zeitbezug bereits.
 - **Semantische Versionierung (SemVer):** verworfen — für eine
   Single-File-Endnutzer-App ohne API kein Mehrwert.
+
+## Nachtrag (2026.07.0035): Titel versionslos + Release-Skript
+
+- Der `<title>` trägt **keine Versionsnummer mehr** (nur „Ski-Simulation"). Die
+  Marker sind damit: Header-Kommentar `<!-- Skisim X -->` + Header-Datum,
+  Popup-Versionsanzeige, `shareText` DE/EN — sowie die versionierte Kopie
+  `ski.mvp.<version>.html`.
+- Das Bumpen dieser Marker (inkl. Datum = heute) und das Anlegen der versionierten
+  Kopie übernimmt jetzt `tools/release.js` (`node tools/release.js [version]`,
+  ohne Argument automatischer JJJJ.MM.NNNN-Schritt mit Monats-Reset). Die
+  Changelog-Prosa („Neu in X …") wird weiterhin von Hand geschrieben.
