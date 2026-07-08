@@ -1,9 +1,17 @@
-<!-- Skisim 2026.07.0032 -->
-<!-- Datensicherheit: Undo/Redo, Autosave, Verlustschutz beim Schließen
+<!-- Skisim 2026.07.0033 -->
+<!-- Schärferes Rendering (HiDPI), rotations-/ebenen-genauer Treffertest, Hilfe-Box
 
 Apache V2 License
 2026-07-06
 Christian Klingler, asolvo
+
+Neu in 2026.07.0033 (Render-/Treffer-Qualität):
+- Scharfes Rendering auf HiDPI-/Retina-Displays: Zeichenfläche nutzt jetzt
+  devicePixelRatio (Backing-Store hochauflösend, logische Koordinaten unverändert);
+  auch der PNG-Export wird dadurch schärfer.
+- Treffertest beim Klicken respektiert Rotation (Klick wird ins Objekt-System
+  zurückgedreht) und die visuelle Ebenen-Reihenfolge (oberstes Objekt gewinnt).
+- Hilfe-Box: Rückgängig/Wiederholen inkl. Tastenkürzel (Strg+Z / Strg+Y) ergänzt.
 
 Neu in 2026.07.0032 (Datensicherheit):
 - Rückgängig/Wiederholen (Undo/Redo) mit zwei Toolbar-Buttons und Strg+Z / Strg+Y
@@ -323,7 +331,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ski-Simulation 2026.07.0032</title>
+    <title>Ski-Simulation 2026.07.0033</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -721,7 +729,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0032</div>
+        <div class="popup-version">2026.07.0033</div>
     </div>
 </div>
 
@@ -852,6 +860,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Farbleiste (bei Auswahl).</li>
             <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">Einfg</span> (dupliziert Auswahl).</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
+            <li><strong>Rückgängig/Wiederholen:</strong> <span class="key-badge">Strg+Z</span> / <span class="key-badge">Strg+Y</span> oder die Pfeil-Buttons oben.</li>
             <li><strong>Bewegen:</strong> Pfeiltasten.</li>
             <li><strong>Drehen:</strong> Tasten <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
             <li><strong>Zoom:</strong> Tasten <span class="key-badge">+</span> / <span class="key-badge">−</span> oder Mausrad.</li>
@@ -962,7 +971,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0032",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0033",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -975,6 +984,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Farbe:</strong> Taste <span class="key-badge">c</span> oder Farbleiste (bei Auswahl).</li>
             <li><strong>Hinzufügen:</strong> Taste <span class="key-badge">Einfg</span> (dupliziert Auswahl).</li>
             <li><strong>Löschen:</strong> Taste <span class="key-badge">Entf</span> oder zurück ins Dock ziehen.</li>
+            <li><strong>Rückgängig/Wiederholen:</strong> <span class="key-badge">Strg+Z</span> / <span class="key-badge">Strg+Y</span> oder die Pfeil-Buttons oben.</li>
             <li><strong>Bewegen:</strong> Pfeiltasten.</li>
             <li><strong>Drehen:</strong> Tasten <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
             <li><strong>Zoom:</strong> Tasten <span class="key-badge">+</span> / <span class="key-badge">−</span> oder Mausrad.</li>
@@ -1001,7 +1011,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0032",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0033",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1014,6 +1024,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             <li><strong>Color:</strong> key <span class="key-badge">c</span> or color bar (when selected).</li>
             <li><strong>Add:</strong> key <span class="key-badge">Ins</span> (duplicates selection).</li>
             <li><strong>Delete:</strong> key <span class="key-badge">Del</span> or drag back to dock.</li>
+            <li><strong>Undo/redo:</strong> <span class="key-badge">Ctrl+Z</span> / <span class="key-badge">Ctrl+Y</span> or the arrow buttons at the top.</li>
             <li><strong>Move:</strong> arrow keys.</li>
             <li><strong>Rotate:</strong> keys <span class="key-badge">,</span> / <span class="key-badge">.</span>.</li>
             <li><strong>Zoom:</strong> keys <span class="key-badge">+</span> / <span class="key-badge">−</span> or mouse wheel.</li>
@@ -1296,7 +1307,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         } else {
             if (guestPersonLimitReached()) return;
             tpl = TEMPLATES[0];
-            nx = canvas.width / 2 - tpl.width / 2; ny = canvas.height / 2 - tpl.height / 2;
+            nx = CW / 2 - tpl.width / 2; ny = CH / 2 - tpl.height / 2;
         }
         pushHistory(); // 2026.07.0032
         const obj = createObject(tpl, nx, ny);
@@ -1489,6 +1500,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     const canvas = document.getElementById('skiCanvas');
     const ctx = canvas.getContext('2d');
+    let CW = 0, CH = 0; // 2026.07.0033: logische Zeichenfläche (CSS-Pixel); Backing-Store wird in resize() mit devicePixelRatio hochskaliert
     const dockContainer = document.getElementById('dock');
     const ghostDrag = document.getElementById('ghost-drag');
     const loader = document.getElementById('loader');
@@ -1562,7 +1574,15 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setTimeout(() => { if(!started) { console.warn("Safety start."); started = true; callback(); } }, 500);
     }
 
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; activeObjects.forEach(p => checkBounds(p)); }
+    function resize() {
+        // 2026.07.0033: HiDPI-scharf — logische Größe (CSS-Pixel) getrennt vom hochauflösenden Backing-Store
+        CW = window.innerWidth; CH = window.innerHeight;
+        const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 3)); // bei 3x gedeckelt (Speicher)
+        canvas.style.width = CW + 'px'; canvas.style.height = CH + 'px';
+        canvas.width = Math.round(CW * dpr); canvas.height = Math.round(CH * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // im logischen Koordinatensystem zeichnen; Setzen von canvas.width setzt die Transform zurück
+        activeObjects.forEach(p => checkBounds(p));
+    }
     window.addEventListener('resize', resize);
 
     function startGame() {
@@ -1572,7 +1592,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         initLicense(); // Lizenzstatus laden/verifizieren (async, blockiert das Rendern nicht)
         
 
-        activeObjects.push(createObject(TEMPLATES[0], canvas.width/2 - 50, canvas.height/2 - 50));
+        activeObjects.push(createObject(TEMPLATES[0], CW/2 - 50, CH/2 - 50));
         selectSingle(0); // 2026.07.0029: Einzelauswahl inkl. Auswahlring (selectedIndices)
         dockedObjects = TEMPLATES.slice(); // 2026.07.0029: alle Objekte unendlich — Dock zeigt immer das volle Sortiment (auch den Start-Skifahrer)
         renderDock();
@@ -1668,7 +1688,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // v113: Objekt per Tap aus dem Dock in die Canvas-Mitte hinzufügen (Touch)
     function addObjectFromDock(tpl, index) {
         pushHistory(); // 2026.07.0032
-        const x = canvas.width / 2 - tpl.width / 2, y = canvas.height / 2 - tpl.height / 2;
+        const x = CW / 2 - tpl.width / 2, y = CH / 2 - tpl.height / 2;
         const obj = createObject(tpl, x, y);
         activeObjects.push(obj);
         if (!isInfiniteResource(tpl)) dockedObjects.splice(index, 1);
@@ -1742,7 +1762,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         activePlayerIndex = -1; selectedIndices = []; draggingPlayerIndex = -1; rotatingPlayerIndex = -1;
     }
 
-    function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > canvas.width - p.width) p.x = canvas.width - p.width; if (p.y < 0) p.y = 0; if (p.y > canvas.height - p.height) p.y = canvas.height - p.height; }
+    function checkBounds(p) { if (p.x < 0) p.x = 0; if (p.x > CW - p.width) p.x = CW - p.width; if (p.y < 0) p.y = 0; if (p.y > CH - p.height) p.y = CH - p.height; }
     
     function performZoom(p, factor) {
         const minSize = 20;
@@ -1763,7 +1783,21 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     function getPlayerUnderMouse(mx, my) {
-        for (let i = activeObjects.length - 1; i >= 0; i--) { const p = activeObjects[i]; if (mx > p.x && mx < p.x + p.width && my > p.y && my < p.y + p.height) return i; } return -1;
+        // 2026.07.0033: rotations-genauer Treffertest in VISUELLER Ebenen-Reihenfolge (oberstes zuerst).
+        // Klickpunkt ins lokale Objekt-Koordinatensystem zurückdrehen und gegen die (unrotierte) Box prüfen;
+        // aus allen Treffern das visuell oberste wählen (Ebene dominiert, dann Zeichen-/Array-Reihenfolge).
+        let best = -1, bestKey = -Infinity;
+        for (let i = 0; i < activeObjects.length; i++) {
+            const p = activeObjects[i];
+            const cx = p.x + p.width / 2, cy = p.y + p.height / 2;
+            let lx = mx - cx, ly = my - cy;
+            if (p.rotation) { const a = -p.rotation * Math.PI / 180, c = Math.cos(a), s = Math.sin(a); const rx = lx * c - ly * s, ry = lx * s + ly * c; lx = rx; ly = ry; }
+            if (Math.abs(lx) <= p.width / 2 && Math.abs(ly) <= p.height / 2) {
+                const key = getLayer(p) * 1000000 + i; // Ebene zuerst, dann spätere Objekte (liegen oben)
+                if (key >= bestKey) { bestKey = key; best = i; }
+            }
+        }
+        return best;
     }
 
     // 2026.07.0020: Helfer für Mehrfachauswahl / Gruppen-Verschieben
@@ -1781,7 +1815,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function moveGroup(x, y) {
         // gemeinsamen Versatz an den Canvas-Grenzen begrenzen, damit die relativen Abstände erhalten bleiben
         let leftV = 0, rightV = 0, topV = 0, botV = 0;
-        groupDrag.offsets.forEach(function (o) { const p = activeObjects[o.i]; if (!p) return; const dx = x - o.ox, dy = y - o.oy; leftV = Math.max(leftV, -dx); rightV = Math.max(rightV, dx - (canvas.width - p.width)); topV = Math.max(topV, -dy); botV = Math.max(botV, dy - (canvas.height - p.height)); });
+        groupDrag.offsets.forEach(function (o) { const p = activeObjects[o.i]; if (!p) return; const dx = x - o.ox, dy = y - o.oy; leftV = Math.max(leftV, -dx); rightV = Math.max(rightV, dx - (CW - p.width)); topV = Math.max(topV, -dy); botV = Math.max(botV, dy - (CH - p.height)); });
         const corrX = leftV > 0 ? leftV : (rightV > 0 ? -rightV : 0);
         const corrY = topV > 0 ? topV : (botV > 0 ? -botV : 0);
         groupDrag.offsets.forEach(function (o) { const p = activeObjects[o.i]; if (!p) return; p.x = x - o.ox + corrX; p.y = y - o.oy + corrY; p.dx = 0; p.dy = 0; });
@@ -2320,11 +2354,11 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         const contentH = Math.max(textH, previewsH);
         const boxH = pad + contentH + pad;
         const x0 = 16;
-        let y0 = canvas.height - boxH - 16;
+        let y0 = CH - boxH - 16;
         // Mobil wird #dock zur unteren Leiste — Legende darueber heben statt verdecken lassen
         if (dockContainer) {
             const dr = dockContainer.getBoundingClientRect();
-            const dockIsBottomBar = dr.bottom >= canvas.height - 4 && dr.left < x0 + boxW && dr.right > x0;
+            const dockIsBottomBar = dr.bottom >= CH - 4 && dr.left < x0 + boxW && dr.right > x0;
             if (dockIsBottomBar) y0 = Math.max(8, dr.top - boxH - 12);
         }
         _legendRect = { x: x0, y: y0, w: boxW, h: boxH };
@@ -2560,9 +2594,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         try {
             switch (tool) {
                 case 'list_objects':
-                    return { ok: true, canvas: { width: canvas.width, height: canvas.height }, objects: activeObjects.map(aiObjDTO) };
+                    return { ok: true, canvas: { width: CW, height: CH }, objects: activeObjects.map(aiObjDTO) };
                 case 'get_project':
-                    return { ok: true, canvas: { width: canvas.width, height: canvas.height }, project: { objects: activeObjects.map(aiObjDTO), scene: sceneMeta } };
+                    return { ok: true, canvas: { width: CW, height: CH }, project: { objects: activeObjects.map(aiObjDTO), scene: sceneMeta } };
                 case 'load_project': {
                     if (!args.project || typeof args.project !== 'object') return { ok: false, error: 'project (objects/scene) fehlt' };
                     const r = applyLoadedProject(args.project);
@@ -2575,8 +2609,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                     if (isPersonTpl(tpl) && guestPersonLimitReached()) return { ok: false, error: 'Gast-Limit: ohne Lizenz nur 1 Personen-Figur' };
                     const obj = createObject(tpl, 0, 0);
                     const w = obj.width, h = obj.height;
-                    const cx = _numClamp(args.x, canvas.width / 2, -100000, 100000);
-                    const cy = _numClamp(args.y, canvas.height / 2, -100000, 100000);
+                    const cx = _numClamp(args.x, CW / 2, -100000, 100000);
+                    const cy = _numClamp(args.y, CH / 2, -100000, 100000);
                     obj.x = cx - w / 2; obj.y = cy - h / 2;
                     if (args.rotation !== undefined) obj.rotation = _numClamp(args.rotation, 0, -100000, 100000);
                     if (args.color !== undefined && isColorable(obj)) { const c = aiResolveColor(args.color); if (c) obj.color = c; }
@@ -2589,8 +2623,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                 case 'move_object': {
                     const i = findObjById(args.id); if (i < 0) return { ok: false, error: 'ID nicht gefunden: ' + args.id };
                     const p = activeObjects[i];
-                    if (args.x !== undefined) p.x = _numClamp(args.x, canvas.width / 2, -100000, 100000) - p.width / 2;
-                    if (args.y !== undefined) p.y = _numClamp(args.y, canvas.height / 2, -100000, 100000) - p.height / 2;
+                    if (args.x !== undefined) p.x = _numClamp(args.x, CW / 2, -100000, 100000) - p.width / 2;
+                    if (args.y !== undefined) p.y = _numClamp(args.y, CH / 2, -100000, 100000) - p.height / 2;
                     checkBounds(p); return { ok: true, id: p.id };
                 }
                 case 'rotate_object': {
@@ -2818,9 +2852,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
 
     function drawLoop() {
         update();
-        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        let g = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 100, canvas.width/2, canvas.height/2, canvas.width);
-        g.addColorStop(0, 'rgba(255,255,255,0.2)'); g.addColorStop(1, '#ebeff5'); ctx.fillStyle = g; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, CW, CH);
+        let g = ctx.createRadialGradient(CW/2, CH/2, 100, CW/2, CH/2, CW);
+        g.addColorStop(0, 'rgba(255,255,255,0.2)'); g.addColorStop(1, '#ebeff5'); ctx.fillStyle = g; ctx.fillRect(0, 0, CW, CH);
         activeObjects.forEach(p => { if(getLayer(p) === 0) drawObject(p); });
         activeObjects.forEach(p => { if(getLayer(p) === 1) drawObject(p); });
         activeObjects.forEach(p => { if(getLayer(p) === 2) drawObject(p); });
