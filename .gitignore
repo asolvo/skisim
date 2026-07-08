@@ -28,6 +28,10 @@ benutzerverwaltung.csv
 
 # --- Lokale Werkzeuge / Editor-Umgebung ---
 .claude/
+hash-generator.html
+
+# --- Design-Quellen der Objekt-Grafiken (Export liegt in objekte-svg/) ---
+graphics/
 
 # --- Betriebssystem ---
 .DS_Store
