@@ -33,6 +33,8 @@ Projekt exportiert.
 - **Barrierefrei** (WCAG 2.1 AA), vollständig per Tastatur bedienbar, **Deutsch/
   Englisch**, helles/dunkles/automatisches Design.
 - **KI-Fernsteuerung** optional per MCP-Server (siehe unten).
+- **Installierbar (PWA):** über den Browser als App installierbar (eigenes Fenster,
+  Icon), funktioniert danach vollständig offline.
 
 ## Bedienung (Kurzreferenz)
 
@@ -70,8 +72,11 @@ einen in der App angezeigten Kopplungscode.
 
 ## Technik & Architektur
 
-- **Single-File-App:** die gesamte Anwendung (HTML + CSS + JS + Inline-SVG) liegt in
-  `index.html`; gezeichnet wird auf einem `<canvas>` (2D).
+- **Single-File-App:** die gesamte Anwendung (HTML + CSS + JS + Inline-SVG +
+  Inline-Schriften) liegt in `index.html`; gezeichnet wird auf einem `<canvas>` (2D).
+- **PWA:** installierbar und vollständig offline (Schriften eingebettet, Service
+  Worker cacht die App); die Einzeldatei bleibt auch per `file://` lauffähig. Siehe
+  [ADR-0031](docs/adr/0031-pwa-installierbar-offline.md).
 - **Auslieferung:** GitHub Pages; Lizenz-Backend als Cloudflare Worker + KV.
 - **Design:** Material Design 3 mit tonalem Farb-Token-System (hell/dunkel).
 - Die wesentlichen Entscheidungen sind als **ADRs** dokumentiert:
@@ -80,7 +85,10 @@ einen in der App angezeigten Kopplungscode.
 ## Projektstruktur
 
 ```
-index.html                     # die App (Single-File)
+index.html                     # die App (Single-File, Schriften inline)
+manifest.json                  # PWA-Manifest (installierbar)
+sw.js                          # Service Worker (Offline-Cache, versions-gekoppelt)
+icon.svg / icon-192.png / icon-512.png / apple-touch-icon.png / favicon-32.png
 mcp-server/                    # MCP-Server für die KI-Fernsteuerung (Node)
 docs/adr/                      # Architecture Decision Records
 tools/

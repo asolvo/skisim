@@ -43,6 +43,17 @@ replaceOnce(/(Created with Ski Simulation )\d{4}\.\d{2}\.\d{4}/, '$1' + next);  
 fs.writeFileSync(FILE, html, 'utf8');
 fs.writeFileSync(path.join(ROOT, 'ski.mvp.' + next + '.html'), html, 'utf8'); // versionierte Kopie (ADR-0008)
 
+// Service-Worker-Cache an die Version koppeln (ADR-0031) — sonst liefert der SW nach
+// einem Deploy die alte, gecachte Version aus.
+const SW = path.join(ROOT, 'sw.js');
+if (fs.existsSync(SW)) {
+  let sw = fs.readFileSync(SW, 'utf8');
+  const swBefore = sw;
+  sw = sw.replace(/(const CACHE = 'skisim-)\d{4}\.\d{2}\.\d{4}(';)/, '$1' + next + '$2');
+  if (sw !== swBefore) { fs.writeFileSync(SW, sw, 'utf8'); changes++; console.log('sw.js: CACHE -> skisim-' + next); }
+  else console.warn('WARNUNG: CACHE-Marker in sw.js nicht gefunden — bitte prüfen.');
+}
+
 // Kontrolle: taucht die alte Version noch irgendwo auf?
 const leftover = (html.match(new RegExp(cur.replace(/\./g, '\\.'), 'g')) || []).length;
 console.log(`Version ${cur} -> ${next}  (${changes} Marker aktualisiert, Datum ${today})`);

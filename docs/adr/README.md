@@ -39,6 +39,7 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0028](0028-mehrfachauswahl-marquee.md) | Mehrfachauswahl per Aufziehrechteck + gemeinsames Verschieben | Akzeptiert | 2026-07-02 |
 | [0029](0029-ki-fernsteuerung-mcp.md) | KI-Fernsteuerung über MCP-Server (Stufe 1, lokal) | Akzeptiert | 2026-07-06 |
 | [0030](0030-datensicherheit-undo-autosave.md) | Datensicherheit — Undo/Redo, Autosave und Verlustschutz | Akzeptiert | 2026-07-06 |
+| [0031](0031-pwa-installierbar-offline.md) | Installierbare PWA + echtes Offline (Font-Inlining, versions-gekoppelter Service Worker) | Akzeptiert | 2026-07-28 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
 aktiv, Client aktuell **2026.07.0035** als `index.html` im Repo und via GitHub Pages online
@@ -75,5 +76,7 @@ Treffertest (2026.07.0033), Dirty-Flag-Rendering, stabiler MCP-Code, Vektor-Limi
 rotations-korrektes checkBounds (2026.07.0034), Titel ohne Version, Import-Größenlimit,
 Release-Skript & Logik-Tests (2026.07.0035, Nachtrag zu ADR-0025), Marquee auch per
 Ein-Finger-Touch bei leerem Startpunkt (2026.07.0036, Nachtrag zu ADR-0028),
-Inhaltsverzeichnis-Kommentar in `index.html` (2026.07.0036, Nachtrag zu ADR-0008).
+Inhaltsverzeichnis-Kommentar in `index.html` (2026.07.0036, Nachtrag zu ADR-0008),
+installierbare PWA + echtes Offline durch Font-Inlining und versions-gekoppelten
+Service Worker (2026.07.0037, ADR-0031).
 Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.
