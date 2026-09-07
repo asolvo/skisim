@@ -1,9 +1,22 @@
-<!-- Skisim 2026.07.0037 -->
+<!-- Skisim 2026.09.0001 -->
 <!-- Titel ohne Version, Import-Größenlimit, Release-Skript & Logik-Tests
 
 Apache V2 License
-2026-07-28
+2026-09-07
 Christian Klingler, asolvo
+
+Neu in 2026.09.0001 (Freemium-Test: Werkzeug frei, sauberer Export kostet, ADR-0032):
+- Das Gast-Limit (bisher nur 1 Personen-Figur) ist ersatzlos entfallen — Objekte sind
+  fuer alle unbegrenzt, auch beim Import (der Projekte bisher still beschnitten hat)
+  und ueber die KI-Bruecke. Speichern/Laden als JSON ist frei.
+- Bild-Export und Teilen sind offen; ohne Lizenz tragen sie ein diagonales "ENTWURF"
+  plus Fusszeile. Das Wasserzeichen entsteht auf einer Offscreen-Kopie, das Live-Canvas
+  und die HiDPI-Schaerfe bleiben unberuehrt. Mit Lizenz: unveraenderter sauberer Export.
+- Nach einem Entwurfs-Export erscheint ein Hinweis mit den Preispunkten
+  (10 Exporte 39 EUR, Jahreslizenz 190 EUR).
+- Neuer anonymer Nutzungszaehler: vier Ereignisnamen an den eigenen Lizenz-Worker,
+  ohne Kennungen/Cookies/IP-Speicherung und ohne Drittanbieter; in den Einstellungen
+  abschaltbar, unter file:// grundsaetzlich inaktiv.
 
 Neu in 2026.07.0037 (Installierbare PWA + echtes Offline, ADR-0031):
 - App ist als PWA installierbar (Manifest, Icon, eigenständiges Fenster) und läuft
@@ -759,6 +772,17 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                         <button type="button" class="seg" data-val="en"><span class="seg-check">✓</span><span>English</span></button>
                     </div>
                 </div>
+                <!-- 2026.09.0001 (ADR-0032): anonymer Nutzungszaehler, abschaltbar -->
+                <div class="setting-row" style="align-items:flex-start;">
+                    <label id="lbl-stats">Nutzungszähler</label>
+                    <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+                        <div class="btn-group" id="grpStats" role="group" aria-label="Nutzungszähler">
+                            <button type="button" class="seg" data-val="on"><span class="seg-check">✓</span><span id="opt-stats-on">Ein</span></button>
+                            <button type="button" class="seg" data-val="off"><span class="seg-check">✓</span><span id="opt-stats-off">Aus</span></button>
+                        </div>
+                        <span id="statsNote" style="font-size:11px; line-height:1.4; color:var(--md-on-surface-variant); max-width:240px; text-align:right;"></span>
+                    </div>
+                </div>
                 <div class="setting-row" id="aiRow" style="display:none; align-items:flex-start;">
                     <label id="lbl-ai">KI-Assistent</label>
                     <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
@@ -770,7 +794,25 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             </div>
         </div>
         <a href="https://alpinesicherheit.com/skisimulation/" target="_blank" class="modal-link">alpinesicherheit.com/skisim</a>
-        <div class="popup-version">2026.07.0037</div>
+        <div class="popup-version">2026.09.0001</div>
+    </div>
+</div>
+
+<!-- 2026.09.0001 (ADR-0032): Verkaufsmoment direkt nach einem Entwurfs-Export -->
+<div id="upgradeModal" class="modal">
+    <div class="modal-content">
+        <h3 id="up-title">Entwurf gespeichert</h3>
+        <div class="modal-body">
+            <p id="up-text" style="font-size:14px; line-height:1.55; margin:4px 0 14px;"></p>
+            <ul style="font-size:14px; line-height:1.8; margin:0 0 16px; padding-left:20px;">
+                <li id="up-block">10 Exporte – 39 €</li>
+                <li id="up-year">Jahreslizenz – 190 €</li>
+            </ul>
+            <div class="login-actions">
+                <button class="btn-secondary" id="up-later" onclick="closeModal('upgradeModal')">Später</button>
+                <button class="btn-primary" id="up-cta">Freischalten</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1019,19 +1061,25 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         aiLabel: "KI-Assistent", aiConnect: "Verbinden", aiDisconnect: "Trennen", aiOff: "Nicht verbunden", aiConnecting: "Verbinde…", aiWaiting: "Warte auf Assistent…", aiPaired: "Gekoppelt – Assistent aktiv", aiReconnect: "Verbindung verloren, neuer Versuch…", aiError: "Kein lokaler MCP-Server erreichbar", aiDenied: "Nur mit aktiver Lizenz", aiCodeLabel: "Kopplungscode:",
         undone: "Rückgängig gemacht", redone: "Wiederhergestellt", undoTitle: "Rückgängig (Strg+Z)", redoTitle: "Wiederholen (Strg+Y)", restoreTitle: "Letzte Sitzung wiederherstellen?", restoreText: "Es wurde eine nicht gespeicherte Skizze der letzten Sitzung gefunden.", restoreWhen: "Zuletzt bearbeitet:", restoreYes: "Wiederherstellen", restoreNo: "Verwerfen",
         activateLicense: "Lizenz aktivieren", enterKey: "Lizenzschlüssel eingeben:", keyPlaceholder: "z.B. ASI-XXXX-XXXX", cancel: "Abbrechen", activate: "Aktivieren", checking: "Prüfe...",
-        lmInfo: "Ohne Lizenz: nur 1 Personen-Figur platzierbar.<br>Speichern, Bild-Export und Teilen sind gesperrt.<br>Mit Voll-Lizenz: beliebig viele Figuren &amp; Objekte,<br>Projekte speichern/laden, PNG-Export und Teilen.", lmRequest: "Lizenz anfordern:",
+        lmInfo: "Zeichnen, Speichern und Laden sind <strong>kostenlos und unbegrenzt</strong>.<br>Ohne Lizenz tragen Bild-Export und Teilen ein „ENTWURF“-Wasserzeichen.<br>Mit Lizenz: sauberer PNG-Export ohne Wasserzeichen,<br>Teilen, Copyright-Zeile und KI-Fernsteuerung.", lmRequest: "Lizenz anfordern:",
         edit: "Bearbeiten", ok: "OK", color: "Farbe",
         guestStatus: "Gast (keine Lizenz)",
         editText: "Text ändern:", editSpeed: "Geschwindigkeit in km/h:", editDim: "Maß / Beschriftung:",
         featNotIncluded: "Diese Funktion ist in deiner Lizenz nicht enthalten.", featNeedsLicense: "Diese Funktion benötigt eine aktive Lizenz.",
         errInvalidKey: "Schlüssel ungültig.", errRevoked: "Lizenz wurde widerrufen.", errExpired: "Lizenz ist abgelaufen.", errRate: "Zu viele Versuche. Bitte später erneut.", errMissing: "Bitte einen Schlüssel eingeben.", errServer: "Verbindungs-/Serverfehler", errVerify: "Token-Verifikation fehlgeschlagen.",
-        dockLock: "Als Gast nur 1 Figur möglich – Lizenz aktivieren für mehr",
+        // 2026.09.0001 (ADR-0032): Werkzeug frei — bezahlt wird der saubere Export
+        wmDraft: "ENTWURF", wmNote: "Entwurf – nicht zur Vorlage bei Gericht",
+        tExportDraft: "Bild exportieren – Entwurf mit Wasserzeichen", tShareDraft: "Teilen – Entwurf mit Wasserzeichen",
+        upTitle: "Entwurf gespeichert", upText: "Die Datei trägt ein „ENTWURF“-Wasserzeichen. Für die saubere Fassung ohne Wasserzeichen eine Lizenz freischalten:",
+        upBlock: "10 Exporte – 39 €", upYear: "Jahreslizenz – 190 €", upLater: "Später", upCta: "Freischalten",
+        lblStats: "Nutzungszähler", statsOn: "Ein", statsOff: "Aus",
+        statsNote: "Zählt anonym vier Ereignisse (Start, Skizze, Export, Klick) — keine Inhalte, keine Kennungen, keine Cookies.",
         tExport: "Bild exportieren (PNG)", tSave: "Projekt speichern (JSON)", tShare: "Teilen", tImport: "Projekt laden (JSON)", tSettings: "Einstellungen", colorTitle: "Farbe ändern",
         offExport: "Export – mit deiner Lizenz nicht aktiv", offSave: "Speichern – mit deiner Lizenz nicht aktiv", offShare: "Teilen – mit deiner Lizenz nicht aktiv",
         importBadFormat: "Fehler: Ungültiges Dateiformat oder keine Objekte gefunden.", importReadError: "Fehler beim Lesen der Datei.", importTooLarge: "Datei zu groß (max. 5 MB).",
         canvasLabel: "Zeichenfläche der Unfallskizze. Mit Tab werden platzierte Objekte der Reihe nach ausgewählt.",
         a11yAdded: "Hinzugefügt:", a11yRemoved: "Entfernt:", a11ySelected: "Ausgewählt:", a11yNone: "Keine Auswahl", a11yImportOk: "Projekt geladen,", a11yObjects: "Objekte", a11ySelectedSuffix: "ausgewählt", closeDialog: "Schließen", a11ySaved: "Gespeichert:", fnDefault: "Skizze", fnPng: "PNG-Bild", fnJson: "Skisim-Projekt (JSON)",
-        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.07.0037",
+        shareNotSupported: "Teilen nicht unterstützt.", shareTitle: "Ski-Unfallskizze", shareText: "Erstellt mit Ski-Simulation 2026.09.0001",
         dockTitle: "Objekte", signLabel: "Schild", shape: "Form",
         tScene: "Szenario", scTitle: "Szenario", scName: "Ortsbezeichnung", scCoords: "Koordinaten", scUtm: "UTM-Koordinaten", scAspect: "Exposition", scDeg: "Grad", scSlope: "Neigung (°)", scCross: "Querneigung (°)", scDesc: "Beschreibung", scShow: "In Skizze anzeigen", scCopyright: "Copyright anzeigen", scApply: "Übernehmen", scPhEast: "Rechtswert", scPhNorth: "Hochwert", scPhLat: "Breite (Lat)", scPhLon: "Länge (Lon)", legUtm: "UTM", legAspect: "Exposition", legSlope: "Neigung", legCross: "Querneigung",
         objText: "Textfeld", objVelocity: "Geschwindigkeits-Vektor", objBemassung: "Bemaßung", objLine: "Linie", objArrow: "Pfeil", objVshape: "V-Form", objRect: "Box / Hindernis", objSign: "Schild",
@@ -1059,19 +1107,25 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         aiLabel: "AI assistant", aiConnect: "Connect", aiDisconnect: "Disconnect", aiOff: "Not connected", aiConnecting: "Connecting…", aiWaiting: "Waiting for assistant…", aiPaired: "Paired – assistant active", aiReconnect: "Connection lost, retrying…", aiError: "No local MCP server reachable", aiDenied: "Requires an active license", aiCodeLabel: "Pairing code:",
         undone: "Undone", redone: "Redone", undoTitle: "Undo (Ctrl+Z)", redoTitle: "Redo (Ctrl+Y)", restoreTitle: "Restore last session?", restoreText: "An unsaved sketch from your last session was found.", restoreWhen: "Last edited:", restoreYes: "Restore", restoreNo: "Discard",
         activateLicense: "Activate license", enterKey: "Enter license key:", keyPlaceholder: "e.g. ASI-XXXX-XXXX", cancel: "Cancel", activate: "Activate", checking: "Checking...",
-        lmInfo: "Without a license: only 1 person figure.<br>Saving, image export and sharing are locked.<br>With a full license: unlimited figures &amp; objects,<br>save/load projects, PNG export and sharing.", lmRequest: "Request a license:",
+        lmInfo: "Drawing, saving and loading are <strong>free and unlimited</strong>.<br>Without a license, image export and sharing carry a “DRAFT” watermark.<br>With a license: clean PNG export without watermark,<br>sharing, copyright line and AI remote control.", lmRequest: "Request a license:",
         edit: "Edit", ok: "OK", color: "Color",
         guestStatus: "Guest (no license)",
         editText: "Change text:", editSpeed: "Speed in km/h:", editDim: "Measurement / label:",
         featNotIncluded: "This feature is not included in your license.", featNeedsLicense: "This feature requires an active license.",
         errInvalidKey: "Invalid key.", errRevoked: "License has been revoked.", errExpired: "License has expired.", errRate: "Too many attempts. Please try again later.", errMissing: "Please enter a key.", errServer: "Connection/server error", errVerify: "Token verification failed.",
-        dockLock: "As a guest only 1 figure – activate a license for more",
+        // 2026.09.0001 (ADR-0032): tool is free — the clean export is what you pay for
+        wmDraft: "DRAFT", wmNote: "Draft – not for submission to court",
+        tExportDraft: "Export image – draft with watermark", tShareDraft: "Share – draft with watermark",
+        upTitle: "Draft saved", upText: "The file carries a “DRAFT” watermark. Activate a license for the clean version without watermark:",
+        upBlock: "10 exports – €39", upYear: "Annual license – €190", upLater: "Later", upCta: "Activate",
+        lblStats: "Usage counter", statsOn: "On", statsOff: "Off",
+        statsNote: "Counts four anonymous events (start, sketch, export, click) — no content, no identifiers, no cookies.",
         tExport: "Export image (PNG)", tSave: "Save project (JSON)", tShare: "Share", tImport: "Load project (JSON)", tSettings: "Settings", colorTitle: "Change color",
         offExport: "Export – not active with your license", offSave: "Save – not active with your license", offShare: "Share – not active with your license",
         importBadFormat: "Error: invalid file format or no objects found.", importReadError: "Error reading the file.", importTooLarge: "File too large (max 5 MB).",
         canvasLabel: "Sketch canvas for the accident diagram. Press Tab to cycle through placed objects.",
         a11yAdded: "Added:", a11yRemoved: "Removed:", a11ySelected: "Selected:", a11yNone: "No selection", a11yImportOk: "Project loaded,", a11yObjects: "objects", a11ySelectedSuffix: "selected", closeDialog: "Close", a11ySaved: "Saved:", fnDefault: "Sketch", fnPng: "PNG image", fnJson: "Skisim project (JSON)",
-        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.07.0037",
+        shareNotSupported: "Sharing not supported.", shareTitle: "Ski accident sketch", shareText: "Created with Ski Simulation 2026.09.0001",
         dockTitle: "Objects", signLabel: "Sign", shape: "Shape",
         tScene: "Scenario", scTitle: "Scenario", scName: "Location name", scCoords: "Coordinates", scUtm: "UTM coordinates", scAspect: "Aspect", scDeg: "Degrees", scSlope: "Slope (°)", scCross: "Cross-slope (°)", scDesc: "Description", scShow: "Show in sketch", scCopyright: "Show copyright", scApply: "Apply", scPhEast: "Easting", scPhNorth: "Northing", scPhLat: "Latitude", scPhLon: "Longitude", legUtm: "UTM", legAspect: "Aspect", legSlope: "Slope", legCross: "Cross-slope",
         objText: "Text field", objVelocity: "Velocity vector", objBemassung: "Dimension", objLine: "Line", objArrow: "Arrow", objVshape: "V-shape", objRect: "Box / obstacle", objSign: "Sign",
@@ -1094,6 +1148,35 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     };
     let lang = (localStorage.getItem('skisim_lang') === 'en') ? 'en' : 'de';
     let themeMode = localStorage.getItem('skisim_theme') || 'auto';
+
+    // ===== 2026.09.0001 (ADR-0032): minimaler, anonymer Nutzungszaehler =====
+    // Zaehlt ausschliesslich vier Ereignisnamen auf der eigenen Lizenz-Infrastruktur.
+    // Kein Inhalt, keine Kennung, kein Cookie, keine IP-Speicherung; per Schalter abschaltbar.
+    // Fire-and-forget: Fehler/Offline werden geschluckt, die App haengt nie daran.
+    let statsEnabled = localStorage.getItem('skisim_stats') !== 'off';
+    const EV_ALLOWED = ['app_start', 'engaged', 'export_watermarked', 'upgrade_click'];
+    let _evSent = {}; // pro Sitzung nur einmal je Ereignis (haelt die Zahlen sauber und sparsam)
+    function ev(name) {
+        if (!statsEnabled || EV_ALLOWED.indexOf(name) === -1) return;
+        if (location.protocol === 'file:') return; // Einzeldatei-Nutzung bleibt voellig offline
+        if (_evSent[name]) return;
+        _evSent[name] = true;
+        try {
+            const body = JSON.stringify({ ev: name });
+            // text/plain ist CORS-safelisted -> kein Preflight und im no-cors-Modus von
+            // sendBeacon ueberhaupt zulaessig; der Worker parst den Body selbst.
+            if (navigator.sendBeacon) navigator.sendBeacon(LICENSE_API + '/ev', new Blob([body], { type: 'text/plain' }));
+            else fetch(LICENSE_API + '/ev', { method: 'POST', body: body, headers: { 'Content-Type': 'text/plain' }, keepalive: true, mode: 'no-cors' }).catch(function () {});
+        } catch (e) { /* Zaehlen darf nie stoeren */ }
+    }
+    function setStatsEnabled(on) {
+        statsEnabled = !!on;
+        try { localStorage.setItem('skisim_stats', statsEnabled ? 'on' : 'off'); } catch (e) {}
+        setGroupSel('grpStats', statsEnabled ? 'on' : 'off');
+    }
+    // "engaged" = die Skizze hat mindestens 2 Objekte (ab da ist es echte Arbeit, kein Antippen).
+    function markEngaged() { if (typeof activeObjects !== 'undefined' && activeObjects.length >= 2) ev('engaged'); }
+    function openUpgradeDialog() { openModal('upgradeModal'); }
     function t(k) { return (I18N[lang] && I18N[lang][k] !== undefined) ? I18N[lang][k] : (I18N.de[k] || k); }
     function setText(id, s) { const e = document.getElementById(id); if (e) e.textContent = s; }
     function setTitleAttr(id, s) { const e = document.getElementById(id); if (e) e.title = s; }
@@ -1135,6 +1218,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         setTitleAttr('undoBtn', t('undoTitle')); setTitleAttr('redoBtn', t('redoTitle')); // 2026.07.0032
         setText('rs-title', t('restoreTitle')); setText('rs-text', t('restoreText')); setText('restoreYes', t('restoreYes')); setText('restoreNo', t('restoreNo'));
         setText('opt-light', t('themeLight')); setText('opt-dark', t('themeDark')); setText('opt-auto', t('themeAuto'));
+        // 2026.09.0001 (ADR-0032): Nutzungszaehler-Schalter + Upgrade-Dialog lokalisieren
+        setText('lbl-stats', t('lblStats')); setText('opt-stats-on', t('statsOn')); setText('opt-stats-off', t('statsOff'));
+        setText('statsNote', t('statsNote')); setGroupSel('grpStats', statsEnabled ? 'on' : 'off');
+        setText('up-title', t('upTitle')); setText('up-text', t('upText'));
+        setText('up-block', t('upBlock')); setText('up-year', t('upYear'));
+        setText('up-later', t('upLater')); setText('up-cta', t('upCta'));
         setText('popupActivateBtn', t('activateLicense'));
         setText('lm-title', t('activateLicense')); setText('lm-label', t('enterKey'));
         const lmi = document.getElementById('lm-info'); if (lmi) lmi.innerHTML = t('lmInfo'); setText('lm-request-label', t('lmRequest'));
@@ -1286,10 +1375,12 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             logoutBtn.style.display = "none";
             if (popupActivate) popupActivate.style.display = "block";
         }
-        // v109: nicht lizenzierte Funktionen ausgrauen + nicht klickbar
-        setGate("exportBtn", hasFeature("export"), t('tExport'), t('offExport'));
-        setGate("saveBtn",   hasFeature("save"),   t('tSave'),   t('offSave'));
-        setGate("shareBtn",  hasFeature("share"),  t('tShare'),  t('offShare'));
+        // 2026.09.0001 (ADR-0032): Werkzeug frei — alle drei Buttons sind immer aktiv.
+        // Speichern/Laden ist uneingeschraenkt; Export/Teilen tragen ohne Lizenz ein
+        // "ENTWURF"-Wasserzeichen (siehe buildExportCanvas), statt gesperrt zu sein.
+        setGate("exportBtn", true, hasFeature("export") ? t('tExport') : t('tExportDraft'), t('offExport'));
+        setGate("saveBtn",   true, t('tSave'),   t('offSave'));
+        setGate("shareBtn",  true, hasFeature("share")  ? t('tShare')  : t('tShareDraft'),  t('offShare'));
         // 2026.07.0031: KI-Assistent-Zeile nur bei aktiver Lizenz; bei Lizenzverlust bestehende Verbindung trennen
         const aiRow = document.getElementById('aiRow');
         if (aiRow) aiRow.style.display = license ? 'flex' : 'none';
@@ -1339,6 +1430,13 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     // v116: Settings-Verdrahtung + Initialisierung (Theme/Sprache)
     document.getElementById("grpTheme").addEventListener("click", function (e) { const b = e.target.closest(".seg"); if (b) applyTheme(b.getAttribute("data-val")); });
     document.getElementById("grpLang").addEventListener("click", function (e) { const b = e.target.closest(".seg"); if (b) applyLanguage(b.getAttribute("data-val")); });
+    // 2026.09.0001 (ADR-0032): Zaehler-Schalter + Upgrade-Dialog
+    (function () {
+        const gs = document.getElementById("grpStats");
+        if (gs) gs.addEventListener("click", function (e) { const b = e.target.closest(".seg"); if (b) setStatsEnabled(b.getAttribute("data-val") === 'on'); });
+        const cta = document.getElementById("up-cta");
+        if (cta) cta.addEventListener("click", function () { ev('upgrade_click'); closeModal('upgradeModal'); openModal('licenseModal'); const k = document.getElementById('licenseKey'); if (k) k.focus(); });
+    })();
     (function () { const ab = document.getElementById('aiToggleBtn'); if (ab) ab.addEventListener('click', aiToggle); })(); // 2026.07.0031: KI-Assistent verbinden/trennen
     // 2026.07.0032: Undo/Redo-Buttons + Restore-Dialog
     (function () {
@@ -1362,11 +1460,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         let tpl, nx, ny;
         if (activePlayerIndex !== -1 && activeObjects[activePlayerIndex]) {
             const src = activeObjects[activePlayerIndex];
-            if (isPersonTpl(src) && guestPersonLimitReached()) return; // Gast: keine 2. Personen-Figur
             tpl = { type: src.type, assetKey: src.assetKey, text: src.text, color: src.color, width: src.width, height: src.height, rotation: src.rotation, dockOrder: src.dockOrder };
             nx = src.x + 30; ny = src.y + 30;
         } else {
-            if (guestPersonLimitReached()) return;
             tpl = TEMPLATES[0];
             nx = CW / 2 - tpl.width / 2; ny = CH / 2 - tpl.height / 2;
         }
@@ -1699,10 +1795,10 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     // v110: Gast (ohne Lizenz) darf nur 1 Personen-Figur gleichzeitig setzen
-    const PERSON_ASSETS = ['skiBlue','skiLeftShoulder','skiRightShoulder','skiPlow','boarder','sled','injured'];
-    function isPersonTpl(tpl) { return tpl && tpl.type === 'sprite' && PERSON_ASSETS.includes(tpl.assetKey); }
-    function personCount() { return activeObjects.filter(o => isPersonTpl(o)).length; }
-    function guestPersonLimitReached() { return !license && personCount() >= 1; }
+    // 2026.09.0001 (ADR-0032): Das Gast-Limit (v110: ohne Lizenz nur 1 Personen-Figur) ist
+    // ersatzlos entfallen — Objekte sind fuer alle unbegrenzt, auch beim Import und ueber die
+    // KI-Bruecke. Bezahlt wird nicht das Zeichnen, sondern der saubere Export ohne Wasserzeichen.
+    // Damit sind PERSON_ASSETS/isPersonTpl/personCount/guestPersonLimitReached entbehrlich.
 
     function renderDock() {
         dockContainer.innerHTML = '<div class="dock-title">' + t('dockTitle') + '</div>';
@@ -1721,13 +1817,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
             } else if (tpl.type === 'rect') {
                 const box = document.createElement('div'); box.className = 'color-box'; box.style.background = tpl.color; el.appendChild(box); 
             }
-            if (isPersonTpl(tpl) && guestPersonLimitReached()) {
-                el.classList.add('locked');
-                el.title = t('dockLock');
-                el.setAttribute('aria-label', t('dockLock'));
-                el.setAttribute('aria-disabled', 'true');
-                el.tabIndex = -1; // 2026.07.0015: gesperrt — aus der Tab-Reihenfolge (kein Klick-Handler)
-            } else {
+            { // 2026.09.0001 (ADR-0032): keine Dock-Sperre mehr — jedes Objekt ist immer verfuegbar
                 el.tabIndex = 0; // 2026.07.0015: Barrierefreiheit — per Tastatur erreichbar
                 // Maus: Drag-and-Drop wie bisher
                 el.addEventListener('mousedown', (e) => handleDockDragStart(e, tpl, index));
@@ -2527,20 +2617,64 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     }
 
     // --- EXPORT FUNCTIONALITY (PNG) ---
+    // 2026.09.0001 (ADR-0032): Export ist fuer alle offen. Ohne Lizenz wird eine Offscreen-Kopie
+    // des Canvas mit "ENTWURF"-Wasserzeichen ausgegeben — das Live-Canvas bleibt unberuehrt.
+    function drawDraftWatermark(c, wDev, hDev) {
+        const dpr = wDev / CW; // Backing-Store ist mit devicePixelRatio skaliert (ADR-0033)
+        c.save();
+        c.scale(dpr, dpr); // ab hier im logischen Koordinatensystem zeichnen
+        // Diagonaler Schriftzug ueber die Mitte
+        c.translate(CW / 2, CH / 2);
+        c.rotate(-Math.atan2(CH, CW));
+        const size = Math.max(48, Math.min(CW, CH) * 0.16);
+        c.font = '700 ' + size + 'px Roboto, Arial, sans-serif';
+        c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.lineWidth = Math.max(2, size * 0.03);
+        c.strokeStyle = 'rgba(255,255,255,0.55)';
+        c.fillStyle = 'rgba(186,26,26,0.28)'; // --md-error, stark transparent
+        const label = t('wmDraft');
+        c.strokeText(label, 0, 0); c.fillText(label, 0, 0);
+        c.restore();
+        // Fusszeilen-Hinweis unten mittig
+        c.save();
+        c.scale(dpr, dpr);
+        c.font = '600 13px Roboto, Arial, sans-serif';
+        c.textAlign = 'center'; c.textBaseline = 'bottom';
+        const note = t('wmNote');
+        const tw = c.measureText(note).width;
+        c.fillStyle = 'rgba(255,255,255,0.82)';
+        c.fillRect(CW / 2 - tw / 2 - 8, CH - 26, tw + 16, 20);
+        c.fillStyle = '#BA1A1A';
+        c.fillText(note, CW / 2, CH - 9);
+        c.restore();
+    }
+    // Liefert das zu exportierende Canvas: bei Berechtigung das Original, sonst eine markierte Kopie.
+    function buildExportCanvas(clean) {
+        if (clean) return canvas;
+        const off = document.createElement('canvas');
+        off.width = canvas.width; off.height = canvas.height;
+        const octx = off.getContext('2d');
+        octx.drawImage(canvas, 0, 0);
+        drawDraftWatermark(octx, off.width, off.height);
+        return off;
+    }
     function exportImage() {
-        if (!requireFeature('export')) return;
+        const draft = !hasFeature('export');
         const num = peekNumber();
         const name = buildFileName('png', num);
-        canvas.toBlob(async function (blob) {
+        buildExportCanvas(!draft).toBlob(async function (blob) {
             if (!blob) return;
             const ok = await saveBlob(blob, name, { description: t('fnPng'), mime: 'image/png', ext: '.png' });
-            if (ok) { commitNumber(num); announce(t('a11ySaved') + ' ' + name); }
+            if (ok) {
+                commitNumber(num); announce(t('a11ySaved') + ' ' + name);
+                if (draft) { ev('export_watermarked'); openUpgradeDialog(); } // ADR-0032: Verkaufsmoment nach dem Entwurf
+            }
         }, 'image/png');
     }
 
     // --- SAVE FUNCTIONALITY (JSON) ---
     async function saveProject() {
-        if (!requireFeature('save')) return;
+        // 2026.09.0001 (ADR-0032): Speichern/Laden ist frei — kein Feature-Gate mehr.
         const now = new Date();
         const state = {
             metadata: {
@@ -2599,15 +2733,9 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         }
         return out;
     }
-    // Gast (ohne Lizenz): hoechstens 1 Personen-Figur — ueberzaehlige verwerfen (v110-Regel, auch beim Import).
-    function enforceGuestPersonLimit(list) {
-        if (license) return list;
-        let persons = 0;
-        return list.filter(o => {
-            if (isPersonTpl(o)) { persons++; return persons <= 1; }
-            return true;
-        });
-    }
+    // 2026.09.0001 (ADR-0032): enforceGuestPersonLimit() ist entfallen — importierte Projekte
+    // werden nicht mehr beschnitten. Ein ohne Lizenz geladenes Projekt bleibt vollstaendig;
+    // beschraenkt ist nur noch der Export (Wasserzeichen), nicht der Inhalt.
 
     function importProject() {
         document.getElementById('fileInput').click();
@@ -2662,7 +2790,6 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     function applyLoadedProject(data) {
         const raw = (data && Array.isArray(data.objects)) ? data.objects.length : 0;
         let objs = sanitizeImportedObjects((data && data.objects) || []);
-        objs = enforceGuestPersonLimit(objs);
         objs.forEach(function (o) { o.id = nextObjId(); });
         activeObjects = objs;
         sceneMeta = sanitizeScene((data && data.scene) || {});
@@ -2688,7 +2815,6 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
                 case 'add_object': {
                     const tpl = aiFindTemplate(args.object);
                     if (!tpl) return { ok: false, error: 'unbekannter Objekttyp: ' + args.object };
-                    if (isPersonTpl(tpl) && guestPersonLimitReached()) return { ok: false, error: 'Gast-Limit: ohne Lizenz nur 1 Personen-Figur' };
                     const obj = createObject(tpl, 0, 0);
                     const w = obj.width, h = obj.height;
                     const cx = _numClamp(args.x, CW / 2, -100000, 100000);
@@ -2811,7 +2937,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
         if (_autosaveTimer) return;
         _autosaveTimer = setTimeout(function () { _autosaveTimer = null; try { localStorage.setItem(LS_AUTOSAVE, JSON.stringify({ o: activeObjects, s: sceneMeta, ts: Date.now() })); } catch (e) {} }, 1200);
     }
-    function markDirty() { _dirty = true; scheduleAutosave(); requestRender(); } // 2026.07.0034: jede persistente Änderung -> neu zeichnen
+    function markDirty() { _dirty = true; scheduleAutosave(); requestRender(); markEngaged(); } // 2026.07.0034: jede persistente Änderung -> neu zeichnen; 2026.09.0001: Nutzungszaehler
     function pushHistory() { undoStack.push(_histSnapshot()); if (undoStack.length > _histMax) undoStack.shift(); redoStack.length = 0; markDirty(); updateUndoRedoButtons(); }
     function armHistory() { if (_pendingHist === null) _pendingHist = _histSnapshot(); }
     function commitHistory() { if (_pendingHist !== null) { if (_pendingHist !== _histSnapshot()) { undoStack.push(_pendingHist); if (undoStack.length > _histMax) undoStack.shift(); redoStack.length = 0; markDirty(); updateUndoRedoButtons(); } _pendingHist = null; } }
@@ -2843,7 +2969,8 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     document.getElementById('importBtn').addEventListener('click', importProject);
     document.getElementById('fileInput').addEventListener('change', handleFileSelect);
 
-    document.getElementById('shareBtn').addEventListener('click', async () => { if (!requireFeature('share')) return; if (navigator.share) { try { const num = peekNumber(); const fname = buildFileName('png', num); const dataUrl = canvas.toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], fname, { type: 'image/png' }); await navigator.share({ title: t('shareTitle'), text: t('shareText'), files: [file] }); commitNumber(num); } catch (err) { console.log('share cancelled', err); } } else { alert(t('shareNotSupported')); } });
+    // 2026.09.0001 (ADR-0032): Teilen ist offen; ohne Lizenz wird die Entwurfs-Fassung geteilt.
+    document.getElementById('shareBtn').addEventListener('click', async () => { const draft = !hasFeature('share'); if (navigator.share) { try { const num = peekNumber(); const fname = buildFileName('png', num); const dataUrl = buildExportCanvas(!draft).toDataURL('image/png'); const blob = await (await fetch(dataUrl)).blob(); const file = new File([blob], fname, { type: 'image/png' }); await navigator.share({ title: t('shareTitle'), text: t('shareText'), files: [file] }); commitNumber(num); if (draft) { ev('export_watermarked'); openUpgradeDialog(); } } catch (err) { console.log('share cancelled', err); } } else { alert(t('shareNotSupported')); } });
 
     function update() {
         if(activeObjects.length === 0 || activePlayerIndex === -1) return;
@@ -2977,6 +3104,7 @@ Server-Code & Lizenzverwaltung: siehe Ordner license-worker/.
     applyTheme(themeMode);
     applyLanguage(lang);
     preloadAssets(startGame);
+    ev('app_start'); // 2026.09.0001 (ADR-0032): anonymer Nutzungszaehler
 </script>
 <script>
     // PWA (ADR-0031): Service Worker registrieren — nur mit Unterstützung und NICHT unter file://

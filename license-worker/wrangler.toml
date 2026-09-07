@@ -7,3 +7,11 @@ account_id = "883b680a948752c5f090389ec87f5c43"
 [[kv_namespaces]]
 binding = "LICENSES"
 id = "6a82821eea0b419aaee67558fb1b1063"
+
+# Nutzungszaehler (ADR-0032): Workers Analytics Engine ist gegenueber KV-Zaehlern
+# vorzuziehen (kein Schreiblimit, keine Wettlaufbedingung). Zum Aktivieren die drei
+# Zeilen einkommentieren — Analytics Engine muss fuer das Konto freigeschaltet sein.
+# Ohne dieses Binding faellt /ev automatisch auf einen Tageszaehler in KV zurueck.
+# [[analytics_engine_datasets]]
+# binding = "EVENTS"
+# dataset = "skisim_events"

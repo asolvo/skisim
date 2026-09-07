@@ -53,10 +53,14 @@ Projekt exportiert.
 
 ## Lizenzmodell
 
-- **Gast (ohne Lizenz):** ausprobieren, max. **eine** Personen-Figur; Speichern,
-  PNG-Export und Teilen sind gesperrt.
-- **Voll-Lizenz:** beliebig viele Figuren/Objekte, Speichern/Laden, Export, Teilen,
-  KI-Fernsteuerung.
+Seit 2026.09.0001 gilt: **das Werkzeug ist frei, bezahlt wird der saubere Output**
+(befristeter Test, [ADR-0032](docs/adr/0032-freemium-test-sauberer-export.md)).
+
+- **Ohne Lizenz:** Zeichnen mit **beliebig vielen** Objekten, Speichern und Laden
+  (JSON) — unbeschränkt. Bild-Export und Teilen sind möglich, tragen aber ein
+  **„ENTWURF"-Wasserzeichen**.
+- **Mit Lizenz:** sauberer PNG-Export ohne Wasserzeichen, Teilen, Copyright-Zeile
+  in der Legende, KI-Fernsteuerung. **10 Exporte 39 €** oder **Jahreslizenz 190 €**.
 
 Lizenzen sind **signierte ES256-Tokens** aus einem Cloudflare Worker (30 Tage
 offline gültig, automatischer Refresh, zentral widerrufbar). Lizenz anfordern:

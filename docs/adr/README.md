@@ -40,9 +40,10 @@ geänderte Entscheidungen erhalten einen neuen ADR, der den alten *ersetzt*.
 | [0029](0029-ki-fernsteuerung-mcp.md) | KI-Fernsteuerung über MCP-Server (Stufe 1, lokal) | Akzeptiert | 2026-07-06 |
 | [0030](0030-datensicherheit-undo-autosave.md) | Datensicherheit — Undo/Redo, Autosave und Verlustschutz | Akzeptiert | 2026-07-06 |
 | [0031](0031-pwa-installierbar-offline.md) | Installierbare PWA + echtes Offline (Font-Inlining, versions-gekoppelter Service Worker) | Akzeptiert | 2026-07-28 |
+| [0032](0032-freemium-test-sauberer-export.md) | Freemium-Test — Werkzeug frei, sauberer Export kostenpflichtig | Akzeptiert (befristet) | 2026-09-07 |
 
 **Status der Umsetzung:** Umgesetzt & live — Cloudflare Worker deployed, 8 Lizenzen
-aktiv, Client aktuell **2026.07.0035** als `index.html` im Repo und via GitHub Pages online
+aktiv, Client aktuell **2026.09.0001** als `index.html` im Repo und via GitHub Pages online
 (https://asolvo.github.io/skisim/). Seit v107: Anzeige des Lizenz-Enddatums (v108),
 Gast-Gating & -Limit (v109/v110), In-App-Editor (v111), Objekt „Bemaßung" (v112),
 Responsive/Touch & Tastatur/A11y (v113–v115), Settings-Popup mit Theme & Sprache
@@ -78,5 +79,7 @@ Release-Skript & Logik-Tests (2026.07.0035, Nachtrag zu ADR-0025), Marquee auch 
 Ein-Finger-Touch bei leerem Startpunkt (2026.07.0036, Nachtrag zu ADR-0028),
 Inhaltsverzeichnis-Kommentar in `index.html` (2026.07.0036, Nachtrag zu ADR-0008),
 installierbare PWA + echtes Offline durch Font-Inlining und versions-gekoppelten
-Service Worker (2026.07.0037, ADR-0031).
+Service Worker (2026.07.0037, ADR-0031), Freemium-Test — Gast-Limit aufgehoben,
+Export/Teilen frei mit „ENTWURF"-Wasserzeichen, anonymer Nutzungszähler
+(2026.09.0001, ADR-0032).
 Produktivauslieferung auf `alpinesicherheit.com` erfolgt später durch den Betreiber.

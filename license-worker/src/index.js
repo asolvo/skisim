@@ -189,6 +189,32 @@ async function handleRefresh(request, env) {
   return tokenResponse(await buildTokenForRecord(rec, env), rec);
 }
 
+// ---------- Nutzungszaehler (ADR-0032) ----------
+// Zaehlt vier anonyme Ereignisse fuer den Freemium-Test. Bewusste Nicht-Ziele:
+// keine Kennungen, keine Cookies, keine IP-Speicherung, kein Inhalt der Skizze.
+// Primaer Workers Analytics Engine (kein Schreiblimit, keine Wettlaufbedingung);
+// ist kein AE-Binding vorhanden, wird auf einen Tageszaehler in KV zurueckgefallen.
+const EV_ALLOWED = new Set(["app_start", "engaged", "export_watermarked", "upgrade_click"]);
+
+async function handleEvent(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return json({ error: "bad_request" }, 400); }
+  const name = body && body.ev ? String(body.ev) : "";
+  if (!EV_ALLOWED.has(name)) return json({ error: "bad_event" }, 400);
+
+  if (env.EVENTS && typeof env.EVENTS.writeDataPoint === "function") {
+    env.EVENTS.writeDataPoint({ blobs: [name], doubles: [1], indexes: [name] });
+  } else if (env.LICENSES) {
+    // Rueckfall: ev:<YYYY-MM-DD>:<name>. Bei Parallelzugriffen leicht untertreibend — fuer
+    // Richtungsaussagen ausreichend, aber AE ist vorzuziehen.
+    const day = new Date().toISOString().slice(0, 10);
+    const k = `ev:${day}:${name}`;
+    const cur = parseInt((await env.LICENSES.get(k)) || "0", 10);
+    await env.LICENSES.put(k, String(cur + 1), { expirationTtl: 400 * 24 * 60 * 60 });
+  }
+  return new Response(null, { status: 204, headers: CORS });
+}
+
 export default {
   async fetch(request, env) {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
@@ -196,6 +222,7 @@ export default {
     const path = new URL(request.url).pathname;
     if (request.method === "POST" && path === "/activate") return handleActivate(request, env);
     if (request.method === "POST" && path === "/refresh") return handleRefresh(request, env);
+    if (request.method === "POST" && path === "/ev") return handleEvent(request, env);
     if (path === "/" || path === "/health") return json({ ok: true, service: "skisim-license" });
 
     return json({ error: "not_found" }, 404);

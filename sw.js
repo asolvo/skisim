@@ -1,7 +1,7 @@
 // Skisim Service Worker (ADR-0031) — installierbare PWA + Offline.
 // CACHE ist an die App-Version gekoppelt; tools/release.js zieht die Version bei
 // jedem Release mit, damit Clients nach einem Deploy zuverlässig aktualisieren.
-const CACHE = 'skisim-2026.07.0037';
+const CACHE = 'skisim-2026.09.0001';
 
 // App-Shell (same-origin). Schriften stecken inline in index.html -> kein Font-Caching nötig.
 const SHELL = [
